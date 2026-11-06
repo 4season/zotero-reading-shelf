@@ -1,0 +1,385 @@
+/* SPDX-License-Identifier: AGPL-3.0-only */
+#zotero-items-pane.sl-show {
+  position: relative;
+}
+#zotero-items-pane.sl-show > :not(.sl-gallery) {
+  visibility: hidden;
+}
+.sl-toggle, .sl-edit, .sl-order, .sl-sort {
+  font: inherit;
+  color: inherit;
+  border: 1px solid var(--fill-quaternary, GrayText);
+  border-radius: 5px;
+  background: var(--fill-quinary, ButtonFace);
+  cursor: pointer;
+}
+.sl-toggle {
+  min-width: 58px;
+  padding: 3px 8px;
+  margin-inline: 5px;
+}
+.sl-toggle[aria-pressed="true"] {
+  background: var(--accent-blue, #7352cf);
+  color: white;
+}
+.sl-toggle:disabled {
+  cursor: default;
+  opacity: .5;
+}
+.sl-gallery {
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  background: var(--material-background, Canvas);
+  color: var(--fill-primary, CanvasText);
+  padding: 22px;
+}
+.sl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sl-header h1 {
+  margin: 0;
+  font-size: 1.8em;
+}
+.sl-edit {
+  padding: 4px 8px;
+}
+.sl-description {
+  margin: 9px 0 0;
+}
+.sl-description-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 4px 0;
+  cursor: text;
+}
+.sl-description-rich {
+  white-space: normal;
+}
+.sl-description-rich > :first-child {
+  margin-block-start: 0;
+}
+.sl-description-rich > :last-child {
+  margin-block-end: 0;
+}
+.sl-description-rich :is(p, ul, ol, blockquote, pre, table, .sl-math-block) {
+  margin-block: .5em;
+}
+.sl-description-rich :is(h1, h2, h3, h4, h5, h6) {
+  margin-block: .7em .35em;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.sl-description-rich h1 {
+  font-size: 1.48em;
+}
+.sl-description-rich h2 {
+  font-size: 1.28em;
+}
+.sl-description-rich h3 {
+  font-size: 1.12em;
+}
+.sl-description-rich :is(h4, h5, h6) {
+  font-size: 1em;
+}
+.sl-description-rich :is(ul, ol) {
+  padding-inline-start: 1.6em;
+}
+.sl-description-rich ul {
+  list-style-type: disc;
+}
+.sl-description-rich ol {
+  list-style-type: decimal;
+}
+.sl-description-rich blockquote {
+  margin-inline: 0;
+  padding-inline-start: .85em;
+  border-inline-start: 3px solid var(--fill-quaternary, GrayText);
+}
+.sl-description-rich pre,
+.sl-description-rich table {
+  overflow-x: auto;
+}
+.sl-description-rich table {
+  display: block;
+  border-collapse: collapse;
+}
+.sl-description-rich :is(th, td) {
+  padding: .3em .6em;
+  border: 1px solid var(--fill-quaternary, GrayText);
+}
+.sl-description-rich math:not([display="block"]) {
+  display: inline;
+  vertical-align: baseline;
+}
+.sl-math-block math[display="block"] {
+  text-align: start;
+}
+.sl-description-input {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+  padding: 6px 8px;
+  color: inherit;
+  background: var(--material-background, Canvas);
+  border: 1px solid var(--accent-blue, Highlight);
+  border-radius: 5px;
+}
+.sl-description-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 5px;
+}
+.sl-gallery-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+}
+.sl-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.sl-size input {
+  width: 104px;
+}
+.sl-size-value {
+  min-width: 5ch;
+  font-variant-numeric: tabular-nums;
+}
+.sl-sort {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 56px;
+  height: 23px;
+  padding-inline: 6px;
+  white-space: nowrap;
+}
+.sl-sort:focus-within {
+  outline: 2px solid var(--accent-blue, Highlight);
+  outline-offset: 2px;
+}
+.sl-sort select {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.sl-section {
+  position: relative;
+  margin-top: 21px;
+  padding-bottom: 15px;
+}
+.sl-section + .sl-section {
+  border-top: 1px solid var(--fill-quinary, GrayText);
+}
+.sl-section h2 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--fill-secondary, GrayText);
+  margin: 12px 0;
+}
+.sl-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sl-card-gap);
+}
+.sl-drop-line {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 3px;
+  background: var(--accent-blue, Highlight);
+}
+.sl-drop-remove {
+  outline: 2px solid var(--accent-blue, Highlight);
+  outline-offset: 5px;
+  border-radius: 4px;
+}
+.sl-card.sl-dragging {
+  opacity: .45;
+}
+.sl-muted {
+  margin: 0;
+  color: var(--fill-secondary, GrayText);
+}
+.sl-grid > .sl-muted {
+  flex: 0 0 100%;
+}
+.sl-card {
+  flex: 0 0 var(--sl-column-width, min(100%, var(--sl-card-width, 176px)));
+  position: relative;
+  min-width: 0;
+  font-size: calc(1em * var(--sl-card-scale, 1));
+  content-visibility: auto;
+  contain-intrinsic-height: auto 20em;
+  border-radius: 5px;
+}
+.sl-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border: 3px solid light-dark(#245dce, #6396ff);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+.sl-card.sl-selected .sl-preview::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl-preview::after {
+    transition: none;
+  }
+}
+.sl-preview {
+  position: relative;
+  aspect-ratio: var(--sl-cover-ratio, 3 / 4);
+  border-radius: 4px;
+  background: var(--fill-quinary, ButtonFace);
+}
+.sl-preview:has(img.sl-loaded) {
+  background: transparent;
+}
+.sl-gallery button.sl-cover {
+  appearance: none;
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: transparent;
+  color: var(--fill-secondary, GrayText);
+  cursor: pointer;
+}
+.sl-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.sl-cover:has(img.sl-loaded) .sl-placeholder {
+  visibility: hidden;
+}
+.sl-placeholder {
+  font-weight: 600;
+}
+.sl-order {
+  position: absolute;
+  top: .38em;
+  right: .38em;
+  width: 1.55em;
+  height: 1.55em;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  font-size: 1.3em;
+  background: var(--material-background, Canvas);
+}
+.sl-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  margin-top: .38em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.sl-author {
+  color: var(--fill-secondary, GrayText);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sl-progress {
+  min-height: 1.1em;
+  display: flex;
+  align-items: center;
+  gap: .46em;
+  color: var(--fill-secondary, GrayText);
+}
+.sl-progress progress {
+  flex: 1;
+  width: 0;
+  height: .38em;
+  accent-color: #8864e7;
+}
+.sl-child-card {
+  box-sizing: border-box;
+  flex-basis: min(100%, max(96px, calc(var(--sl-column-width, var(--sl-card-width, 176px)) * .74)));
+  padding: .5em;
+  border-radius: 6px;
+  background: var(--fill-quinary, ButtonFace);
+}
+.sl-child-label {
+  margin-block-end: .45em;
+  color: var(--fill-secondary, GrayText);
+  font-size: .85em;
+  font-weight: 600;
+}
+.sl-note-card .sl-preview {
+  aspect-ratio: auto;
+  height: 4.5em;
+}
+.sl-child-card.sl-note-card {
+  flex-basis: min(100%, max(96px, calc(var(--sl-column-width, var(--sl-card-width, 176px)) * .64)));
+}
+.sl-cover[aria-expanded]::after {
+  content: "▸";
+  position: absolute;
+  bottom: .35em;
+  inset-inline-start: .35em;
+  display: grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.4em;
+  border-radius: 3px;
+  background: var(--material-background, Canvas);
+  color: var(--fill-primary, CanvasText);
+  pointer-events: none;
+}
+.sl-cover[aria-expanded="true"]::after {
+  content: "▾";
+}
+.sl-child-card.sl-child-exit {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.sl-hide-card-buttons .sl-order,
+.sl-hide-card-buttons .sl-cover[aria-expanded]::after,
+.sl-hide-size .sl-size,
+.sl-hide-sort .sl-sort,
+.sl-hide-size.sl-hide-sort .sl-gallery-controls {
+  display: none;
+}
