@@ -11,3 +11,5 @@ First public preview of Reading Shelf, previously developed as Syllabus Lite. Re
 **Installation** · Download `zotero-reading-shelf-1.1.0.xpi`, then select it in **Zotero → Tools → Plugins → ⚙ → Install Plugin From File…**. The XPI retains the earlier Syllabus Lite add-on ID so an update can use existing local preferences.
 
 **Compatibility** · The manifest targets Zotero 10.x. Development used Zotero 10.0.7 on macOS. The portable gallery tests and synthetic PDF integration test pass. Linux and Windows have not been tested interactively.
+
+**Source and license** · The matching source ZIP includes build instructions, AGPL-3.0 licensing and upstream credits, and the source archives and license notices for the bundled dependencies.
