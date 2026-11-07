@@ -211,8 +211,8 @@ function onMainWindowLoad({ window }) {
   if (windows.has(window)) return;
   const view = new Gallery(window);
   if (view.mount()) windows.set(window, view);
-  const reader = Zotero.Reader.getByTabID(window.Zotero_Tabs?.selectedID);
-  if (reader) markReading(Zotero.Items.get(reader.itemID));
+  // Reconcile readers already open before this plugin update, including background tabs/windows.
+  for (const reader of Zotero.Reader._readers || []) markReading(Zotero.Items.get(reader.itemID));
 }
 
 function onMainWindowUnload({ window }) {
