@@ -1,88 +1,98 @@
-# Reading Shelf
+# Zotero Reading Shelf
 
-Reading Shelf is an independent third-party plugin compatible with Zotero. It adds a gallery for Zotero collections. Browse covers, put papers and books in reading order, and open their notes and attachments from the gallery.
+A local bookshelf and Eisenhower reading planner for Zotero collections. Browse attachment previews, arrange reading order, keep Markdown/LaTeX collection notes and change reading status without leaving the library.
 
-## Install
+Zotero 컬렉션을 위한 일반 서재·아이젠하워 읽기 도구입니다. 첨부파일 프리뷰를 보며 읽기 순서를 정하고, Markdown·LaTeX 메모와 읽기 상태를 함께 관리합니다.
 
-1. Download `zotero-reading-shelf-1.2.0-beta.6.xpi` from the GitHub release.
-2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
-3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
+## Install / 설치
 
-The manifest targets Zotero 10.x. Development and interactive feedback used Zotero 10.0.7 on macOS. Other operating systems have yet to be tested. Quick Look and the optional Poppler fallback are macOS-specific. Updates are installed manually.
+Download `zotero-reading-shelf-1.2.0.xpi` from [Releases](https://github.com/4season/zotero-reading-shelf/releases/tag/v1.2.0). In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…**. Select a collection and click **Gallery**. Click **Table** to return to the native table. Updates are manual.
 
-If you already use the earlier Syllabus Lite build, install over it. Reading Shelf keeps the same plugin ID and preferences. If you use the original Zotero Syllabus, switch off its gallery before opening Reading Shelf to avoid overlapping gallery controls.
+릴리즈의 XPI를 **도구 → 플러그인 → ⚙ → 파일에서 플러그인 설치**로 설치합니다. 컬렉션을 선택하고 **갤러리**를 누르면 서재가 열리며 **테이블**로 원래 목록에 돌아갑니다. 업데이트는 수동 설치 방식입니다.
 
-## Use the gallery
+Targets Zotero 10.x; existing Syllabus Lite/Reading Shelf preferences retain the same add-on ID. Switch off other gallery plugins when their controls overlap.
 
-- Drag cards into **Reading order**, or use the card's **+** button. Drag between cards to reorder them.
-- Click a card to select it and show any additional child notes or attachments. Double-click to open a file or note. Right-click an item for Zotero's item menu.
-- Resize cards with **Card size**. Use **Sort** to sort unordered items without changing the custom reading order.
-- Double-click the collection description to edit Markdown or add LaTeX. Use `$…$` within a sentence and put `$$…$$` on a separate line for an equation.
-- On macOS, choose **Zotero → Settings → Reading Shelf** to hide card buttons, the size slider, or the sort menu.
+Zotero 10.x 대상이며 기존 Syllabus Lite/Reading Shelf 설정은 같은 플러그인 ID로 유지됩니다. 다른 갤러리 플러그인과 화면이 겹치면 한쪽 갤러리를 끄세요.
 
-## Reading status and illustrated guide
+## Features / 주요 기능
 
-![Gallery and related note guide](docs/images/gallery-guide.svg)
+### Bookshelf, status and reading order / 일반 서재·상태·읽기 순서
 
-The **Gallery / Table** toggle sits immediately to the right of quick search and uses a compact toolbar size. Notes show a text excerpt in a readable note card. Dragging the first item into an empty **Reading order** reserves a card-sized space before you drop it.
+![Bookshelf with reading order, status and Markdown/LaTeX notes](docs/images/bookshelf-en.jpg)
 
-Set **읽을 예정** (to read) or **읽는 중** (reading) using the status selector, or right-click one or more items and choose **Reading Shelf → Reading status**. Importance (★) and urgency (clock) are separate switches. Clearing the reading status keeps those switches unchanged. The beta.1 combined “important” status is preserved as importance when migrated.
+The bookshelf groups queued or actively reading references above unordered items. Drag cards to reorder, or use the optional +/− buttons. Clearing reading status removes the reference from saved reading queues while retaining importance and urgency. Table status labels use native menus; star and pie/clock controls toggle importance and urgency independently. Clicking outside a status control releases its focus.
 
-![Table status guide](docs/images/status-guide.svg)
+일반 서재는 읽기 목록과 미분류 자료를 나눕니다. 드래그나 선택적으로 표시하는 +/− 버튼으로 순서를 정합니다. 읽기 상태를 해제하면 저장된 읽기 목록에서도 빠지며 중요도·긴급도는 유지합니다. 테이블에서도 상태 목록과 별·파이/시계 버튼을 사용할 수 있습니다. 상태는 **상태 없음 / 읽을 예정 / 읽는 중**, 별은 **중요도**, 파이/시계는 **긴급도**입니다.
 
-The star means **importance** and the pie/clock means **urgency**; these are independent of the reading-status dropdown. Enabled buttons have a filled symbol, colored background and border.
+Double-click a collection note to edit Markdown and LaTeX. Use `$…$` or `\(…\)` inline, and separate `$$…$$` or `\[…\]` blocks for equations. Save with Ctrl/Cmd+Enter; cancel with Escape. Long notes and the editor grow with content. Very large sources above 100,000 characters display as plain text while preserving the original source.
 
-The table's **Reading Shelf** column shares reading status, importance and urgency with the gallery. Click the status label to choose a status, or click the star/clock to toggle importance/urgency. Empty status labels stay hidden until row hover or keyboard focus, following the Hide empty status preference. Enable it through the table header's column picker if necessary. The **Info** pane includes a read-only Reading Shelf workflow row for bibliographic items. Attached files share their parent reference's status. Native reader opening and tab selection mark the reference as reading, including opening from the table. External applications opened outside Zotero's reader cannot be observed reliably.
+컬렉션 메모를 더블클릭해 Markdown·LaTeX를 편집합니다. `$…$`, `\(…\)`는 인라인 수식, 별도 줄의 `$$…$$`, `\[…\]`는 독립 수식입니다. Ctrl/Cmd+Enter로 저장하고 Escape로 취소합니다. 긴 메모와 입력창은 내용에 맞춰 커지며, 100,000자 초과 원문은 처리 비용을 줄이기 위해 일반 텍스트로 표시합니다.
 
-Status, importance and urgency are local to this Zotero profile and shared across collections for the same reference. No tags, Extra fields or bibliographic metadata are changed. An item in an existing local reading order defaults to “to read” until explicitly changed. Queue membership alone is not a measurement of reading completion.
+### Eisenhower planner / 아이젠하워 분류
 
-In **Settings → Reading Shelf**:
+![Korean Eisenhower planner with lane labels above the boxes](docs/images/matrix-ko.jpg)
 
-- Choose **한국어 / English** for the plugin interface.
-- Hide empty statuses by default; hovering or keyboard focus reveals the selector. Existing status badges stay visible.
-- Hide reading-order **+ / −**, child indicators, the size slider and Sort independently.
-- Choose preview-only shadow strength (**Off / Soft / Medium / Strong**). Dark-mode shadows are off by default and have a separate opt-in.
-- Disable colored matrix borders without losing the saved colors.
-- Pick individual border colors for the urgent, important and queue **regions**. Colors apply immediately.
-- Enable the **Eisenhower 1 × 2 mode**: urgent and important references on the left, important but less urgent references on the right; a full-width second row holds queued references without importance, and other items remain below. Use star/clock switches or drag into a lane to classify. Dragging into a lane also adds the item to the reading queue. Removing queue membership does not clear importance.
+Put urgent/important and important/not-urgent references in two top lanes, with a full-width reading queue below. Labels sit above the boxes; horizontal and vertical gaps match. Use the gallery's mode switch to return to a normal bookshelf. Enable **Remember mode per collection** to keep separate modes; otherwise the global mode applies.
 
-These illustrations are diagrams using synthetic examples, not captured Zotero screenshots. `docs/demo.html` is a browser fixture, not the installed Zotero interface.
+위쪽 두 영역에서 긴급하고 중요한 자료와 중요하지만 덜 급한 자료를 나누고, 아래에는 읽기 대기열을 둡니다. 제목은 박스 위에 표시되며 가로·세로 간격을 통일했습니다. 화면의 모드 버튼으로 일반 서재로 전환하고, **컬렉션별 모드 기억**을 켜면 각 컬렉션의 선택을 따로 보존합니다.
 
-## Platform and performance boundaries
+**Screenshot scope:** these are browser screenshots of the production gallery code with synthetic references, not screenshots of an installed Zotero library. No personal library or paper files are included.
 
-PDF.js, EPUB covers and local image previews use Zotero/Gecko APIs on all targeted desktop platforms. Quick Look and fixed Homebrew/MacPorts Poppler paths are guarded by `Zotero.isMac`; those optional fallbacks are not invoked on Windows or Linux. Unsupported documents may therefore have different preview availability on different systems. No external tools are installed by the plugin.
+**사진 범위:** 실제 갤러리 코드와 가상 자료를 사용한 브라우저 스크린샷입니다. 설치된 Zotero 라이브러리 자체를 촬영한 화면은 아니며 개인 자료는 포함하지 않았습니다.
 
-Animation measurements are batched before animation writes, thumbnail work remains bounded and cancellable, and the small light-mode shadow is static. Reduced-motion preferences are respected. Automated fixtures pass on macOS; a browser fixture additionally checks empty-lane sizing, localized status widths and long memo growth. Native Zotero interaction and Windows/Linux execution still need testing. No total-RAM or frame-time benchmark is claimed.
+### Reader and appearance options / 읽기·디자인 옵션
 
-## Storage and previews
+- Native Zotero reader opening marks the reference as Reading. Optionally clear that status when its last tracked reader tab closes; keep importance and urgency. The option is off by default. External applications are not tracked.
+- Optionally remember bookshelf/Eisenhower mode per collection. This is off by default; disabling it retains stored per-collection choices for later reuse.
+- Resize cards, sort unordered items and hide optional controls. Empty status labels remain hidden until hover or keyboard access.
+- Choose preview-only shadow strength; dark-mode shadows are opt-in. Set lane border colors or turn borders off. Dependent settings disable without clearing saved values.
+- Click cards to select; open related child notes/attachments and use Zotero's native context menu. Double-click to open a reference's attachment or note.
 
-Reading order and collection descriptions are stored in local Zotero preferences. For a collection without local Reading Shelf data, the plugin can read the original Syllabus personal reading order note as a starting point. Subsequent edits are stored in Reading Shelf's preferences and are local to the profile.
+- Zotero 내장 리더로 열면 읽는 중으로 표시합니다. **마지막 자료 탭 종료 시 상태 해제**를 선택할 수 있으며 중요도·긴급도는 바꾸지 않습니다. 기본값은 꺼짐이고 외부 앱은 추적하지 않습니다.
+- **컬렉션별 아이젠하워/일반 서재 모드 기억**은 기본적으로 꺼져 있습니다. 꺼도 기존 개별 저장값은 지우지 않습니다.
+- 카드 크기·정렬·선택적 버튼 표시와 빈 상태 숨기기를 조절합니다.
+- 그림자는 프리뷰에만 적용하며 강도·다크 모드 사용을 선택합니다. 행렬 테두리 색상을 바꾸거나 끌 수 있습니다. 하위 설정은 부모 옵션에 따라 비활성화되며 값은 보존됩니다.
+- 관련 노트·첨부파일과 Zotero 기본 우클릭 메뉴를 지원하며 더블클릭으로 엽니다.
 
-Collection descriptions grow with their content. Double-click the description or press Enter while it is focused to edit; the editor grows as you type. Descriptions above 100,000 characters display as plain text to avoid expensive Markdown rendering; the complete source remains editable and saved.
+## Storage and platform coverage / 저장·호환성
 
-The gallery generates thumbnails for local attachments near the viewport and stores them in the `syllabus-lite-thumbnails` subfolder of the Zotero data directory. The preview pipeline uses Zotero's bundled PDF.js, embedded EPUB covers, local images, and optional local preview tools on macOS. Missing, encrypted, and unsupported attachments may show placeholders. The plugin uses local files for preview generation.
+Reading order, collection notes, modes and workflow state are local Zotero preferences; they are not synced by this plugin. Thumbnail cache files are stored under `syllabus-lite-thumbnails` in the Zotero data directory. The plugin does not upload reference files.
 
-## Build and test
+읽기 순서·컬렉션 메모·모드·상태는 로컬 Zotero 설정에 저장되며 플러그인 자체가 동기화하지 않습니다. 프리뷰 캐시는 Zotero 데이터 폴더의 `syllabus-lite-thumbnails`에 저장합니다. 자료 파일을 외부로 업로드하지 않습니다.
 
-Python 3 and Node.js are required for these commands. The build uses vendored browser libraries and Python's standard library.
+Portable tests and XPI builds passed on **Windows, macOS and Linux** in [GitHub Actions](https://github.com/4season/zotero-reading-shelf/actions). macOS also passed tests with Zotero 10.0.7's PDF.js. Browser checks cover multiline XML-host notes, Markdown/MathML, layout and status interactions. These tests do **not** launch the installed Zotero UI on all three systems. Windows/Linux native UI, RAM and frame-time measurements remain unverified. This release is published with that coverage boundary explicitly disclosed.
 
-```sh
-python3 scripts/build.py
-python3 scripts/test.py
-```
+**Windows·macOS·Linux 자동 테스트 및 XPI 빌드**를 통과했습니다. macOS에서는 Zotero 10.0.7 PDF.js도 검증했습니다. 브라우저에서 여러 줄 메모·Markdown·MathML·레이아웃·상태 조작을 확인했지만, 세 운영체제의 **설치된 Zotero UI**를 모두 실행한 검증은 아닙니다. Windows/Linux 실제 UI, RAM·프레임 시간은 미검증이며 이 범위를 명시해 정식 공개합니다.
 
-The build writes the XPI and its SHA-256 checksum to `dist/`. To test bounded PDF reads and cancellation with Zotero's own PDF.js and a synthetic PDF fixture on macOS, run the optional integration test.
+PDF.js, EPUB and image previews use host APIs. Quick Look and optional Homebrew/MacPorts Poppler fallbacks are guarded by `Zotero.isMac`; Windows/Linux do not invoke those paths. Preview availability can differ for unsupported/encrypted documents. No external preview software is installed automatically.
+
+## Build and test / 빌드·검증
+
+Python 3 and Node.js are needed. Runtime libraries are vendored; the plugin adds no npm runtime dependency or polling service.
 
 ```sh
-python3 scripts/test.py --zotero-omni /Applications/Zotero.app/Contents/Resources/app/omni.ja
+python scripts/test.py
+python scripts/build.py
 ```
 
-The automated tests exercise gallery logic and PDF handling. They do not launch the Zotero interface or measure its total memory use.
+Build outputs go to `dist/`. Optional installed-Zotero PDF test on macOS:
 
-## License and credits
+```sh
+python scripts/test.py --zotero-omni /Applications/Zotero.app/Contents/Resources/app/omni.ja
+```
 
-This project is distributed under [AGPL-3.0](LICENSE). See [NOTICE.md](NOTICE.md) for Zotero Syllabus attribution and bundled library notices.
+For a browser regression fixture, run `python -m http.server 8767` and open `http://127.0.0.1:8767/tests/layout.html`. For the feature screens, open `docs/demo.html?lang=ko&mode=matrix` or `docs/demo.html?lang=en&mode=shelf` through the same server.
 
-### Browser layout regression fixture
+## Licenses and reference plugins / 라이선스·참고 플러그인
 
-Run `python3 -m http.server 8767` in the source folder and open `http://127.0.0.1:8767/tests/layout.html`. The fixture uses the production Markdown renderer and stylesheet, reproduces the old XML insertion error, checks a 50-line description after import, and checks transparent focused status controls, fixed table slots and matrix spacing. It uses synthetic items and does not access a Zotero library. Settings dependencies disable subordinate controls without clearing their saved values.
+Reading Shelf is **AGPL-3.0-only**. Full license text, attribution, modification notices, dependency notices and matching source accompany the XPI. The major reference plugins are explicitly:
+
+| Project / 프로젝트 | License / 라이선스 | Relationship / 참고 범위 |
+| --- | --- | --- |
+| [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus) — Jan Baykara and contributors | [AGPLv3](https://github.com/janbaykara/zotero-syllabus/blob/main/LICENSE) | Gallery implementation lineage and personal reading-order note format / 갤러리 기반 구현과 읽기 순서 노트 형식 |
+| [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary) — Guillaume Chapron | [AGPLv3](https://github.com/gchapron/ZoteroThumbLibrary/blob/main/LICENSE) | Cover browsing, card size and gallery usability reference / 표지 탐색·카드 크기·갤러리 사용성 참고 |
+| [Zotero](https://github.com/zotero/zotero) — host application | [AGPLv3](https://github.com/zotero/zotero/blob/main/COPYING) | Host APIs and PDF.js supplied by Zotero / 실행 호스트 API와 PDF.js 사용 |
+
+The two major reference plugins and Zotero's original license files were checked on 2026-11-07. Bundled markdown-it, KaTeX and their dependency notices remain MIT. `vendor/upstream/` contains matching dependency source archives, not user data or temporary files. See [NOTICE.md](NOTICE.md) for exact license blob identifiers and full provenance. Zotero is a registered trademark of the Corporation for Digital Scholarship; this is an independent third-party plugin with its own icon.
+
+주요 참고 플러그인은 **실라버스와 ZoteroThumbLibrary**입니다. 2026-11-07에 두 플러그인의 LICENSE와 Zotero의 COPYING 원문을 확인했습니다. MIT 라이브러리 고지를 보존했으며 `vendor/upstream/`은 대응 의존성 소스이므로 유지합니다. 자세한 원본 식별자와 출처는 [NOTICE.md](NOTICE.md)에 기록했습니다.

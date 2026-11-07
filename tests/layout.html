@@ -8,9 +8,10 @@
 window.prefs=new Map();window.Zotero={Prefs:{get:k=>prefs.get(k),set:(k,v)=>prefs.set(k,v)},logError:e=>{throw e;}};window.ZoteroPane={itemsView:{}};
 </script>
 <script src="../vendor/markdown-it.min.js"></script>
+<script src="../vendor/katex.min.js"></script>
 <script src="../description.js"></script>
 <script src="../bootstrap.js"></script>
-<script>window.renderDescriptionMarkup=createDescriptionRenderer(markdownit,()=>null);</script>
+<script>window.renderDescriptionMarkup=createDescriptionRenderer(markdownit,()=>katex);</script>
 <script>
   window.view=new Gallery(window); view.collection={id:1}; view.visibility={observe(){}};
   view.gallery=document.createElement('div');view.gallery.className='sl-gallery';view.gallery.style.setProperty('--sl-card-width','176px');view.gallery.style.setProperty('--sl-card-gap','17px');document.querySelector('#fixture').append(view.gallery);
@@ -26,6 +27,7 @@ window.prefs=new Map();window.Zotero={Prefs:{get:k=>prefs.get(k),set:(k,v)=>pref
     c.preview.style.background='white';c.placeholder.textContent='PDF'; full.grid.append(c.node);
   }
   const q=view.section('Reading queue',true,'Drag papers here or use + on a card.');q.section.classList.add('sl-lane-queue');matrix.append(q.section);
+  for (const group of [empty,full,q]) {const body=view.element('div','sl-lane-body');body.append(group.grid);group.section.append(body);}
 const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
 (async()=>{try{
  for(const language of ['ko','en'])for(const scale of [.65,1,1.5]){
@@ -39,7 +41,7 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
  view.descriptionDraft.editor.value='긴 편집 메모\n'.repeat(100);view.descriptionDraft.editor.dispatchEvent(new Event('input'));await new Promise(requestAnimationFrame);assert(view.descriptionDraft.editor.scrollHeight<=view.descriptionDraft.editor.clientHeight+2,'editor growth');
  view.descriptionDraft=null;view.renderDescription('메모를 더블클릭하면 수정할 수 있습니다.');
  prefs.set('extensions.syllabus-lite.language','ko');view.gallery.style.setProperty('--sl-card-scale',1);view.gallery.style.setProperty('--sl-card-width','176px');for(const c of view.cards.values())view.refreshStatus(c);
- 
+
  const xml=new DOMParser().parseFromString('<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"/>','application/xml');
  const xmlView=new Gallery({document:xml,DOMParser,requestAnimationFrame,ZoteroPane:{}});xmlView.collection={id:1};xmlView.description=xml.createElementNS('http://www.w3.org/1999/xhtml','div');
  const raw='### Mountsort5 기반 연구\n'+'.\n'.repeat(50);
@@ -49,6 +51,16 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
  xmlView.renderDescription(raw);
  assert(xmlView.description.textContent.includes('Mountsort5'),'XML memo heading retained');
  assert(xmlView.description.querySelectorAll('br').length>=40,'XML memo line breaks retained');
+ const mathSource='# Markdown and LaTeX\n\n**Bold** and *italic*, [source](https://example.org).\n\n- First\n- Second\n\nInline $x_i^2$ and \\(V_m(t)\\).\n\n$$\n\\frac{1}{2}\n$$';
+ xmlView.renderDescription(mathSource);
+ assert(xmlView.description.querySelector('h1'),'Markdown heading imported');
+ assert(xmlView.description.querySelector('strong') && xmlView.description.querySelector('em'),'Markdown emphasis');
+ assert(xmlView.description.querySelectorAll('li').length===2,'Markdown list');
+ assert(xmlView.description.querySelector('a').getAttribute('href')==='https://example.org','safe link');
+ assert(xmlView.description.querySelectorAll('math').length===3,'inline and block LaTeX');
+ assert(xmlView.description.querySelector('math').namespaceURI==='http://www.w3.org/1998/Math/MathML','MathML namespace');
+ assert(xmlView.description.querySelector('mfrac'),'display fraction');
+
  const c=[...view.cards.values()][0];c.cover.focus();
  assert(getComputedStyle(c.statusControl).opacity==='0','focused native picker stays transparent');
  assert(!c.cover.hasAttribute('title'),'no long cover tooltip');
@@ -58,6 +70,6 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
  await new Promise(requestAnimationFrame);
  const x=star.getBoundingClientRect().x;picker.face.textContent='Reading';picker.wrapper.dataset.empty='false';star.setAttribute('aria-pressed','true');star.textContent='★';
  slots.dataset.before=String(x);slots.dataset.after=String(star.getBoundingClientRect().x);assert(Math.abs(star.getBoundingClientRect().x-x)<.1,'stable table slots '+x+' -> '+star.getBoundingClientRect().x);
- document.querySelector('#report').textContent='PASS · XML failure reproduced/fixed · 50-line memo · transparent picker · fixed table slots · 12px gap';
+ document.querySelector('#report').textContent='PASS · XML failure reproduced/fixed · 50-line memo + Markdown/LaTeX · transparent picker · fixed table slots · 12px gap';
  }catch(e){document.querySelector('#report').textContent='FAIL · '+e.message;console.error(e);}})();
 </script>
