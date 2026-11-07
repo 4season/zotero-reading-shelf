@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.2.4"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.0"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,13 +15,13 @@ Reading Shelf는 Zotero 컬렉션을 서재처럼 보여 주는 플러그인입�
 
 ## 설치
 
-1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.2.4.xpi`를 내려받습니다.
+1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.0.xpi`를 내려받습니다.
 2. Zotero에서 **도구 → 플러그인 → ⚙ → 파일에서 플러그인 설치…**를 선택하고 받은 파일을 고릅니다.
 3. 컬렉션을 선택하고 **갤러리**를 누르면 서재가 열립니다. **테이블**을 누르면 원래 목록으로 돌아갑니다.
 
 Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩니다.
 
-**업데이트:** 1.2.1부터는 Zotero의 플러그인 자동 업데이트가 켜져 있으면 새 버전을 자동으로 받습니다. 1.2.0 이하를 쓰고 있다면 1.2.1을 한 번만 직접 설치하세요. 그 뒤에는 자동으로 업데이트됩니다.
+**업데이트:** Zotero의 플러그인 자동 업데이트가 켜져 있으면 새 버전을 자동으로 받습니다. **1.2.x에서 오셨나요?** 1.3.0은 플러그인 ID가 바뀌어 자동 업데이트로 안내되지 않습니다. **도구 → 플러그인**에서 기존 Reading Shelf를 제거한 뒤 위 방법으로 1.3.0을 설치하세요. 설정·읽기 상태·읽기 순서·메모는 그대로 이어집니다.
 
 **언어:** 기본 언어는 한국어입니다. 영어로 바꾸려면 Zotero 설정에서 **Reading Shelf**를 열고 **Language**를 English로 선택하세요.
 

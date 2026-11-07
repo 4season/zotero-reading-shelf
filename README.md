@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.2.4"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.0"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,13 +15,13 @@ Reading Shelf turns a Zotero collection into a bookshelf. See each paper's previ
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.2.4.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
+1. Download `zotero-reading-shelf-1.3.0.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
 2. In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…** and select the file.
 3. Select a collection and click **Gallery**. Click **Table** to go back to the normal list.
 
 Requires Zotero 10.x. Your settings from earlier versions are kept.
 
-**Updating:** From 1.2.1 on, Zotero can update the plugin automatically if automatic plugin updates are turned on. If you use 1.2.0 or earlier, install 1.2.1 manually once; updates are automatic after that.
+**Updating:** Zotero can update the plugin automatically if automatic plugin updates are turned on. **Coming from 1.2.x?** Version 1.3.0 has a new add-on ID, so it is not offered as an automatic update. Remove the old Reading Shelf in **Tools → Plugins**, then install 1.3.0 as above. Your settings, statuses, reading order and notes are carried over.
 
 **Language:** The plugin starts in Korean. To switch to English, open Zotero's settings, choose **Reading Shelf**, and set **Language** to English.
 
