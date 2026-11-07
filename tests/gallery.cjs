@@ -575,7 +575,7 @@ const attachment = (type, available) => ({
     const realItems = ctx.Zotero.Items, realTree = view.pane.itemsView;
     ctx.Zotero.Items = { get: id => id === 61 ? { id: 61, parentItemID: 6 } : { id, parentItemID: 0 } };
     view.pane.itemsView = {
-      rowProvider: { expandRows: i => { expanded.push(...i); i.forEach(x => open.add(x)); }, collapseRows: i => { collapsed.push(...i); i.forEach(x => open.delete(x)); } },
+      rowProvider: { rowCount: 3, getLevel: () => 0, isContainerOpen: i => open.has(i), getRow: i => ({ ref: { id: 5 + i } }), expandRows: i => { expanded.push(...i); i.forEach(x => open.add(x)); }, collapseRows: i => { collapsed.push(...i); i.forEach(x => open.delete(x)); } },
       getRowIndexByID: id => id in rows ? rows[id] : false,
       isContainerOpen: i => open.has(i),
       getSelectedItems: () => selected
@@ -592,17 +592,22 @@ const attachment = (type, available) => ({
     view.expanded = null;
     view.mirrorExpansionToTable();
     assert.deepEqual(Array.from(collapsed), [0, 1]);
-    // table -> gallery: a selected paper, or the parent of a selected child, that is open in the table
+    // table -> gallery: the table decides what is open
     selected = [7];
-    assert.equal(view.openTableSelection(), null); // not open
+    assert.equal(view.openTableRow(), null); // nothing is open
     open.add(2);
-    assert.equal(view.openTableSelection(), 7);
-    selected = [61]; // a child row of paper 6
-    assert.equal(view.openTableSelection(), null); // 6 is closed
+    assert.equal(view.openTableRow(), 7); // the selected paper, open
+    selected = [61]; // a child row of paper 6, which is closed: fall back to the open row
+    assert.equal(view.openTableRow(), 7);
     open.add(1);
-    assert.equal(view.openTableSelection(), 6);
-    selected = [5, 6];
-    assert.equal(view.openTableSelection(), null); // only a single selection counts
+    assert.equal(view.openTableRow(), 6); // the selected child's parent is open
+    selected = [];
+    open.clear(); open.add(0); // opened with the twisty, nothing selected
+    assert.equal(view.openTableRow(), 5);
+    selected = [5, 6]; open.clear(); open.add(1); // several selected: first open row
+    assert.equal(view.openTableRow(), 6);
+    open.clear();
+    assert.equal(view.openTableRow(), null); // closed in the table: nothing to open here
     view.expanded = savedExpanded; view.tableOpened = savedOpened;
     ctx.Zotero.Items = realItems; view.pane.itemsView = realTree;
   }

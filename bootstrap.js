@@ -612,8 +612,11 @@ class Gallery {
       this.clear();
       return;
     }
-    // Coming from the table: remember which paper was left open there so it can be opened here too.
-    const adoptID = this.gallery ? null : this.openTableSelection();
+    // Coming from the table: the table is the truth. Open here the paper that is open there, and
+    // forget what the gallery had open before (it may have been closed in the table since).
+    const comingFromTable = !this.gallery;
+    const adoptID = comingFromTable ? this.openTableRow() : null;
+    if (comingFromTable) this.expanded = null;
     const sameCollection = this.collection?.id === collection.id;
     const preserveScroll = sameCollection ? this.gallery.scrollTop :
       (this.lastScroll?.collectionID === collection.id ? this.lastScroll.top : 0);
@@ -692,20 +695,31 @@ class Gallery {
     }
   }
 
-  openTableSelection() {
+  // The paper whose row is open in the table: the selected one (or the one a selected note or
+  // attachment belongs to) if it is open, otherwise the first open top-level row.
+  openTableRow() {
     const tree = this.pane.itemsView;
     try {
       const ids = tree?.getSelectedItems?.(true) || [];
-      if (ids.length !== 1) return null;
-      const item = Zotero.Items.get(ids[0]);
-      if (!item || Array.isArray(item)) return null;
-      const rootID = item.parentItemID || item.id;
-      const index = tree.getRowIndexByID(rootID);
-      return typeof index === "number" && tree.isContainerOpen(index) ? rootID : null;
+      if (ids.length === 1) {
+        const item = Zotero.Items.get(ids[0]);
+        if (item && !Array.isArray(item)) {
+          const rootID = item.parentItemID || item.id;
+          const index = tree.getRowIndexByID(rootID);
+          if (typeof index === "number" && tree.isContainerOpen(index)) return rootID;
+        }
+      }
+      const provider = tree?.rowProvider;
+      for (let index = 0; index < (provider?.rowCount ?? 0); index++) {
+        if (provider.getLevel(index) === 0 && provider.isContainerOpen(index)) {
+          const ref = provider.getRow(index)?.ref;
+          if (ref?.id) return ref.id;
+        }
+      }
     } catch (error) {
       Zotero.logError(error);
-      return null;
     }
+    return null;
   }
 
   visibleCardRects() {
