@@ -81,7 +81,6 @@ Zotero 설정에서 **Reading Shelf**를 열면 다음을 바꿀 수 있습니�
 
 - macOS의 Zotero 10.0.8에서 확인했습니다. Windows와 Linux의 설치된 Zotero에서는 아직 확인하지 못했습니다.
 - PDF·EPUB·이미지 미리보기를 지원합니다. 암호화되었거나 지원하지 않는 파일은 미리보기가 없을 수 있습니다. macOS에서는 Quick Look(설치했다면 Poppler도)을 보조로 사용합니다.
-- 카드 끌어 놓기는 설치된 Zotero 앱에서 직접 확인하지 못했습니다.
 
 ## 라이선스와 출처
 

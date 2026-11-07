@@ -26,7 +26,7 @@ From this version on, Zotero can update the plugin from GitHub Releases when aut
 
 ## Known limits
 
-Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app, and dragging cards inside the installed app, have not been checked.
+Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked.
 
 ## License
 

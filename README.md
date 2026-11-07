@@ -81,7 +81,6 @@ You can also click a card to select it, double-click it to open its attachment o
 
 - Tested on macOS with Zotero 10.0.8. Windows and Linux have not been tried with the installed Zotero app.
 - Previews work for PDFs, EPUBs and images. Encrypted or unsupported files may show no preview. On macOS, Quick Look (and Poppler, if you have installed it) is used as a fallback.
-- Dragging cards has not been checked by hand in the installed Zotero app.
 
 ## License and credits
 

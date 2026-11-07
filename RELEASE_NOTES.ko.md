@@ -26,7 +26,7 @@
 
 ## 알려진 한계
 
-macOS의 Zotero 10.0.8에서 확인했습니다. Windows·Linux의 설치된 Zotero 앱과, 설치된 앱에서의 카드 끌어 놓기는 확인하지 못했습니다.
+macOS의 Zotero 10.0.8에서 확인했습니다. Windows·Linux의 설치된 Zotero 앱은 확인하지 못했습니다.
 
 ## 라이선스
 
