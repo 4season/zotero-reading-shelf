@@ -34,6 +34,34 @@ const UI_KO = {
   "Could not load this gallery.":"갤러리를 불러오지 못했습니다.", "The gallery change could not be saved.":"변경사항을 저장하지 못했습니다."
 };
 function tr(text) { return Zotero.Prefs.get(PREF + "language", true) === "en" ? text : (UI_KO[text] || text); }
+function createStatusPicker(doc, status, onChange) {
+  const make = tag => doc.createElementNS("http://www.w3.org/1999/xhtml", tag);
+  const wrapper = make("label");
+  wrapper.className = "sl-status-picker sl-status-" + status;
+  const face = make("span");
+  face.className = "sl-status-face";
+  face.setAttribute("aria-hidden", "true");
+  face.textContent = tr(STATUS_LABELS[status] || STATUS_LABELS[""]);
+  const select = make("select");
+  select.className = "sl-status-control";
+  select.setAttribute("aria-label", tr("Reading status"));
+  for (const [value, label] of Object.entries(STATUS_LABELS)) {
+    const option = make("option");
+    option.value = value;
+    option.textContent = tr(label);
+    select.append(option);
+  }
+  select.value = status;
+  select.addEventListener("click", event => event.stopPropagation());
+  select.addEventListener("dblclick", event => event.stopPropagation());
+  select.addEventListener("change", () => {
+    face.textContent = tr(STATUS_LABELS[select.value]);
+    wrapper.className = "sl-status-picker sl-status-" + select.value;
+    onChange(select.value);
+  });
+  wrapper.append(face, select);
+  return { wrapper, select, face };
+}
 function statusItem(item) { return item?.parentItemID ? (Zotero.Items.get(item.parentItemID) || item) : item; }
 function itemPref(item, name) { item = statusItem(item); return PREF + name + "." + item.libraryID + "." + item.key; }
 function importantOf(item) { return Zotero.Prefs.get(itemPref(item, "important"), true) === true || Zotero.Prefs.get(itemPref(item, "status"), true) === "important"; }
@@ -115,18 +143,33 @@ function uninstall() {}
 async function startup({ id, rootURI }) {
   root = rootURI;
   statusColumn = await Zotero.ItemTreeManager.registerColumn({
-    pluginID: id, dataKey: "readingStatus", label: "Reading Shelf", width: "132", staticWidth: true,
+    pluginID: id, dataKey: "readingStatus", label: "Reading Shelf", width: "190",
     dataProvider: item => [tableStatus(item), importantOf(item) ? "important" : "", urgentOf(item) ? "urgent" : ""].join("|"),
-    renderCell: (_index, data, column, _first, doc) => {
+    renderCell: function(index, data, column, _first, doc) {
       const cell = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
-      cell.className = "cell " + (column.className || "");
-      for (const value of String(data).split("|").filter(Boolean)) {
-        const badge = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
-        badge.className = "sl-status-badge sl-status-" + value;
-        badge.textContent = STATUS_LABELS[value] ? tr(STATUS_LABELS[value]) : value === "important" ? "★" : "◷";
-        badge.title = tr(STATUS_LABELS[value] || (value === "important" ? "Important" : "Urgent"));
-        cell.append(badge);
+      cell.className = "cell sl-table-workflow " + (column.className || "");
+      const item = doc.defaultView?.ZoteroPane?.itemsView?.getRow(index)?.ref;
+      if (!item || item.isNote?.()) return cell;
+      const [status, important, urgent] = String(data).split("|");
+      const picker = createStatusPicker(doc, status || "", value => setItemStatus([item], value));
+      cell.append(picker.wrapper);
+      for (const [name, enabled, symbol, label] of [
+        ["important", !!important, "★", "Important"], ["urgent", !!urgent, "◷", "Urgent"]
+      ]) {
+        const button = doc.createElementNS("http://www.w3.org/1999/xhtml", "button");
+        button.className = "sl-table-priority sl-status-" + name;
+        button.textContent = symbol;
+        button.title = tr(label);
+        button.setAttribute("aria-label", tr(label));
+        button.setAttribute("aria-pressed", String(enabled));
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          setPriority([item], name, !(name === "important" ? importantOf(item) : urgentOf(item)));
+        });
+        cell.append(button);
       }
+      cell.addEventListener("mousedown", event => event.stopPropagation());
+      cell.addEventListener("dblclick", event => event.stopPropagation());
       return cell;
     }
   });
@@ -646,7 +689,11 @@ class Gallery {
       editor.value = draft.value;
       editor.setAttribute("aria-label", tr("Collection description"));
       draft.editor = editor;
-      editor.addEventListener("input", () => { draft.value = editor.value; });
+      const resizeEditor = () => {
+        editor.style.height = "auto";
+        editor.style.height = editor.scrollHeight + "px";
+      };
+      editor.addEventListener("input", () => { draft.value = editor.value; resizeEditor(); });
       const save = () => {
         const source = editor.value.trim() ? editor.value : "";
         if (this.save(current => ({ ...current, description: source }), false)) {
@@ -672,6 +719,7 @@ class Gallery {
       const controls = this.element("div", "sl-description-actions");
       controls.append(this.button("Save", save, "sl-edit"), this.button("Cancel", cancel, "sl-edit"));
       this.description.append(editor, controls);
+      this.win.requestAnimationFrame?.(resizeEditor);
       return;
     }
     const display = this.element("div", "sl-description-text", text || "Add a collection description…");
@@ -711,8 +759,7 @@ class Gallery {
       edit();
     });
     this.description.append(display);
-    const editButton = this.button("Edit description", edit, "sl-edit sl-description-edit");
-    this.description.append(editButton);
+
   }
 
   section(title, ordered, emptyText) {
@@ -763,7 +810,7 @@ class Gallery {
 
   dropTarget(group, event) {
     if (!this.drag) return null;
-    if (!group.ordered) return (this.matrix ? importantOf(this.drag.item) : this.drag.ordered) ? { remove: true } : null;
+    if (!group.ordered) return (this.matrix ? (importantOf(this.drag.item) || this.drag.ordered) : this.drag.ordered) ? { remove: true } : null;
     const cards = group.cards || this.orderedCards;
     if (!cards.length) return { empty: true };
     const direct = event.target.closest?.(".sl-card");
@@ -1016,21 +1063,18 @@ class Gallery {
       node.append(byline);
     }
     if (!note) node.append(progress);
-    let statusControl, priorityControl, urgentControl;
+    let statusControl, statusPicker, statusFace, priorityControl, urgentControl;
     if (!child && !note && item.isRegularItem()) {
-      statusControl = this.element("select", "sl-status-control");
+      const picker = createStatusPicker(this.doc, tableStatus(item), value => setItemStatus([item], value));
+      statusControl = picker.select;
+      statusPicker = picker.wrapper;
+      statusFace = picker.face;
       statusControl.setAttribute("aria-label", tr("Reading status") + ": " + title);
-      for (const [value, label] of Object.entries(STATUS_LABELS)) {
-        const option = this.element("option", "", label);
-        option.value = value;
-        statusControl.append(option);
-      }
-      statusControl.addEventListener("change", () => setItemStatus([item], statusControl.value));
       const row = this.element("div", "sl-workflow-controls");
       priorityControl = this.button("☆", event => { event.stopPropagation(); setPriority([item], "important", !importantOf(item)); }, "sl-priority");
       urgentControl = this.button("◷", event => { event.stopPropagation(); setPriority([item], "urgent", !urgentOf(item)); }, "sl-priority sl-urgency");
       priorityControl.title = tr("Important"); urgentControl.title = tr("Urgent");
-      row.append(statusControl, priorityControl, urgentControl);
+      row.append(statusPicker, priorityControl, urgentControl);
       node.append(row);
     }
     node.addEventListener("click", event => {
@@ -1045,7 +1089,7 @@ class Gallery {
       event.stopPropagation();
       this.openContextMenu(card, event).catch(error => Zotero.logError(error));
     });
-    const card = { item, title, node, cover, preview, placeholder, order, progress, statusControl, priorityControl, urgentControl, child, canExpand, attachments, visible: false };
+    const card = { item, title, node, cover, preview, placeholder, order, progress, statusControl, statusPicker, statusFace, priorityControl, urgentControl, child, canExpand, attachments, visible: false };
     this.refreshStatus(card);
     this.cards.set(item.id, card);
     this.markSelected(card, this.selection?.collectionID === this.collection.id && this.selection.itemID === item.id);
@@ -1057,6 +1101,10 @@ class Gallery {
     const status = tableStatus(card.item);
     card.statusControl.value = status;
     card.statusControl.className = "sl-status-control sl-status-" + status;
+    card.statusPicker.className = "sl-status-picker sl-status-" + status;
+    card.statusFace.textContent = tr(STATUS_LABELS[status]);
+    card.statusPicker.dataset.empty = String(!status);
+    card.statusPicker.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
     card.statusControl.dataset.empty = String(!status);
     card.statusControl.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
     if (card.priorityControl) {

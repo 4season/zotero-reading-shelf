@@ -7,8 +7,12 @@
     const language = Zotero.Prefs.get(prefix + "language", true) === "en" ? "en" : "ko";
     for (const node of root.querySelectorAll("[data-sl-en]")) {
       const text = node.getAttribute("data-sl-" + language);
-      if (node.localName === "checkbox") node.setAttribute("label", text);
+      if (["checkbox", "menuitem", "menulist"].includes(node.localName)) node.setAttribute("label", text);
+      else if (node.localName === "label" && node.hasAttribute("value")) node.setAttribute("value", text);
       else node.textContent = text;
+    }
+    for (const menu of root.querySelectorAll("menulist")) {
+      if (menu.selectedItem) menu.setAttribute("label", menu.selectedItem.getAttribute("label"));
     }
     for (const node of root.querySelectorAll("[data-sl-color]")) {
       const value = Zotero.Prefs.get(prefix + node.getAttribute("data-sl-color"), true);

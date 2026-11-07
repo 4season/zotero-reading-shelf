@@ -1,22 +1,28 @@
 <groupbox id="sl-settings">
   <label><html:h2>Reading Shelf</html:h2></label>
-  <hbox align="center"><label value="언어 / Language"/>
+  <hbox align="center"><label value="언어" data-sl-en="Language" data-sl-ko="언어"/>
     <menulist preference="extensions.syllabus-lite.language" id="sl-language"><menupopup>
       <menuitem label="한국어" value="ko"/><menuitem label="English" value="en"/>
     </menupopup></menulist>
   </hbox>
+  <groupbox><label><html:h3 data-sl-en="Visibility" data-sl-ko="표시 항목">표시 항목</html:h3></label>
   <checkbox label="읽기 목록 + / − 버튼 숨기기" data-sl-en="Hide reading-order + / − buttons" data-sl-ko="읽기 목록 + / − 버튼 숨기기" preference="extensions.syllabus-lite.hideCardButtons"/>
   <checkbox label="부속 노트 / 첨부파일 표시 숨기기" data-sl-en="Hide child notes / attachments indicator" data-sl-ko="부속 노트 / 첨부파일 표시 숨기기" preference="extensions.syllabus-lite.hideChildIndicator"/>
   <checkbox label="자료 크기 슬라이더 숨기기" data-sl-en="Hide the card size slider" data-sl-ko="자료 크기 슬라이더 숨기기" preference="extensions.syllabus-lite.hideSizeControl"/>
   <checkbox label="정렬 메뉴 숨기기" data-sl-en="Hide the sort menu" data-sl-ko="정렬 메뉴 숨기기" preference="extensions.syllabus-lite.hideSortControl"/>
   <checkbox label="상태 없음은 마우스를 올리거나 키보드로 선택할 때만 표시" data-sl-en="Hide empty status until hover or keyboard focus" data-sl-ko="상태 없음은 마우스를 올리거나 키보드로 선택할 때만 표시" preference="extensions.syllabus-lite.hideEmptyStatus"/>
+  </groupbox>
+  <groupbox><label><html:h3 data-sl-en="Workflow" data-sl-ko="기능">기능</html:h3></label>
   <checkbox label="아이젠하워 모드: 중요한 자료를 2열로 분류" data-sl-en="Eisenhower mode: two important-material lanes" data-sl-ko="아이젠하워 모드: 중요한 자료를 2열로 분류" preference="extensions.syllabus-lite.matrixMode"/>
-  <hbox align="center"><label value="그림자 / Shadow"/><menulist preference="extensions.syllabus-lite.shadowStrength"><menupopup>
-    <menuitem label="없음 / Off" value="off"/><menuitem label="약하게 / Soft" value="soft"/><menuitem label="보통 / Medium" value="medium"/><menuitem label="강하게 / Strong" value="strong"/>
+  </groupbox>
+  <groupbox><label><html:h3 data-sl-en="Appearance" data-sl-ko="디자인">디자인</html:h3></label>
+  <hbox align="center"><label value="그림자" data-sl-en="Shadow" data-sl-ko="그림자"/><menulist preference="extensions.syllabus-lite.shadowStrength"><menupopup>
+    <menuitem label="없음" data-sl-en="Off" data-sl-ko="없음" value="off"/><menuitem label="약하게" data-sl-en="Soft" data-sl-ko="약하게" value="soft"/><menuitem label="보통" data-sl-en="Medium" data-sl-ko="보통" value="medium"/><menuitem label="강하게" data-sl-en="Strong" data-sl-ko="강하게" value="strong"/>
   </menupopup></menulist></hbox>
   <checkbox label="다크 모드에서도 그림자 사용" data-sl-en="Enable shadows in dark mode too" data-sl-ko="다크 모드에서도 그림자 사용" preference="extensions.syllabus-lite.shadowDark"/>
-  <hbox align="center"><label value="긴급·중요 영역 / Urgent lane"/><html:input type="color" value="#c76a6a" data-sl-color="urgentColor" aria-label="Urgent lane border color"/></hbox>
-  <hbox align="center"><label value="중요 영역 / Important lane"/><html:input type="color" value="#638ebd" data-sl-color="laterColor" aria-label="Important lane border color"/></hbox>
-  <hbox align="center"><label value="대기열 영역 / Queue"/><html:input type="color" value="#789866" data-sl-color="queueColor" aria-label="Queue border color"/></hbox>
+  <hbox align="center"><label value="긴급·중요 영역" data-sl-en="Urgent lane" data-sl-ko="긴급·중요 영역"/><html:input type="color" value="#c76a6a" data-sl-color="urgentColor" aria-label="Urgent lane border color"/></hbox>
+  <hbox align="center"><label value="중요 영역" data-sl-en="Important lane" data-sl-ko="중요 영역"/><html:input type="color" value="#638ebd" data-sl-color="laterColor" aria-label="Important lane border color"/></hbox>
+  <hbox align="center"><label value="대기열 영역" data-sl-en="Queue" data-sl-ko="대기열 영역"/><html:input type="color" value="#789866" data-sl-color="queueColor" aria-label="Queue border color"/></hbox>
+  </groupbox>
   <description data-sl-en="Left: urgent and important. Right: important, not urgent. A second row holds queued items; other items remain below. Use the star and clock controls, or drag into a lane. Reading status is independent of importance and urgency. Changes apply immediately." data-sl-ko="왼쪽: 긴급하고 중요한 자료. 오른쪽: 중요하지만 덜 급한 자료. 두 번째 행에는 읽기 대기열, 그 아래에는 나머지 자료가 표시됩니다. 별 / 시계 버튼이나 드래그로 분류하세요. 읽기 상태는 중요도·긴급도와 독립적이며, 설정은 바로 적용됩니다.">왼쪽: 긴급하고 중요한 자료. 오른쪽: 중요하지만 덜 급한 자료. 아래 행: 읽기 대기열.</description>
 </groupbox>

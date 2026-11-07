@@ -4,7 +4,7 @@ Reading Shelf is an independent third-party plugin compatible with Zotero. It ad
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.2.0-beta.3.xpi` from the GitHub release.
+1. Download `zotero-reading-shelf-1.2.0-beta.4.xpi` from the GitHub release.
 2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
 3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
 
@@ -30,7 +30,7 @@ Set **읽을 예정** (to read) or **읽는 중** (reading) using the status sel
 
 ![Table status guide](docs/images/status-guide.svg)
 
-The table's **Reading Shelf** column shows reading status and priority badges. Enable it through the table header's column picker if necessary. The **Info** pane includes a read-only Reading Shelf workflow row for bibliographic items. Attached files share their parent reference's status. Native reader opening and tab selection mark the reference as reading, including opening from the table. External applications opened outside Zotero's reader cannot be observed reliably.
+The table's **Reading Shelf** column shares reading status, importance and urgency with the gallery. Click the status label to choose a status, or click the star/clock to toggle importance/urgency. Empty rows also have an editable No status label. Enable it through the table header's column picker if necessary. The **Info** pane includes a read-only Reading Shelf workflow row for bibliographic items. Attached files share their parent reference's status. Native reader opening and tab selection mark the reference as reading, including opening from the table. External applications opened outside Zotero's reader cannot be observed reliably.
 
 Status, importance and urgency are local to this Zotero profile and shared across collections for the same reference. No tags, Extra fields or bibliographic metadata are changed. An item in an existing local reading order defaults to “to read” until explicitly changed. Queue membership alone is not a measurement of reading completion.
 
@@ -39,7 +39,7 @@ In **Settings → Reading Shelf**:
 - Choose **한국어 / English** for the plugin interface.
 - Hide empty statuses by default; hovering or keyboard focus reveals the selector. Existing status badges stay visible.
 - Hide reading-order **+ / −**, child indicators, the size slider and Sort independently.
-- Choose preview shadow strength (**Off / Soft / Medium / Strong**). Dark-mode shadows are off by default and have a separate opt-in.
+- Choose whole-card shadow strength (**Off / Soft / Medium / Strong**). Dark-mode shadows are off by default and have a separate opt-in.
 - Pick individual border colors for the urgent, important and queue **regions**. Colors apply immediately.
 - Enable the **Eisenhower 1 × 2 mode**: urgent and important references on the left, important but less urgent references on the right; a full-width second row holds queued references without importance, and other items remain below. Use star/clock switches or drag into a lane to classify. Dragging into a lane also adds the item to the reading queue. Removing queue membership does not clear importance.
 
@@ -49,13 +49,13 @@ These illustrations are diagrams using synthetic examples, not captured Zotero s
 
 PDF.js, EPUB covers and local image previews use Zotero/Gecko APIs on all targeted desktop platforms. Quick Look and fixed Homebrew/MacPorts Poppler paths are guarded by `Zotero.isMac`; those optional fallbacks are not invoked on Windows or Linux. Unsupported documents may therefore have different preview availability on different systems. No external tools are installed by the plugin.
 
-Animation measurements are batched before animation writes, thumbnail work remains bounded and cancellable, and the small light-mode shadow is static. Reduced-motion preferences are respected. Automated fixtures pass on macOS; the new interface and actual Windows/Linux execution still need interactive testing. No total-RAM or frame-time benchmark is claimed.
+Animation measurements are batched before animation writes, thumbnail work remains bounded and cancellable, and the small light-mode shadow is static. Reduced-motion preferences are respected. Automated fixtures pass on macOS; a browser fixture additionally checks empty-lane sizing, localized status widths and long memo growth. Native Zotero interaction and Windows/Linux execution still need testing. No total-RAM or frame-time benchmark is claimed.
 
 ## Storage and previews
 
 Reading order and collection descriptions are stored in local Zotero preferences. For a collection without local Reading Shelf data, the plugin can read the original Syllabus personal reading order note as a starting point. Subsequent edits are stored in Reading Shelf's preferences and are local to the profile.
 
-Long collection descriptions scroll inside a bounded text area; double-click or use **Edit description** to edit. Descriptions above 100,000 characters display as plain text to avoid expensive Markdown rendering; the complete source remains editable and saved.
+Collection descriptions grow with their content. Double-click the description or press Enter while it is focused to edit; the editor grows as you type. Descriptions above 100,000 characters display as plain text to avoid expensive Markdown rendering; the complete source remains editable and saved.
 
 The gallery generates thumbnails for local attachments near the viewport and stores them in the `syllabus-lite-thumbnails` subfolder of the Zotero data directory. The preview pipeline uses Zotero's bundled PDF.js, embedded EPUB covers, local images, and optional local preview tools on macOS. Missing, encrypted, and unsupported attachments may show placeholders. The plugin uses local files for preview generation.
 

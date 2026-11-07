@@ -1,25 +1,24 @@
-# Reading Shelf 1.2.0-beta.3
+# Reading Shelf 1.2.0-beta.4
 
-This prerelease fixes preference labels and long descriptions, and adds appearance controls and a second matrix row.
+This prerelease refines settings, matrix layout, descriptions and workflow controls.
 
-- Fix settings initialization: Zotero executes pane scripts before inserting the markup. Initialize on the pane's load/showing events and include readable fallback labels.
-- Add preview shadow levels: Off, Soft, Medium and Strong. Medium is the new light-mode default; dark-mode shadows remain off unless enabled explicitly. Theme handling follows Zotero's computed color scheme.
-- Keep long descriptions scrollable and editable with an always-available Edit description action. Double-click and keyboard editing remain available. Empty-output Markdown falls back to visible source; descriptions over 100,000 characters display as plain text while preserving the complete saved source.
-- Add a full-width reading queue as the second row beneath the two priority lanes. Important items stay in the top lanes; queued references without importance appear in the second row; unqueued references remain below. Dragging into the queue clears importance and retains queue membership without duplicating the reference.
-- Choose separate border colors for the urgent/important, important/not-urgent, and queue regions in Settings.
-- Make gallery status selectors smaller and tighten spacing above the controls. Native table badge styling is unchanged.
+- Localize every settings label and shadow option to the selected language. Group settings into Visibility, Workflow and Appearance.
+- Keep both priority lanes equal in height, including an empty lane, and reserve a usable minimum drop area. Stack lanes on narrow windows.
+- Fix dragging a queue-only reference back to Other items without moving it through an important lane first.
+- Remove the separate Edit description button. Preserve double-click/Enter editing and grow both description and editor with their content.
+- Size status labels from their displayed text. Controls wrap when a card is narrow; the native dropdown and keyboard interaction are retained.
+- Make the native table's Reading Shelf column editable: choose reading status directly and toggle the star/clock for importance and urgency. The same preferences drive the matrix, gallery and table. Child attachments share their parent's workflow state.
+- Spread the configurable shadow around the whole card with no downward offset. Dark-mode shadows remain opt-in.
 
 ## Install
 
-Download **zotero-reading-shelf-1.2.0-beta.3.xpi** and use **Tools → Plugins → ⚙ → Install Plugin From File…**. Existing plugin ID, local notes/order and workflow preferences are retained. Open **Settings → Reading Shelf** for the shadow levels and region colors.
-
-[Usage guide](https://github.com/4season/zotero-reading-shelf#reading-status-and-illustrated-guide)
+Download **zotero-reading-shelf-1.2.0-beta.4.xpi** and use **Tools → Plugins → ⚙ → Install Plugin From File…**. Existing plugin ID, local descriptions/order and workflow preferences are retained. Updates remain manual.
 
 ## Verification and limits
 
-Automated tests cover script-before-fragment preference loading, language switching, validated color persistence, long-description source preservation/editing, queue placement and drag reclassification, gallery/workflow regressions and bounded PDF.js reads/cancellation. The settings fragment parses as XML and the release includes matching source.
+Portable regression tests passed for queue removal/reclassification, row-specific table edits, priority propagation, description editing/source preservation, settings lifecycle/localization, bounded thumbnail concurrency and cancellation. The installed Zotero PDF.js passed bounded-read and cancellation integration tests. A browser rendering fixture passed six Korean/English card-size combinations (65%, 100%, 150%), equal-height empty lanes and long description/editor growth; the rendered layout was also inspected visually.
 
-Targets Zotero 10.x. Development and tests use macOS and Zotero 10.0.7. New settings/layout changes have not been interactively verified in Zotero; Windows/Linux runtime checks, total-RAM measurements and frame-time benchmarks have not been performed. No new dependencies or background polling were added.
+Targets Zotero 10.x. The native table callback and plugin API wrapping were checked against Zotero 10.0.7 source. Browser fixtures do not replace interactive testing inside Zotero. Windows/Linux runtime checks, total-RAM and frame-time benchmarks have not been performed. No runtime dependency or background polling was added; the existing bounded thumbnail queues remain in place.
 
 ## License
 
