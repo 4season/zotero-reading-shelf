@@ -31,7 +31,7 @@ If another gallery plugin is installed and the two overlap, turn one of them off
 
 ### Arrange your reading list
 
-![Core Article in Zotero: bookshelf, importance and Eisenhower mode](docs/images/core-article-tour.gif)
+![Dragging a paper into the reading list on the bookshelf in Zotero](docs/images/core-article-bookshelf.gif)
 
 - **Bookshelf:** papers you plan to read or are reading appear first, in your order. Other papers appear under *Unordered items*, and finished ones under *Completed*.
 - **Reorder:** drag a card, or use the + / − button on the card. With the − button focused (Tab to it), Alt + ←/→ moves the card.
@@ -44,6 +44,8 @@ If another gallery plugin is installed and the two overlap, turn one of them off
 ### Eisenhower layout
 
 Use the mode button next to **Sort** to switch the bookshelf to an Eisenhower layout: *Urgent & important* and *Important, not urgent* sit side by side, with the *Reading queue* below. Drag papers between them. Switch the same button back to return to the bookshelf.
+
+![Switching to the Eisenhower layout and moving papers between lanes in Zotero](docs/images/core-article-eisenhower.gif)
 
 By default the layout you pick applies to all collections. To remember a separate layout for each collection, turn on **Remember Eisenhower / bookshelf mode per collection** in the settings.
 
