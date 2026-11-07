@@ -2,29 +2,29 @@
 
   <label><html:h2>Reading Shelf</html:h2></label>
   <hbox align="center"><label value="언어" data-sl-en="Language" data-sl-ko="언어"/>
-    <menulist preference="extensions.syllabus-lite.language" id="sl-language"><menupopup>
+    <menulist preference="extensions.reading-shelf.language" id="sl-language"><menupopup>
       <menuitem label="한국어" value="ko"/><menuitem label="English" value="en"/>
     </menupopup></menulist>
   </hbox>
   <groupbox class="sl-settings-section"><label><html:h3 class="sl-settings-title" data-sl-en="Visibility" data-sl-ko="표시 항목">표시 항목</html:h3></label>
-  <checkbox label="읽기 목록 + / − 버튼 숨기기" data-sl-en="Hide reading-order + / − buttons" data-sl-ko="읽기 목록 + / − 버튼 숨기기" preference="extensions.syllabus-lite.hideCardButtons"/>
-  <checkbox label="부속 노트 / 첨부파일 표시 숨기기" data-sl-en="Hide child notes / attachments indicator" data-sl-ko="부속 노트 / 첨부파일 표시 숨기기" preference="extensions.syllabus-lite.hideChildIndicator"/>
-  <checkbox label="자료 크기 슬라이더 숨기기" data-sl-en="Hide the card size slider" data-sl-ko="자료 크기 슬라이더 숨기기" preference="extensions.syllabus-lite.hideSizeControl"/>
-  <checkbox label="정렬 메뉴 숨기기" data-sl-en="Hide the sort menu" data-sl-ko="정렬 메뉴 숨기기" preference="extensions.syllabus-lite.hideSortControl"/>
-  <checkbox label="서재 모드 전환 버튼 숨기기" data-sl-en="Hide the bookshelf mode switch" data-sl-ko="서재 모드 전환 버튼 숨기기" preference="extensions.syllabus-lite.hideModeControl"/>
-  <checkbox label="상태 없음은 마우스를 올리거나 키보드로 선택할 때만 표시" data-sl-en="Hide empty status until hover or keyboard focus" data-sl-ko="상태 없음은 마우스를 올리거나 키보드로 선택할 때만 표시" preference="extensions.syllabus-lite.hideEmptyStatus"/>
+  <checkbox label="읽기 목록 + / − 버튼 숨기기" data-sl-en="Hide reading-order + / − buttons" data-sl-ko="읽기 목록 + / − 버튼 숨기기" preference="extensions.reading-shelf.hideCardButtons"/>
+  <checkbox label="부속 노트 / 첨부파일 표시 숨기기" data-sl-en="Hide child notes / attachments indicator" data-sl-ko="부속 노트 / 첨부파일 표시 숨기기" preference="extensions.reading-shelf.hideChildIndicator"/>
+  <checkbox label="자료 크기 슬라이더 숨기기" data-sl-en="Hide the card size slider" data-sl-ko="자료 크기 슬라이더 숨기기" preference="extensions.reading-shelf.hideSizeControl"/>
+  <checkbox label="정렬 메뉴 숨기기" data-sl-en="Hide the sort menu" data-sl-ko="정렬 메뉴 숨기기" preference="extensions.reading-shelf.hideSortControl"/>
+  <checkbox label="서재 모드 전환 버튼 숨기기" data-sl-en="Hide the bookshelf mode switch" data-sl-ko="서재 모드 전환 버튼 숨기기" preference="extensions.reading-shelf.hideModeControl"/>
+  <checkbox label="상태 없음은 마우스를 올리거나 키보드로 선택할 때만 표시" data-sl-en="Hide empty status until hover or keyboard focus" data-sl-ko="상태 없음은 마우스를 올리거나 키보드로 선택할 때만 표시" preference="extensions.reading-shelf.hideEmptyStatus"/>
   </groupbox>
   <groupbox class="sl-settings-section"><label><html:h3 class="sl-settings-title" data-sl-en="Workflow" data-sl-ko="기능">기능</html:h3></label>
-  <checkbox label="아이젠하워 모드: 중요한 자료를 2열로 분류" data-sl-en="Eisenhower mode: two important-material lanes" data-sl-ko="아이젠하워 모드: 중요한 자료를 2열로 분류" data-sl-depends="rememberOff" preference="extensions.syllabus-lite.matrixMode"/>
-  <checkbox label="자료 탭을 닫으면 읽는 중 상태 해제" data-sl-en="Clear reading status when the last reader tab closes" data-sl-ko="자료 탭을 닫으면 읽는 중 상태 해제" preference="extensions.syllabus-lite.clearStatusOnClose"/>
-  <checkbox label="컬렉션별로 아이젠하워 / 일반 서재 모드 기억" data-sl-en="Remember Eisenhower / bookshelf mode per collection" data-sl-ko="컬렉션별로 아이젠하워 / 일반 서재 모드 기억" preference="extensions.syllabus-lite.rememberCollectionMode"/>
+  <checkbox label="아이젠하워 모드: 중요한 자료를 2열로 분류" data-sl-en="Eisenhower mode: two important-material lanes" data-sl-ko="아이젠하워 모드: 중요한 자료를 2열로 분류" data-sl-depends="rememberOff" preference="extensions.reading-shelf.matrixMode"/>
+  <checkbox label="자료 탭을 닫으면 읽는 중 상태 해제" data-sl-en="Clear reading status when the last reader tab closes" data-sl-ko="자료 탭을 닫으면 읽는 중 상태 해제" preference="extensions.reading-shelf.clearStatusOnClose"/>
+  <checkbox label="컬렉션별로 아이젠하워 / 일반 서재 모드 기억" data-sl-en="Remember Eisenhower / bookshelf mode per collection" data-sl-ko="컬렉션별로 아이젠하워 / 일반 서재 모드 기억" preference="extensions.reading-shelf.rememberCollectionMode"/>
   </groupbox>
   <groupbox class="sl-settings-section"><label><html:h3 class="sl-settings-title" data-sl-en="Appearance" data-sl-ko="디자인">디자인</html:h3></label>
   <vbox class="sl-settings-subgroup"><html:h4 data-sl-en="Preview shadows" data-sl-ko="프리뷰 그림자">프리뷰 그림자</html:h4>
-  <hbox class="sl-setting-row" align="center"><label value="그림자" data-sl-en="Shadow" data-sl-ko="그림자"/><menulist preference="extensions.syllabus-lite.shadowStrength"><menupopup>
+  <hbox class="sl-setting-row" align="center"><label value="그림자" data-sl-en="Shadow" data-sl-ko="그림자"/><menulist preference="extensions.reading-shelf.shadowStrength"><menupopup>
     <menuitem label="없음" data-sl-en="Off" data-sl-ko="없음" value="off"/><menuitem label="약하게" data-sl-en="Soft" data-sl-ko="약하게" value="soft"/><menuitem label="보통" data-sl-en="Medium" data-sl-ko="보통" value="medium"/><menuitem label="강하게" data-sl-en="Strong" data-sl-ko="강하게" value="strong"/>
   </menupopup></menulist></hbox>
-  <checkbox label="다크 모드에서도 그림자 사용" data-sl-en="Enable shadows in dark mode too" data-sl-ko="다크 모드에서도 그림자 사용" data-sl-depends="shadowStrength" preference="extensions.syllabus-lite.shadowDark"/>
+  <checkbox label="다크 모드에서도 그림자 사용" data-sl-en="Enable shadows in dark mode too" data-sl-ko="다크 모드에서도 그림자 사용" data-sl-depends="shadowStrength" preference="extensions.reading-shelf.shadowDark"/>
   </vbox>
   <vbox class="sl-settings-subgroup"><html:h4 data-sl-en="Reading status label colors" data-sl-ko="읽기 상태 라벨 색상">읽기 상태 라벨 색상</html:h4>
   <hbox class="sl-setting-row" align="center"><label value="읽을 예정 색상" data-sl-en="To read color" data-sl-ko="읽을 예정 색상"/><html:input type="color" value="#356b24" data-sl-color="plannedColor" aria-label="To read color"/><html:input class="sl-color-hex" type="text" maxlength="7" value="#356b24" data-sl-color="plannedColor" aria-label="plannedColor hex"/></hbox>
@@ -38,7 +38,7 @@
   <button label="버튼 색상 초기화" data-sl-en="Reset button colors" data-sl-ko="버튼 색상 초기화" data-sl-reset-colors="priority"/>
   </vbox>
   <vbox class="sl-settings-subgroup"><html:h4 data-sl-en="Eisenhower box borders" data-sl-ko="아이젠하워 박스 테두리">아이젠하워 박스 테두리</html:h4>
-  <checkbox label="아이젠하워 행렬 테두리 색상 사용" data-sl-en="Use colored Eisenhower lane borders" data-sl-ko="아이젠하워 행렬 테두리 색상 사용" data-sl-depends="matrixMode" preference="extensions.syllabus-lite.matrixBorders"/>
+  <checkbox label="아이젠하워 행렬 테두리 색상 사용" data-sl-en="Use colored Eisenhower lane borders" data-sl-ko="아이젠하워 행렬 테두리 색상 사용" data-sl-depends="matrixMode" preference="extensions.reading-shelf.matrixBorders"/>
   <hbox class="sl-setting-row" align="center"><label value="긴급·중요 영역" data-sl-en="Urgent lane" data-sl-ko="긴급·중요 영역"/><html:input type="color" value="#c76a6a" data-sl-depends="matrixBorders" data-sl-color="urgentColor" aria-label="Urgent lane border color"/><html:input class="sl-color-hex" type="text" maxlength="7" value="#c76a6a" data-sl-color="urgentColor" data-sl-depends="matrixBorders" aria-label="urgentColor hex"/></hbox>
   <hbox class="sl-setting-row" align="center"><label value="중요 영역" data-sl-en="Important lane" data-sl-ko="중요 영역"/><html:input type="color" value="#638ebd" data-sl-depends="matrixBorders" data-sl-color="laterColor" aria-label="Important lane border color"/><html:input class="sl-color-hex" type="text" maxlength="7" value="#638ebd" data-sl-color="laterColor" data-sl-depends="matrixBorders" aria-label="laterColor hex"/></hbox>
   <hbox class="sl-setting-row" align="center"><label value="대기열 영역" data-sl-en="Queue" data-sl-ko="대기열 영역"/><html:input type="color" value="#789866" data-sl-depends="matrixBorders" data-sl-color="queueColor" aria-label="Queue border color"/><html:input class="sl-color-hex" type="text" maxlength="7" value="#789866" data-sl-color="queueColor" data-sl-depends="matrixBorders" aria-label="queueColor hex"/></hbox>

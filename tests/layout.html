@@ -23,7 +23,7 @@ window.prefs=new Map();window.Zotero={Prefs:{get:k=>prefs.get(k),set:(k,v)=>pref
   for(let i=0;i<2;i++){
     const item={id:i+1,libraryID:1,key:'K'+i,isRegularItem:()=>true,getDisplayTitle:()=>i?'긴 제목이 있는 논문입니다':'Past, present and future of spike sorting techniques'};
     const c=view.makeCard(item,'Rey et al.');
-    Zotero.Prefs.set('extensions.syllabus-lite.status.1.K'+i,'planned');view.refreshStatus(c);
+    Zotero.Prefs.set('extensions.reading-shelf.status.1.K'+i,'planned');view.refreshStatus(c);
     c.preview.style.background='white';c.placeholder.textContent='PDF'; full.grid.append(c.node);
   }
   const q=view.section('Reading queue',true,'Drag papers here or use + on a card.');q.section.classList.add('sl-lane-queue');matrix.append(q.section);
@@ -31,7 +31,7 @@ window.prefs=new Map();window.Zotero={Prefs:{get:k=>prefs.get(k),set:(k,v)=>pref
 const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
 (async()=>{try{
  for(const language of ['ko','en'])for(const scale of [.65,1,1.5]){
- prefs.set('extensions.syllabus-lite.language',language);view.gallery.style.setProperty('--sl-card-scale',scale);view.gallery.style.setProperty('--sl-card-width',176*scale+'px');for(const c of view.cards.values())view.refreshStatus(c);
+ prefs.set('extensions.reading-shelf.language',language);view.gallery.style.setProperty('--sl-card-scale',scale);view.gallery.style.setProperty('--sl-card-width',176*scale+'px');for(const c of view.cards.values())view.refreshStatus(c);
  await new Promise(requestAnimationFrame);
  const a=document.querySelector('.sl-lane-urgent').getBoundingClientRect(),b=document.querySelector('.sl-lane-later').getBoundingClientRect();assert(Math.abs(a.height-b.height)<1,'empty lane height');
  for(const x of document.querySelectorAll('.sl-status-picker'))assert(x.getBoundingClientRect().width<=x.firstChild.getBoundingClientRect().width+3,'status width');
@@ -40,7 +40,7 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
  view.description.firstChild.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
  view.descriptionDraft.editor.value='긴 편집 메모\n'.repeat(100);view.descriptionDraft.editor.dispatchEvent(new Event('input'));await new Promise(requestAnimationFrame);assert(view.descriptionDraft.editor.scrollHeight<=view.descriptionDraft.editor.clientHeight+2,'editor growth');
  view.descriptionDraft=null;view.renderDescription('메모를 더블클릭하면 수정할 수 있습니다.');
- prefs.set('extensions.syllabus-lite.language','ko');view.gallery.style.setProperty('--sl-card-scale',1);view.gallery.style.setProperty('--sl-card-width','176px');for(const c of view.cards.values())view.refreshStatus(c);
+ prefs.set('extensions.reading-shelf.language','ko');view.gallery.style.setProperty('--sl-card-scale',1);view.gallery.style.setProperty('--sl-card-width','176px');for(const c of view.cards.values())view.refreshStatus(c);
 
  const xml=new DOMParser().parseFromString('<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"/>','application/xml');
  const xmlView=new Gallery({document:xml,DOMParser,requestAnimationFrame,ZoteroPane:{}});xmlView.collection={id:1};xmlView.description=xml.createElementNS('http://www.w3.org/1999/xhtml','div');

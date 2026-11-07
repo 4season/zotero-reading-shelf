@@ -8,6 +8,7 @@ const columns = [], menus = [], removed = [], observers = [], infoRows = [];
 let readerHook, notifier, preferencesPane;
 const ctx = vm.createContext({
   APP_SHUTDOWN: 2,
+  Services: { prefs: { getBranch: () => ({ getChildList: () => [] }), prefHasUserValue: () => false } },
   Zotero: {
     Reader: { registerEventListener(_type, fn) { readerHook = fn; }, unregisterEventListener() {} },
     ItemPaneManager: { registerInfoRow(options) { infoRows.push(options); return "workflow-info"; }, refreshInfoRow() {}, unregisterInfoRow(key) { removed.push(key); } },
@@ -31,9 +32,33 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
 (async () => {
   await ctx.startup({id:'syllabus-lite@local.zotero',rootURI:'fixture/',version:'1.2.1'});
   assert.equal(columns.length,1);
+  // Settings saved under the old "syllabus-lite" name are copied once, without overwriting new values.
+  {
+    const old = new Map([["language","en"],["order.1.ABCDE",'{"order":["A"],"description":""}'],["cardScale",120],["matrixMode",true],["hideSortControl",false]]);
+    const fresh = new Map([["extensions.reading-shelf.language","ko"]]);
+    const branch = { PREF_BOOL: 128, PREF_INT: 64, PREF_STRING: 32,
+      getChildList: () => [...old.keys(), "defaultOnly"], prefHasUserValue: name => old.has(name),
+      getPrefType: name => typeof old.get(name) === "boolean" ? 128 : typeof old.get(name) === "number" ? 64 : 32,
+      getBoolPref: name => old.get(name), getIntPref: name => old.get(name), getStringPref: name => old.get(name) };
+    const emptyServices = ctx.Services;
+    ctx.Services = { prefs: { getBranch: prefix => { assert.equal(prefix, "extensions.syllabus-lite."); return branch; }, prefHasUserValue: name => fresh.has(name) } };
+    const real = new Map(prefs); prefs.clear(); fresh.forEach((v, k) => prefs.set(k, v));
+    ctx.migratePreferences();
+    assert.equal(prefs.get("extensions.reading-shelf.language"), "ko");
+    assert.equal(prefs.get("extensions.reading-shelf.cardScale"), 120);
+    assert.equal(prefs.get("extensions.reading-shelf.matrixMode"), true);
+    assert.equal(prefs.get("extensions.reading-shelf.hideSortControl"), false);
+    assert.equal(prefs.get("extensions.reading-shelf.order.1.ABCDE"), '{"order":["A"],"description":""}');
+    assert.equal(prefs.has("extensions.reading-shelf.defaultOnly"), false);
+    old.set("cardScale", 80); prefs.set("extensions.reading-shelf.cardScale", 120);
+    ctx.migratePreferences();
+    assert.equal(prefs.get("extensions.reading-shelf.cardScale"), 120);
+    prefs.clear(); real.forEach((v, k) => prefs.set(k, v));
+    ctx.Services = emptyServices;
+  }
   assert.equal(preferencesPane.stylesheets[0],"settings.css?v=1.2.1");
   assert.equal(menus[0].target,'main/library/item');
-  assert.ok(observers.includes('extensions.syllabus-lite.hideChildIndicator'));
+  assert.ok(observers.includes('extensions.reading-shelf.hideChildIndicator'));
   const a={libraryID:1,key:'A'},b={libraryID:1,key:'B'};
   const submenu=menus[0].menus[0];
   const labels=[];
@@ -82,7 +107,7 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   readerHook({reader:{itemID:45,tabID:'reader-1'}});
   assert.equal(ctx.tableStatus(child), 'reading');
   assert.equal(ctx.tableStatus(parent), 'reading');
-  prefs.set('extensions.syllabus-lite.clearStatusOnClose',true);
+  prefs.set('extensions.reading-shelf.clearStatusOnClose',true);
   readerHook({reader:{itemID:45,tabID:'reader-2'}});
   notifier.notify('close','tab',[['reader-1']]);
   assert.equal(ctx.tableStatus(parent),'reading');
@@ -90,40 +115,40 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   assert.equal(ctx.tableStatus(parent),'');
   assert.equal(ctx.importantOf(parent),true);
   assert.equal(ctx.urgentOf(parent),true);
-  prefs.set('extensions.syllabus-lite.clearStatusOnClose',false);
+  prefs.set('extensions.reading-shelf.clearStatusOnClose',false);
   readerHook({reader:{itemID:45,tabID:'reader-3'}});
   notifier.notify('close','tab',['reader-3']);
   assert.equal(ctx.tableStatus(parent),'reading');
   assert.equal(ctx.importantOf(parent), true);
   assert.equal(ctx.urgentOf(parent), true);
   assert.match(infoRows[0].onGetData({item:child}), /읽는 중.*중요.*긴급/);
-  prefs.set('extensions.syllabus-lite.status.1.A','important');
+  prefs.set('extensions.reading-shelf.status.1.A','important');
   ctx.setItemStatus([a],'reading');
   assert.equal(ctx.importantOf(a),true);
   assert.equal(ctx.tableStatus(a),'reading');
   ctx.setPriority([a],'important',false);
   assert.equal(ctx.importantOf(a),false);
   assert.equal(ctx.tableStatus(a),'reading');
-  prefs.set('extensions.syllabus-lite.status.1.B','important');
+  prefs.set('extensions.reading-shelf.status.1.B','important');
   ctx.setPriority([b],'important',false);
   assert.equal(ctx.importantOf(b),false);
   assert.equal(ctx.tableStatus(b),'planned');
   const c1={id:1,libraryID:1,key:'C1'},c2={id:2,libraryID:1,key:'C2'};
-  prefs.set('extensions.syllabus-lite.matrixMode',false);
-  prefs.set('extensions.syllabus-lite.rememberCollectionMode',true);
+  prefs.set('extensions.reading-shelf.matrixMode',false);
+  prefs.set('extensions.reading-shelf.rememberCollectionMode',true);
   prefs.set(ctx.collectionModeKey(c1),true);
   assert.equal(ctx.matrixModeFor(c1),true);
   assert.equal(ctx.matrixModeFor(c2),false);
   // Saved per-collection choices are independent of each other and of the global default.
   prefs.set(ctx.collectionModeKey(c2),false);
-  prefs.set('extensions.syllabus-lite.matrixMode',true);
+  prefs.set('extensions.reading-shelf.matrixMode',true);
   assert.equal(ctx.matrixModeFor(c1),true);
   assert.equal(ctx.matrixModeFor(c2),false);
-  prefs.set('extensions.syllabus-lite.matrixMode',false);
+  prefs.set('extensions.reading-shelf.matrixMode',false);
   assert.equal(ctx.matrixModeFor(c1),true);
-  prefs.set('extensions.syllabus-lite.rememberCollectionMode',false);
+  prefs.set('extensions.reading-shelf.rememberCollectionMode',false);
   assert.equal(ctx.matrixModeFor(c1),false);
-  prefs.set('extensions.syllabus-lite.language','en');
+  prefs.set('extensions.reading-shelf.language','en');
   assert.equal(ctx.tr('Reading'),'Reading');
   assert.match(infoRows[0].onGetData({item:parent}), /Reading.*Important.*Urgent/);
   let cacheClears=0, redraws=0, layouts=0;

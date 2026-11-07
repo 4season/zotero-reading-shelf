@@ -58,7 +58,7 @@ class Element {
   }
 }
 const project = path.resolve(__dirname, "..");
-const prefs = new Map([["extensions.syllabus-lite.language", "en"]]);
+const prefs = new Map([["extensions.reading-shelf.language", "en"]]);
 const loadedScripts = [];
 const ctx = vm.createContext({
   Components: { utils: { Sandbox: () => vm.createContext({}) } },
@@ -205,10 +205,10 @@ view.win.matchMedia = () => ({ matches: false });
 let animationFrame;
 view.win.requestAnimationFrame = callback => { animationFrame = callback; return 1; };
 view.gallery = new Element();
-prefs.set("extensions.syllabus-lite.matrixBorders", false);
+prefs.set("extensions.reading-shelf.matrixBorders", false);
 view.applyVisibilitySettings();
 assert.equal(view.gallery.dataset.matrixBorders, "false");
-prefs.set("extensions.syllabus-lite.matrixBorders", true);
+prefs.set("extensions.reading-shelf.matrixBorders", true);
 view.applyVisibilitySettings();
 assert.equal(view.gallery.dataset.matrixBorders, "true");
 for (const [key, className] of [
@@ -217,10 +217,10 @@ for (const [key, className] of [
   ["hideSizeControl", "sl-hide-size"],
   ["hideSortControl", "sl-hide-sort"]
 ]) {
-  prefs.set("extensions.syllabus-lite." + key, true);
+  prefs.set("extensions.reading-shelf." + key, true);
   view.applyVisibilitySettings();
   assert.ok(view.gallery.classes.has(className));
-  prefs.set("extensions.syllabus-lite." + key, false);
+  prefs.set("extensions.reading-shelf." + key, false);
   view.applyVisibilitySettings();
   assert.ok(!view.gallery.classes.has(className));
 }
@@ -240,9 +240,9 @@ animationFrame();
 assert.equal(view.gallery.style["--sl-card-width"], "132px");
 assert.equal(view.gallery.style["--sl-card-scale"], "0.75");
 assert.equal(view.gallery.style["--sl-column-width"], "calc((100% - 85px) / 6)");
-assert.equal(prefs.has("extensions.syllabus-lite.cardScale"), false);
+assert.equal(prefs.has("extensions.reading-shelf.cardScale"), false);
 size.fire("change");
-assert.equal(prefs.get("extensions.syllabus-lite.cardScale"), 75);
+assert.equal(prefs.get("extensions.reading-shelf.cardScale"), 75);
 view.sizeControl();
 assert.equal(view.gallery.style["--sl-card-width"], "132px");
 view.visibility = { observe() {} };

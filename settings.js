@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 (() => {
-  const prefix = "extensions.syllabus-lite.";
+  const prefix = "extensions.reading-shelf.";
   const colorDefaults = {plannedColor:"#356b24",readingColor:"#1659b7",completedColor:"#6750a4",importantColor:"#8a4b00",urgencyColor:"#a82330",urgentColor:"#c76a6a",laterColor:"#638ebd",queueColor:"#789866"};
   const resetGroups = {status:["plannedColor","readingColor","completedColor"],priority:["importantColor","urgencyColor"],borders:["urgentColor","laterColor","queueColor"],all:Object.keys(colorDefaults)};
   const updateDependencies = () => {

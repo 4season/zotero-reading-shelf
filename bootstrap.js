@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-const PREF = "extensions.syllabus-lite.";
+const PREF = "extensions.reading-shelf.";
+const LEGACY_PREF = "extensions.syllabus-lite.";
 const NAME = "Reading Shelf";
 const VISIBILITY_PREFS = [
   ["hideCardButtons", "sl-hide-card-buttons"],
@@ -214,7 +215,30 @@ let renderingCover = false;
 function install() {}
 function uninstall() {}
 
+// Settings were stored under the old "syllabus-lite" name before 1.2.4. Copy every value the user
+// has set to the new name once, without overwriting anything already stored there. The old values
+// are left in place so that downgrading keeps working.
+function migratePreferences() {
+  const flag = PREF + "migratedLegacyPreferences";
+  if (Zotero.Prefs.get(flag, true) === true) return;
+  try {
+    const legacy = Services.prefs.getBranch(LEGACY_PREF);
+    for (const name of legacy.getChildList("")) {
+      if (!legacy.prefHasUserValue(name) || Services.prefs.prefHasUserValue(PREF + name)) continue;
+      switch (legacy.getPrefType(name)) {
+        case legacy.PREF_BOOL: Zotero.Prefs.set(PREF + name, legacy.getBoolPref(name), true); break;
+        case legacy.PREF_INT: Zotero.Prefs.set(PREF + name, legacy.getIntPref(name), true); break;
+        case legacy.PREF_STRING: Zotero.Prefs.set(PREF + name, legacy.getStringPref(name), true); break;
+      }
+    }
+    Zotero.Prefs.set(flag, true, true);
+  } catch (error) {
+    Zotero.logError(error);
+  }
+}
+
 async function startup({ id, rootURI, version }) {
+  migratePreferences();
   root = rootURI;
   assetVersion = version || "dev";
   statusColumn = await Zotero.ItemTreeManager.registerColumn({
