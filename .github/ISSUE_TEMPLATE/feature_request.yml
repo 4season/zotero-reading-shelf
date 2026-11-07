@@ -1,0 +1,19 @@
+name: Feature request / 기능 제안
+description: An idea to make Reading Shelf more useful. 더 유용하게 만들 아이디어입니다.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in **English or Korean (한국어)**. 영어와 한국어 모두 괜찮습니다.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do? / 무엇을 하고 싶으신가요?
+      description: Describe the situation or problem first; it helps me find the best solution. 먼저 상황이나 문제를 설명해 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see? / 어떻게 되면 좋을까요?
