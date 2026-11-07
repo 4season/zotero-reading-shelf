@@ -198,6 +198,7 @@ function tableStatus(item) {
 let infoRow;
 
 let root;
+let assetVersion = "dev";
 let descriptionRenderer;
 let observerID;
 let preferenceObservers = [];
@@ -211,8 +212,9 @@ let renderingCover = false;
 function install() {}
 function uninstall() {}
 
-async function startup({ id, rootURI }) {
+async function startup({ id, rootURI, version }) {
   root = rootURI;
+  assetVersion = version || "dev";
   statusColumn = await Zotero.ItemTreeManager.registerColumn({
     pluginID: id, dataKey: "readingStatus", label: "Reading Shelf", width: "190",
     dataProvider: item => [tableStatus(item), importantOf(item) ? "important" : "", urgentOf(item) ? "urgent" : ""].join("|"),
@@ -279,7 +281,7 @@ async function startup({ id, rootURI }) {
     pluginID: id,
     src: "settings.xhtml",
     scripts: ["settings.js"],
-    stylesheets: ["settings.css"],
+    stylesheets: ["settings.css?v=" + encodeURIComponent(assetVersion)],
     image: "icons/reading-shelf.svg",
     label: "Reading Shelf"
   }).catch(error => Zotero.logError(error));
@@ -502,7 +504,7 @@ class Gallery {
     if (!this.container || !toolbar) return false;
     this.style = this.doc.createElementNS("http://www.w3.org/1999/xhtml", "link");
     this.style.rel = "stylesheet";
-    this.style.href = root + "gallery.css";
+    this.style.href = root + "gallery.css?v=" + encodeURIComponent(assetVersion);
     this.doc.documentElement.append(this.style);
     this.toggle = this.button("Gallery", () => {
       this.enabled = !this.enabled;
