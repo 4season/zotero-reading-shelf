@@ -17,6 +17,9 @@ const BASE_CARD_WIDTH = 176;
 const MIN_CARD_SCALE = 65;
 const MAX_CARD_SCALE = 150;
 const windows = new Map();
+// Gentle ease-in-out so motion starts and ends softly instead of jumping on the first frame.
+const MOTION_EASING = "cubic-bezier(.4,0,.2,1)";
+const MOTION_MS = 280;
 let statusColumn;
 let statusMenu;
 const orderStatusCache = new Map();
@@ -593,6 +596,10 @@ class Gallery {
     const editorSelection = editorFocused ? [focus.selectionStart, focus.selectionEnd] : [];
     const sortFocused = !!focus && this.sortControl === focus;
     if (this.descriptionDraft?.collectionID !== collection.id) this.descriptionDraft = null;
+    // Rebuilding replaces every card node (for example when the mode changes); remember where the
+    // visible ones were so they can glide to their new places instead of jumping.
+    const reduceMotion = !!this.win.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const previousRects = sameCollection && !reduceMotion ? this.visibleCardRects() : null;
     this.clear();
     this.collection = collection;
     this.gallery = this.element("section", "sl-gallery");
@@ -615,13 +622,14 @@ class Gallery {
         const card = this.cards.get(Number(entry.target.dataset.itemId));
         if (!card || card.node !== entry.target) continue;
         card.visible = entry.isIntersecting;
-        if (card.visible && !card.item.isNote?.()) this.loadCard(card);
+        if (card.visible && !card.item.isNote?.()) this.loadCardWhenIdle(card);
         else if (!card.visible) this.release(card);
       }
     }, { root: this.gallery, rootMargin: "240px 0px" });
     try {
       this.render();
       this.gallery.scrollTop = preserveScroll;
+      if (previousRects?.size) this.animateFrom(previousRects);
       if (focused) this.cards.get(focused.item.id)?.[focusAction]?.focus({ preventScroll: true });
       if (sortFocused) this.sortControl?.focus({ preventScroll: true });
       if (editorFocused && this.descriptionDraft?.editor) {
@@ -631,6 +639,32 @@ class Gallery {
     } catch (error) {
       Zotero.logError(error);
       this.gallery.append(this.element("p", "sl-muted", "Could not load this gallery."));
+    }
+  }
+
+  visibleCardRects() {
+    const rects = new Map();
+    for (const card of this.cards.values()) {
+      if (!card.child && card.visible && card.node.isConnected) rects.set(card.item.id, card.node.getBoundingClientRect());
+    }
+    return rects;
+  }
+
+  animateFrom(previousRects) {
+    const top = -200, bottom = this.win.innerHeight + 200;
+    for (const card of this.cards.values()) {
+      const old = previousRects.get(card.item.id);
+      if (!old || card.child || typeof card.node.animate !== "function") continue;
+      const now = card.node.getBoundingClientRect();
+      if (now.bottom < top || now.top > bottom) continue;
+      const x = old.left - now.left, y = old.top - now.top;
+      const scale = now.width ? old.width / now.width : 1;
+      if (Math.abs(x) + Math.abs(y) < 1 && Math.abs(scale - 1) < .005) continue;
+      card.motion = card.node.animate([
+        { transform: `translate(${x}px, ${y}px) scale(${scale})`, transformOrigin: "top left" },
+        { transform: "none", transformOrigin: "top left" }
+      ], { duration: MOTION_MS, easing: MOTION_EASING });
+      this.animatingUntil = Date.now() + MOTION_MS;
     }
   }
 
@@ -1160,8 +1194,9 @@ class Gallery {
           { transform: `translate(${x}px, ${y}px) scale(${scale})`, transformOrigin: "top left" },
           { transform: "none", transformOrigin: "top left" }
         ],
-        { duration: resizing ? 120 : 180, easing: "cubic-bezier(.2,.7,.25,1)" }
+        { duration: resizing ? 120 : MOTION_MS, easing: MOTION_EASING }
       );
+      this.animatingUntil = Date.now() + (resizing ? 120 : MOTION_MS);
     }
   }
 
@@ -1372,7 +1407,7 @@ class Gallery {
         for (const child of this.childCards) {
           child.motion = child.node.animate(
             [{ opacity: 0, transform: "translateX(-6px)" }, { opacity: 1, transform: "none" }],
-            { duration: 160, easing: "ease-out" }
+            { duration: 240, easing: MOTION_EASING }
           );
         }
       }
@@ -1394,7 +1429,7 @@ class Gallery {
     this.gallery.append(copy);
     const exit = copy.animate(
       [{ opacity: 1 }, { opacity: 0, transform: "translateX(-6px)" }],
-      { duration: 120, easing: "ease-in", fill: "forwards" }
+      { duration: 160, easing: MOTION_EASING, fill: "forwards" }
     );
     const remove = () => copy.remove();
     exit.finished.then(remove, remove);
@@ -1457,6 +1492,19 @@ class Gallery {
       card.request = null;
     }
     card.cover.querySelector("img")?.remove();
+  }
+
+  // Rendering a preview is heavy main-thread work; hold it back until a running card animation
+  // has finished so the motion does not stutter.
+  loadCardWhenIdle(card) {
+    const wait = (this.animatingUntil || 0) - Date.now();
+    if (wait <= 0 || typeof this.win.setTimeout !== "function") { this.loadCard(card); return; }
+    if (card.deferred) return;
+    card.deferred = true;
+    this.win.setTimeout(() => {
+      card.deferred = false;
+      if (card.visible && this.cards.get(card.item.id) === card) this.loadCard(card);
+    }, wait + 20);
   }
 
   loadCard(card) {

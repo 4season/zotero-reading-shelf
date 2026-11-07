@@ -184,6 +184,29 @@ const opened = [];
 view.open = async item => { opened.push(item.id); };
 const first = view.makeCard(a, "Kim");
 const second = view.makeCard(b, "");
+// Preview rendering waits while a card animation is running, then proceeds.
+{
+  const loaded = [], timers = [];
+  const realLoad = view.loadCard, realTimeout = view.win.setTimeout;
+  view.loadCard = card => loaded.push(card.item.id);
+  view.win.setTimeout = (fn, ms) => { timers.push([fn, ms]); };
+  const idleCard = { item: { id: 77 }, visible: true };
+  view.cards.set(77, idleCard);
+  view.animatingUntil = 0;
+  view.loadCardWhenIdle(idleCard);
+  assert.deepEqual(Array.from(loaded), [77]);
+  loaded.length = 0;
+  view.animatingUntil = Date.now() + 5000;
+  view.loadCardWhenIdle(idleCard);
+  view.loadCardWhenIdle(idleCard);
+  assert.equal(loaded.length, 0);
+  assert.equal(timers.length, 1);
+  view.animatingUntil = 0;
+  timers[0][0]();
+  assert.deepEqual(Array.from(loaded), [77]);
+  view.cards.delete(77);
+  view.loadCard = realLoad; view.win.setTimeout = realTimeout;
+}
 // Standalone notes get importance and urgency buttons, but no reading status.
 {
   const topNote = { id: 41, libraryID: 1, key: "TOPNOTE", isNote: () => true, isRegularItem: () => false,
@@ -294,7 +317,7 @@ assert.equal(view.drag, null);
 assert.equal(ctx.readingData(collection).order.join(","), "B,A");
 assert.equal(orderedGroup.grid.children[1], second.node);
 assert.equal(orderedGroup.grid.children[2], first.node);
-assert.equal(first.node.lastAnimation.options.duration, 180);
+assert.equal(first.node.lastAnimation.options.duration, 280);
 assert.equal(second.order.textContent, "−");
 
 second.node.fire("dragstart", { dataTransfer });
@@ -447,7 +470,7 @@ const attachment = (type, available) => ({
     ...book, id: 35, key: "ONLY", getNotes: () => [], getAttachments: () => [coverPDF.id]
   }, "Kim");
   assert.equal(onlyPrimary.cover.attrs.has("aria-expanded"), false);
-  assert.equal(view.cards.get(note.id).node.lastAnimation.options.duration, 160);
+  assert.equal(view.cards.get(note.id).node.lastAnimation.options.duration, 240);
   const menus = [];
   view.pane.onItemsContextMenuOpen = async (_event, x, y) => menus.push([selectedRows[0], x, y]);
   await view.openContextMenu(view.cards.get(note.id), { screenX: 80, screenY: 90 });
@@ -462,7 +485,7 @@ const attachment = (type, available) => ({
   view.clearSelection();
   const exiting = view.gallery.children.find(node => node.classes.has("sl-child-exit"));
   assert.equal(exiting.inert, true);
-  assert.equal(exiting.lastAnimation.options.duration, 120);
+  assert.equal(exiting.lastAnimation.options.duration, 160);
   await Promise.resolve();
   assert.ok(!view.gallery.children.includes(exiting));
   assert.equal(view.selection, null);

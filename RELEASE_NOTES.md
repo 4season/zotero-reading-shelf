@@ -1,22 +1,25 @@
-# Reading Shelf 1.3.3 — Layout fixes for ★/◷
+# Reading Shelf 1.3.4 — Smoother animations
 
 **English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
 ![Dragging papers between lanes and switching modes in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-eisenhower.gif)
 
-## Fixes
+## What's improved
 
-- **Cards no longer shift when you hover over them.** The row with the reading status and ★/◷ now always reserves the height of the buttons, so showing them on hover does not push the content below.
-- **Note cards have room under the title.** Notes have no author line, so the ★/◷ buttons used to sit right against the title; they now have the same breathing room as on other cards.
-- **Notes line up in the table.** In the Reading Shelf column, a note's ★ and ◷ now sit in the same columns as on other rows instead of one column to the left.
+- **Switching between the bookshelf and Eisenhower layouts now animates.** Cards glide to their new places instead of jumping.
+- **Opening and closing a paper's notes and attachments is smoother.** The motion is a little longer (about 0.28 s) with a gentler start and finish, so it no longer looks abrupt.
+- **No more stutter when the extra cards appear.** Rendering the preview images for newly shown cards now waits until the animation has finished, instead of competing with it.
+- **★, ◷ and the reading status fade in** when you hover over a card, instead of popping in.
+
+All motion respects the system's "reduce motion" setting.
 
 ## Update
 
-Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.3.xpi** via **⚙ → Install Plugin From File…**.
+Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.4.xpi** via **⚙ → Install Plugin From File…**.
 
 ## Known limits
 
-Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The spacing was measured in a browser demo and covered by automated tests; fonts and display scaling in Zotero may look slightly different.
+Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The causes were found by analysing a screen recording and the changes are covered by automated tests; how smooth it feels on your machine may still vary.
 
 ## License
 

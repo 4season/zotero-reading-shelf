@@ -567,3 +567,14 @@
    and give note cards (which have no author line) the same breathing room under the title. */
 .sl-gallery .sl-workflow-controls { min-height:1.65em; }
 .sl-gallery .sl-note-card .sl-workflow-controls { margin-top:.5em; }
+
+/* Controls that appear on hover fade in instead of popping in. */
+@keyframes sl-reveal { from { opacity:0; } to { opacity:1; } }
+.sl-gallery .sl-card:is(:hover,:focus-within) .sl-priority[aria-pressed="false"][data-hide-empty="true"],
+.sl-gallery .sl-card:is(:hover,:focus-within) .sl-status-picker[data-empty="true"][data-hide-empty="true"] { animation:sl-reveal 140ms ease-out; }
+.sl-table-workflow .sl-table-priority[aria-pressed="false"][data-hide-empty="true"],
+.sl-table-workflow .sl-status-picker[data-empty="true"][data-hide-empty="true"] { transition:opacity 120ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .sl-gallery .sl-card .sl-priority, .sl-gallery .sl-card .sl-status-picker { animation:none !important; }
+  .sl-table-workflow .sl-table-priority, .sl-table-workflow .sl-status-picker { transition:none !important; }
+}
