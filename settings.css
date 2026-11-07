@@ -13,3 +13,5 @@
 #sl-settings .sl-settings-subgroup { margin: 10px 0 14px; padding: 0 0 12px; border-bottom: 1px solid var(--fill-quinary, #ddd); }
 #sl-settings .sl-settings-subgroup:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
 #sl-settings .sl-settings-subgroup h4 { font: inherit; font-size: 1.05rem; font-weight: 650; margin: 0 0 8px; }
+
+#sl-settings .sl-color-hex { width: 7em; font: inherit; padding: 4px 6px; }

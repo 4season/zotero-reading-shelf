@@ -43,6 +43,10 @@
     const key = event.target.getAttribute?.("data-sl-color");
     if (Object.hasOwn(colorDefaults, key) && /^#[0-9a-f]{6}$/i.test(event.target.value)) {
       Zotero.Prefs.set(prefix + key, event.target.value, true);
+      const root = document.getElementById("sl-settings");
+      for (const field of root?.querySelectorAll("[data-sl-color]") || []) {
+        if (field !== event.target && field.getAttribute("data-sl-color") === key) field.value = event.target.value;
+      }
     }
   };
   // macOS color panels emit input while open and change only on close.
