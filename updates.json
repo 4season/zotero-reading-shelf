@@ -1,0 +1,19 @@
+{
+  "addons": {
+    "syllabus-lite@local.zotero": {
+      "updates": [
+        {
+          "version": "1.2.1",
+          "update_link": "https://github.com/4season/zotero-reading-shelf/releases/download/v1.2.1/zotero-reading-shelf-1.2.1.xpi",
+          "update_hash": "sha256:5acbd7cb3cf6fb00bbc69a301256b721769099a138734374fa4938f2cd6b32ee",
+          "applications": {
+            "zotero": {
+              "strict_min_version": "10.0",
+              "strict_max_version": "10.*"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
