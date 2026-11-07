@@ -741,10 +741,17 @@ class Gallery {
         const markup = renderDescriptionMarkup(text);
         // Whitespace-only Markdown constructs must not leave a zero-height edit target.
         const visibleText = markup.replace(/<[^>]*>/g, "").replace(/&(?:nbsp|#160);/g, " ").trim();
-        if (visibleText) display.innerHTML = markup;
-        else display.textContent = text;
-        display.classList.add("sl-description-rich");
+        if (visibleText) {
+          // Zotero's host is XML/XUL: innerHTML interprets HTML void tags as XML.
+          // Parse in an HTML document, then import namespace-correct nodes instead.
+          const parsed = new this.win.DOMParser().parseFromString(markup, "text/html");
+          const nodes = Array.from(parsed.body.childNodes, node => this.doc.importNode(node, true));
+          display.replaceChildren(...nodes);
+          if (display.textContent.trim()) display.classList.add("sl-description-rich");
+          else display.textContent = text;
+        } else display.textContent = text;
       } catch (error) {
+        display.textContent = text;
         Zotero.logError(error);
       }
       display.addEventListener("click", event => {
@@ -1022,11 +1029,11 @@ class Gallery {
     }
     const cover = this.element("button", "sl-cover");
     cover.type = "button";
-    cover.title = title + " · " + tr("Double-click to open");
+
     cover.setAttribute("aria-label", title + " · " + tr("Select item, double-click to open"));
     if (canExpand) {
       cover.setAttribute("aria-expanded", "false");
-      cover.title += " · " + tr("Click to show notes and attachments");
+
     }
     cover.addEventListener("keydown", event => {
       if (event.key !== "Enter") return;

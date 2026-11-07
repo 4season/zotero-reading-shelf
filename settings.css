@@ -2,8 +2,10 @@
 #sl-settings { padding: 8px 6px 24px; }
 #sl-settings .sl-settings-section { margin: 24px 0 0; padding: 18px 16px; border: 1px solid var(--fill-quaternary, #ccc); border-radius: 8px; }
 #sl-settings .sl-settings-title { font-size: 1.25rem; font-weight: 700; line-height: 1.4; margin: 0 0 16px; }
-#sl-settings checkbox { margin: 6px 0; }
-#sl-settings hbox { gap: 12px; margin: 7px 0; }
+#sl-settings checkbox { margin: 4px 0; }
+#sl-settings hbox { gap: 12px; margin: 5px 0; }
 #sl-settings .sl-setting-row > label { min-width: 10em; }
 #sl-settings .sl-settings-help { margin: 18px 2px 0; line-height: 1.65; }
 #sl-settings input[type="color"] { width: 64px; height: 32px; padding: 3px; }
+
+#sl-settings .sl-setting-row[data-disabled="true"] { opacity: .5; }

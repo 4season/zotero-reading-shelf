@@ -4,7 +4,7 @@ Reading Shelf is an independent third-party plugin compatible with Zotero. It ad
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.2.0-beta.5.xpi` from the GitHub release.
+1. Download `zotero-reading-shelf-1.2.0-beta.6.xpi` from the GitHub release.
 2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
 3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
 
@@ -82,3 +82,7 @@ The automated tests exercise gallery logic and PDF handling. They do not launch 
 ## License and credits
 
 This project is distributed under [AGPL-3.0](LICENSE). See [NOTICE.md](NOTICE.md) for Zotero Syllabus attribution and bundled library notices.
+
+### Browser layout regression fixture
+
+Run `python3 -m http.server 8767` in the source folder and open `http://127.0.0.1:8767/tests/layout.html`. The fixture uses the production Markdown renderer and stylesheet, reproduces the old XML insertion error, checks a 50-line description after import, and checks transparent focused status controls, fixed table slots and matrix spacing. It uses synthetic items and does not access a Zotero library. Settings dependencies disable subordinate controls without clearing their saved values.

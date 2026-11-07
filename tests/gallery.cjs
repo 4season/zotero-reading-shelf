@@ -41,7 +41,12 @@ class Element {
     this.lastAnimation = { frames, options };
     return { cancel() {}, finished: Promise.resolve() };
   }
-  replaceChildren() { this.children = []; }
+  rawText = "";
+  get textContent() { return this.children.length ? this.children.map(x=>x.textContent).join("") : this.rawText; }
+  set textContent(value) { this.rawText=value; this.children=[]; this.html=undefined; }
+  get innerHTML() { return this.html ?? (this.children.length ? this.children.map(x=>x.innerHTML ?? x.textContent).join("") : this.rawText); }
+  set innerHTML(value) { this.html=value; this.rawText=value.replace(/<[^>]*>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&"); this.children=[]; }
+  replaceChildren(...nodes) { this.children = []; this.rawText=""; this.html=undefined; this.append(...nodes); }
   get firstChild() { return this.children[0]; }
   get selectedOptions() { return this.children.filter(child => child.value === this.value); }
   cloneNode() { return new Element(); }
@@ -80,7 +85,12 @@ prefs.set(ctx.preferenceKey(collection), JSON.stringify({ order: ["A"], descript
 const selected = [];
 let selectedRows = [];
 const view = new Gallery({
-  document: { createElementNS: () => new Element() },
+  document: { createElementNS: () => new Element(), importNode: node => node },
+  DOMParser: class { parseFromString(markup, type) {
+    assert.equal(type, "text/html");
+    const node = new Element(); node.innerHTML=markup;
+    return {body:{childNodes:[node]}};
+  } },
   ZoteroPane: { itemsView: {
     async selectItems(ids) { selected.push(ids[0]); selectedRows = ids; return ids.length; },
     getSelectedItems: () => selectedRows,
@@ -129,7 +139,15 @@ view.description.firstChild.fire("dblclick");
 assert.equal(view.description.firstChild.value, longDescription);
 view.description.firstChild.fire("keydown", {key:"Escape"});
 view.renderDescription("<!-- invisible Markdown -->");
-assert.equal(view.description.firstChild.textContent, "<!-- invisible Markdown -->");
+assert.equal(view.description.firstChild.textContent.trim(), "<!-- invisible Markdown -->");
+const multiline = "### Mountsort5 기반 연구\n" + ".\n".repeat(30);
+view.renderDescription(multiline);
+assert.match(view.description.firstChild.innerHTML, /<h3>/);
+assert.match(view.description.firstChild.innerHTML, /<br>/);
+assert.match(view.description.firstChild.textContent, /Mountsort5/);
+view.description.firstChild.fire("dblclick");
+assert.equal(view.description.firstChild.value, multiline);
+view.description.firstChild.fire("keydown", {key:"Escape"});
 view.renderDescription("Original");
 console.log("Description Markdown, LaTeX, safe links, source editing and cancel passed");
 

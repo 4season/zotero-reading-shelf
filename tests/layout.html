@@ -1,0 +1,63 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Reading Shelf layout regression fixture</title>
+<link rel="stylesheet" href="../gallery.css">
+<style>body{font:16px system-ui;margin:0;color-scheme:light}#report{position:fixed;right:12px;bottom:10px;z-index:100;background:#d7f4dc;padding:10px;border:1px solid #496}</style>
+<main id="fixture"></main><output id="report">Checking…</output>
+<script>
+window.prefs=new Map();window.Zotero={Prefs:{get:k=>prefs.get(k),set:(k,v)=>prefs.set(k,v)},logError:e=>{throw e;}};window.ZoteroPane={itemsView:{}};
+</script>
+<script src="../vendor/markdown-it.min.js"></script>
+<script src="../description.js"></script>
+<script src="../bootstrap.js"></script>
+<script>window.renderDescriptionMarkup=createDescriptionRenderer(markdownit,()=>null);</script>
+<script>
+  window.view=new Gallery(window); view.collection={id:1}; view.visibility={observe(){}};
+  view.gallery=document.createElement('div');view.gallery.className='sl-gallery';view.gallery.style.setProperty('--sl-card-width','176px');view.gallery.style.setProperty('--sl-card-gap','17px');document.querySelector('#fixture').append(view.gallery);
+  view.description=view.element('div','sl-description');view.gallery.append(view.description);view.renderDescription('메모를 더블클릭하면 수정할 수 있습니다.');
+  const matrix=view.element('div','sl-matrix');view.gallery.append(matrix);
+  const empty=view.section('Urgent & important',true,'Drag papers here or use + on a card.');
+  const full=view.section('Important, not urgent',true,'Drop here');
+  empty.section.classList.add('sl-lane-urgent');full.section.classList.add('sl-lane-later');matrix.append(empty.section,full.section);
+  for(let i=0;i<2;i++){
+    const item={id:i+1,libraryID:1,key:'K'+i,isRegularItem:()=>true,getDisplayTitle:()=>i?'긴 제목이 있는 논문입니다':'Past, present and future of spike sorting techniques'};
+    const c=view.makeCard(item,'Rey et al.');
+    Zotero.Prefs.set('extensions.syllabus-lite.status.1.K'+i,'planned');view.refreshStatus(c);
+    c.preview.style.background='white';c.placeholder.textContent='PDF'; full.grid.append(c.node);
+  }
+  const q=view.section('Reading queue',true,'Drag papers here or use + on a card.');q.section.classList.add('sl-lane-queue');matrix.append(q.section);
+const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
+(async()=>{try{
+ for(const language of ['ko','en'])for(const scale of [.65,1,1.5]){
+ prefs.set('extensions.syllabus-lite.language',language);view.gallery.style.setProperty('--sl-card-scale',scale);view.gallery.style.setProperty('--sl-card-width',176*scale+'px');for(const c of view.cards.values())view.refreshStatus(c);
+ await new Promise(requestAnimationFrame);
+ const a=document.querySelector('.sl-lane-urgent').getBoundingClientRect(),b=document.querySelector('.sl-lane-later').getBoundingClientRect();assert(Math.abs(a.height-b.height)<1,'empty lane height');
+ for(const x of document.querySelectorAll('.sl-status-picker'))assert(x.getBoundingClientRect().width<=x.firstChild.getBoundingClientRect().width+3,'status width');
+ }
+ const before=view.description.offsetHeight;view.renderDescription('긴 메모입니다.\n'.repeat(80));assert(view.description.offsetHeight>before*10,'memo growth');assert(view.description.firstChild.scrollHeight<=view.description.firstChild.clientHeight+2,'memo scroll');
+ view.description.firstChild.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));
+ view.descriptionDraft.editor.value='긴 편집 메모\n'.repeat(100);view.descriptionDraft.editor.dispatchEvent(new Event('input'));await new Promise(requestAnimationFrame);assert(view.descriptionDraft.editor.scrollHeight<=view.descriptionDraft.editor.clientHeight+2,'editor growth');
+ view.descriptionDraft=null;view.renderDescription('메모를 더블클릭하면 수정할 수 있습니다.');
+ prefs.set('extensions.syllabus-lite.language','ko');view.gallery.style.setProperty('--sl-card-scale',1);view.gallery.style.setProperty('--sl-card-width','176px');for(const c of view.cards.values())view.refreshStatus(c);
+ 
+ const xml=new DOMParser().parseFromString('<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"/>','application/xml');
+ const xmlView=new Gallery({document:xml,DOMParser,requestAnimationFrame,ZoteroPane:{}});xmlView.collection={id:1};xmlView.description=xml.createElementNS('http://www.w3.org/1999/xhtml','div');
+ const raw='### Mountsort5 기반 연구\n'+'.\n'.repeat(50);
+ const markup=renderDescriptionMarkup(raw);let originalRejected=false;
+ try{const original=xml.createElementNS('http://www.w3.org/1999/xhtml','div');original.innerHTML=markup;}catch(e){originalRejected=true;}
+ assert(originalRejected,'original XML innerHTML must reproduce failure');
+ xmlView.renderDescription(raw);
+ assert(xmlView.description.textContent.includes('Mountsort5'),'XML memo heading retained');
+ assert(xmlView.description.querySelectorAll('br').length>=40,'XML memo line breaks retained');
+ const c=[...view.cards.values()][0];c.cover.focus();
+ assert(getComputedStyle(c.statusControl).opacity==='0','focused native picker stays transparent');
+ assert(!c.cover.hasAttribute('title'),'no long cover tooltip');
+ const gap=getComputedStyle(document.querySelector('.sl-matrix')).rowGap;assert(gap==='12px','matrix gap');
+ const slots=document.createElement('div');slots.className='sl-table-workflow cell';slots.style.width='190px';
+ const picker=createStatusPicker(document,'',()=>{});const star=document.createElement('button'),urgent=document.createElement('button');star.className=urgent.className='sl-table-priority';star.textContent='☆';urgent.textContent='○';slots.append(picker.wrapper,star,urgent);document.body.append(slots);
+ await new Promise(requestAnimationFrame);
+ const x=star.getBoundingClientRect().x;picker.face.textContent='Reading';picker.wrapper.dataset.empty='false';star.setAttribute('aria-pressed','true');star.textContent='★';
+ slots.dataset.before=String(x);slots.dataset.after=String(star.getBoundingClientRect().x);assert(Math.abs(star.getBoundingClientRect().x-x)<.1,'stable table slots '+x+' -> '+star.getBoundingClientRect().x);
+ document.querySelector('#report').textContent='PASS · XML failure reproduced/fixed · 50-line memo · transparent picker · fixed table slots · 12px gap';
+ }catch(e){document.querySelector('#report').textContent='FAIL · '+e.message;console.error(e);}})();
+</script>

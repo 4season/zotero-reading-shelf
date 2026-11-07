@@ -20,11 +20,11 @@
   <hbox class="sl-setting-row" align="center"><label value="그림자" data-sl-en="Shadow" data-sl-ko="그림자"/><menulist preference="extensions.syllabus-lite.shadowStrength"><menupopup>
     <menuitem label="없음" data-sl-en="Off" data-sl-ko="없음" value="off"/><menuitem label="약하게" data-sl-en="Soft" data-sl-ko="약하게" value="soft"/><menuitem label="보통" data-sl-en="Medium" data-sl-ko="보통" value="medium"/><menuitem label="강하게" data-sl-en="Strong" data-sl-ko="강하게" value="strong"/>
   </menupopup></menulist></hbox>
-  <checkbox label="다크 모드에서도 그림자 사용" data-sl-en="Enable shadows in dark mode too" data-sl-ko="다크 모드에서도 그림자 사용" preference="extensions.syllabus-lite.shadowDark"/>
-  <checkbox label="아이젠하워 행렬 테두리 색상 사용" data-sl-en="Use colored Eisenhower lane borders" data-sl-ko="아이젠하워 행렬 테두리 색상 사용" preference="extensions.syllabus-lite.matrixBorders"/>
-  <hbox class="sl-setting-row" align="center"><label value="긴급·중요 영역" data-sl-en="Urgent lane" data-sl-ko="긴급·중요 영역"/><html:input type="color" value="#c76a6a" data-sl-color="urgentColor" aria-label="Urgent lane border color"/></hbox>
-  <hbox class="sl-setting-row" align="center"><label value="중요 영역" data-sl-en="Important lane" data-sl-ko="중요 영역"/><html:input type="color" value="#638ebd" data-sl-color="laterColor" aria-label="Important lane border color"/></hbox>
-  <hbox class="sl-setting-row" align="center"><label value="대기열 영역" data-sl-en="Queue" data-sl-ko="대기열 영역"/><html:input type="color" value="#789866" data-sl-color="queueColor" aria-label="Queue border color"/></hbox>
+  <checkbox label="다크 모드에서도 그림자 사용" data-sl-en="Enable shadows in dark mode too" data-sl-ko="다크 모드에서도 그림자 사용" data-sl-depends="shadowStrength" preference="extensions.syllabus-lite.shadowDark"/>
+  <checkbox label="아이젠하워 행렬 테두리 색상 사용" data-sl-en="Use colored Eisenhower lane borders" data-sl-ko="아이젠하워 행렬 테두리 색상 사용" data-sl-depends="matrixMode" preference="extensions.syllabus-lite.matrixBorders"/>
+  <hbox class="sl-setting-row" align="center"><label value="긴급·중요 영역" data-sl-en="Urgent lane" data-sl-ko="긴급·중요 영역"/><html:input type="color" value="#c76a6a" data-sl-depends="matrixBorders" data-sl-color="urgentColor" aria-label="Urgent lane border color"/></hbox>
+  <hbox class="sl-setting-row" align="center"><label value="중요 영역" data-sl-en="Important lane" data-sl-ko="중요 영역"/><html:input type="color" value="#638ebd" data-sl-depends="matrixBorders" data-sl-color="laterColor" aria-label="Important lane border color"/></hbox>
+  <hbox class="sl-setting-row" align="center"><label value="대기열 영역" data-sl-en="Queue" data-sl-ko="대기열 영역"/><html:input type="color" value="#789866" data-sl-depends="matrixBorders" data-sl-color="queueColor" aria-label="Queue border color"/></hbox>
   </groupbox>
   <description class="sl-settings-help" data-sl-en="Left: urgent and important. Right: important, not urgent. A second row holds queued items; other items remain below. Use the star and clock controls, or drag into a lane. Reading status is independent of importance and urgency. Changes apply immediately." data-sl-ko="왼쪽: 긴급하고 중요한 자료. 오른쪽: 중요하지만 덜 급한 자료. 두 번째 행에는 읽기 대기열, 그 아래에는 나머지 자료가 표시됩니다. 별 / 시계 버튼이나 드래그로 분류하세요. 읽기 상태는 중요도·긴급도와 독립적이며, 설정은 바로 적용됩니다.">왼쪽: 긴급하고 중요한 자료. 오른쪽: 중요하지만 덜 급한 자료. 아래 행: 읽기 대기열.</description>
 </groupbox>
