@@ -67,6 +67,7 @@ const ctx = vm.createContext({
     }
   },
   Zotero: {
+  ItemTreeManager: { refreshColumns() {} },
   Prefs: { get: key => prefs.get(key), set: (key, value) => prefs.set(key, value) },
   CreatorTypes: { getPrimaryIDForType: () => 1 },
   logError: error => { throw error; }
@@ -155,6 +156,7 @@ assert.equal(ctx.coverDimensions(1600, 900).join(","), "240,135");
 assert.equal(ctx.coverDimensions(800, 1200).join(","), "240,360");
 assert.equal(ctx.isBlank({ getImageData: () => ({ data: new Uint8Array(100).fill(255) }) }, 5, 5), true);
 
+view.win.DOMParser = class { parseFromString(text) { return { body: { textContent: text.replace(/<[^>]*>/g, "") } }; } };
 view.win.getComputedStyle = () => ({ direction: "ltr" });
 view.win.matchMedia = () => ({ matches: false });
 let animationFrame;
@@ -162,6 +164,7 @@ view.win.requestAnimationFrame = callback => { animationFrame = callback; return
 view.gallery = new Element();
 for (const [key, className] of [
   ["hideCardButtons", "sl-hide-card-buttons"],
+  ["hideChildIndicator", "sl-hide-child-indicator"],
   ["hideSizeControl", "sl-hide-size"],
   ["hideSortControl", "sl-hide-sort"]
 ]) {
@@ -236,6 +239,28 @@ assert.equal(second.order.textContent, "+");
 assert.ok(!unorderedGroup.section.classes.has("sl-drop-remove"));
 console.log("Drop indicators, in-place reordering, animation and unpinning passed");
 
+// Status is local, shared between views, and explicit clearing overrides inferred queue membership.
+ctx.Zotero.Collections = { get: () => collection };
+const queued = { ...a, libraryID: 1, getCollections: () => [collection.id] };
+prefs.set(ctx.preferenceKey(collection), JSON.stringify({ order: [queued.key] }));
+assert.equal(ctx.tableStatus(queued), "planned");
+ctx.setItemStatus([queued], "reading");
+assert.equal(ctx.tableStatus(queued), "reading");
+ctx.setItemStatus([queued], "");
+assert.equal(ctx.tableStatus(queued), "");
+ctx.setItemStatus([queued], "invalid");
+assert.equal(ctx.tableStatus(queued), "");
+view.layoutCards([]);
+second.node.fire("dragstart", { dataTransfer });
+orderedGroup.section.fire("dragover", point);
+assert.ok(orderedGroup.placeholder);
+assert.equal(orderedGroup.line.hidden, true);
+assert.equal(orderedGroup.empty.hidden, true);
+view.endDrag();
+assert.equal(orderedGroup.placeholder, null);
+assert.equal(orderedGroup.empty.hidden, false);
+console.log("Local status persistence, queue fallback and empty-list drop reservation passed");
+
 const attachment = (type, available) => ({
   attachmentContentType: type,
   isAttachment: () => true,
@@ -250,6 +275,7 @@ const attachment = (type, available) => ({
   const snapshot = attachment("text/html", true);
   const note = {
     id: 31, key: "NOTE", isNote: () => true, isRegularItem: () => false,
+    getNote: () => "<p>Reading notes</p><p>Review the learning rule.</p>",
     getNoteTitle: () => "Reading notes"
   };
   const file = { ...epub, id: 32, key: "FILE", isRegularItem: () => false, getDisplayTitle: () => "Appendix" };

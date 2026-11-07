@@ -3,6 +3,7 @@ const PREF = "extensions.syllabus-lite.";
 const NAME = "Reading Shelf";
 const VISIBILITY_PREFS = [
   ["hideCardButtons", "sl-hide-card-buttons"],
+  ["hideChildIndicator", "sl-hide-child-indicator"],
   ["hideSizeControl", "sl-hide-size"],
   ["hideSortControl", "sl-hide-sort"]
 ];
@@ -14,6 +15,43 @@ const BASE_CARD_WIDTH = 176;
 const MIN_CARD_SCALE = 65;
 const MAX_CARD_SCALE = 150;
 const windows = new Map();
+let statusColumn;
+let statusMenu;
+const orderStatusCache = new Map();
+const STATUS_LABELS = { "": "상태 없음", planned: "읽을 예정", reading: "읽는 중", important: "중요" };
+
+function setItemStatus(items, status) {
+  if (!Object.hasOwn(STATUS_LABELS, status)) return;
+  for (const item of items) {
+    Zotero.Prefs.set(PREF + "status." + item.libraryID + "." + item.key, status, true);
+  }
+  Zotero.ItemTreeManager.refreshColumns();
+  for (const view of windows.values()) {
+    for (const card of view.cards.values()) view.refreshStatus(card);
+  }
+}
+
+function tableStatus(item) {
+  const status = Zotero.Prefs.get(PREF + "status." + item.libraryID + "." + item.key, true);
+  if (typeof status === "string" && Object.hasOwn(STATUS_LABELS, status)) return status;
+  // Infer queued status from local collection order without modifying item metadata.
+  for (const id of item.getCollections?.() ?? []) {
+    const collection = Zotero.Collections.get(id);
+    try {
+      const raw = Zotero.Prefs.get(preferenceKey(collection), true);
+      if (!raw) continue;
+      let cached = orderStatusCache.get(id);
+      if (cached?.raw !== raw) {
+        cached = { raw, keys: new Set(JSON.parse(raw).order || []) };
+        if (orderStatusCache.size >= 128) orderStatusCache.delete(orderStatusCache.keys().next().value);
+        orderStatusCache.set(id, cached);
+      }
+      if (cached.keys.has(item.key)) return "planned";
+    } catch (_) {}
+  }
+  return "";
+}
+
 let root;
 let descriptionRenderer;
 let observerID;
@@ -30,6 +68,37 @@ function uninstall() {}
 
 async function startup({ id, rootURI }) {
   root = rootURI;
+  statusColumn = await Zotero.ItemTreeManager.registerColumn({
+    pluginID: id, dataKey: "readingStatus", label: "Reading Shelf", width: "112",
+    dataProvider: item => tableStatus(item),
+    renderCell: (_index, data, column, _first, doc) => {
+      const cell = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
+      cell.className = "cell " + (column.className || "");
+      if (data) {
+        const badge = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
+        badge.className = "sl-status-badge sl-status-" + data;
+        badge.textContent = STATUS_LABELS[data] || "";
+        cell.append(badge);
+      }
+      return cell;
+    }
+  });
+  statusMenu = await Zotero.MenuManager.registerMenu({
+    pluginID: id, menuID: "reading-shelf-status", target: "main/library/item",
+    menus: [{ menuType: "submenu", onShowing: (_event, context) => {
+      context.menuElem.setAttribute("label", "Reading Shelf · 상태");
+      context.setEnabled(!!context.items?.length);
+    }, menus: Object.entries(STATUS_LABELS).map(([status, label]) => ({
+      menuType: "menuitem",
+      onShowing: (_event, context) => {
+        context.menuElem.setAttribute("label", label);
+        context.menuElem.setAttribute("type", "checkbox");
+        context.menuElem.setAttribute("checked", String(context.items?.length > 0 &&
+          context.items.every(item => tableStatus(item) === status)));
+      },
+      onCommand: (_event, context) => setItemStatus(context.items || [], status)
+    })) }]
+  });
   await Zotero.PreferencePanes.register({
     pluginID: id,
     src: "settings.xhtml",
@@ -77,10 +146,13 @@ function onMainWindowUnload({ window }) {
 
 function shutdown(_data, reason) {
   if (reason === APP_SHUTDOWN) return;
+  if (statusColumn) Zotero.ItemTreeManager.unregisterColumn(statusColumn);
+  if (statusMenu) Zotero.MenuManager.unregisterMenu(statusMenu);
   if (observerID) Zotero.Notifier.unregisterObserver(observerID);
   observerID = null;
   for (const observer of preferenceObservers) Zotero.Prefs.unregisterObserver(observer);
   preferenceObservers = [];
+  orderStatusCache.clear();
   for (const window of windows.keys()) onMainWindowUnload({ window });
 }
 
@@ -222,7 +294,8 @@ class Gallery {
       this.sync();
     }, "sl-toggle");
     this.toggle.title = NAME;
-    toolbar.append(this.toggle);
+    const search = this.doc.getElementById("zotero-tb-search-spinner") || this.doc.getElementById("zotero-tb-search");
+    toolbar.insertBefore(this.toggle, search || null);
     if (!this.pane.itemsView) {
       this.treeMount = new this.win.MutationObserver(() => this.schedule());
       this.treeMount.observe(this.doc.getElementById("zotero-items-tree"), { childList: true, subtree: true });
@@ -606,6 +679,17 @@ class Gallery {
     this.dropGroup = group;
     group.section.classList.toggle("sl-drop-remove", !!target.remove);
     if (target.remove) return;
+    if (target.empty) {
+      group.line.hidden = true;
+      if (!group.placeholder) {
+        group.placeholder = this.element("div", "sl-drop-placeholder", "여기에 놓아 읽기 목록에 추가");
+        group.placeholder.style.minHeight = Math.max(160, this.drag.node.getBoundingClientRect().height) + "px";
+        group.emptyWasHidden = group.empty.hidden;
+        group.empty.hidden = true;
+        group.grid.append(group.placeholder);
+      }
+      return;
+    }
     const parent = group.section.getBoundingClientRect();
     const rect = target.rect ?? group.grid.getBoundingClientRect();
     const gapCenter = target.right ? rect.right + CARD_GAP / 2 : rect.left - CARD_GAP / 2;
@@ -619,6 +703,11 @@ class Gallery {
 
   clearDropTarget() {
     if (!this.dropGroup) return;
+    if (this.dropGroup.placeholder) {
+      this.dropGroup.placeholder.remove();
+      this.dropGroup.placeholder = null;
+      this.dropGroup.empty.hidden = this.dropGroup.emptyWasHidden;
+    }
     this.dropGroup.line.hidden = true;
     this.dropGroup.section.classList.remove("sl-drop-remove");
     this.dropGroup = null;
@@ -709,6 +798,8 @@ class Gallery {
       for (const view of windows.values()) {
         if (view.collection?.id === collection.id && (refresh || view !== this)) view.sync();
       }
+      Zotero.ItemTreeManager?.refreshColumns();
+      for (const card of this.cards.values()) this.refreshStatus(card);
       return true;
     } catch (error) {
       Zotero.logError(error);
@@ -752,6 +843,11 @@ class Gallery {
     });
     const placeholder = this.element("span", "sl-placeholder", note ? "Note" : "Preview");
     cover.append(placeholder);
+    if (note) {
+      const parsed = new this.win.DOMParser().parseFromString((item.getNote?.() || "").slice(0, 131072).replace(/<\/(?:p|div|li|h[1-6])>/gi, "$& "), "text/html");
+      placeholder.textContent = parsed.body.textContent.trim().replace(/\s+/g, " ").slice(0, 700) || "빈 노트";
+      placeholder.className = "sl-note-excerpt";
+    }
     const preview = this.element("div", "sl-preview");
     preview.append(cover);
     let order;
@@ -783,11 +879,23 @@ class Gallery {
       node.append(byline);
     }
     if (!note) node.append(progress);
+    let statusControl;
+    if (!child && !note && item.isRegularItem()) {
+      statusControl = this.element("select", "sl-status-control");
+      statusControl.setAttribute("aria-label", "읽기 상태: " + title);
+      for (const [value, label] of Object.entries(STATUS_LABELS)) {
+        const option = this.element("option", "", label);
+        option.value = value;
+        statusControl.append(option);
+      }
+      statusControl.addEventListener("change", () => setItemStatus([item], statusControl.value));
+      node.append(statusControl);
+    }
     node.addEventListener("click", event => {
-      if (!order?.contains(event.target)) this.selectCard(item.id).catch(error => Zotero.logError(error));
+      if (!order?.contains(event.target) && !statusControl?.contains(event.target)) this.selectCard(item.id).catch(error => Zotero.logError(error));
     });
     node.addEventListener("dblclick", event => {
-      if (order?.contains(event.target)) return;
+      if (order?.contains(event.target) || statusControl?.contains(event.target)) return;
       this.open(item).catch(error => Zotero.logError(error));
     });
     node.addEventListener("contextmenu", event => {
@@ -795,10 +903,18 @@ class Gallery {
       event.stopPropagation();
       this.openContextMenu(card, event).catch(error => Zotero.logError(error));
     });
-    const card = { item, title, node, cover, preview, placeholder, order, progress, child, canExpand, attachments, visible: false };
+    const card = { item, title, node, cover, preview, placeholder, order, progress, statusControl, child, canExpand, attachments, visible: false };
+    this.refreshStatus(card);
     this.cards.set(item.id, card);
     this.markSelected(card, this.selection?.collectionID === this.collection.id && this.selection.itemID === item.id);
     return card;
+  }
+
+  refreshStatus(card) {
+    if (!card.statusControl) return;
+    const status = tableStatus(card.item);
+    card.statusControl.value = status;
+    card.statusControl.className = "sl-status-control sl-status-" + status;
   }
 
   markSelected(card, selected) {

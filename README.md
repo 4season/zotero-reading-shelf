@@ -4,7 +4,7 @@ Reading Shelf is an independent third-party plugin compatible with Zotero. It ad
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.1.0.xpi` from the GitHub release.
+1. Download `zotero-reading-shelf-1.2.0-beta.1.xpi` from the GitHub release.
 2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
 3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
 
@@ -19,6 +19,22 @@ If you already use the earlier Syllabus Lite build, install over it. Reading She
 - Resize cards with **Card size**. Use **Sort** to sort unordered items without changing the custom reading order.
 - Double-click the collection description to edit Markdown or add LaTeX. Use `$…$` within a sentence and put `$$…$$` on a separate line for an equation.
 - On macOS, choose **Zotero → Settings → Reading Shelf** to hide card buttons, the size slider, or the sort menu.
+
+## Reading status and illustrated guide
+
+![Gallery and related note guide](docs/images/gallery-guide.svg)
+
+The **Gallery / Table** toggle sits to the left of quick search. Notes show a text excerpt in a readable note card. Dragging the first item into an empty **Reading order** reserves a card-sized space before you drop it.
+
+Set **읽을 예정** (to read), **읽는 중** (reading), or **중요** (important) using the status selector beneath a regular item, or right-click one or more items and choose **Reading Shelf · 상태**. Choose **상태 없음** to explicitly clear the status. In Table view, enable the **Reading Shelf** column through the table header's column picker if necessary. Status badges are sortable using the native column header.
+
+![Table status guide](docs/images/status-guide.svg)
+
+Status is shared across collections for the same item and stored locally in this Zotero profile. It does not modify tags, Extra, or synced item metadata. An existing local reading-order entry defaults to **읽을 예정** until you explicitly set or clear its status. Reading order remains collection-specific. These are manual workflow labels, not an automatic measurement of reading completion.
+
+In **Settings → Reading Shelf**, hide the reading-order **+ / −** buttons and the child note/attachment indicator independently. Clicking a card can still reveal child items when the indicator is hidden. Size and sort controls have their own switches.
+
+The illustrations use synthetic examples and are diagrams, not captured Zotero screenshots. `docs/demo.html` is an additional browser preview fixture, not the installed Zotero interface.
 
 ## Storage and previews
 
