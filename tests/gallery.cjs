@@ -184,6 +184,25 @@ const opened = [];
 view.open = async item => { opened.push(item.id); };
 const first = view.makeCard(a, "Kim");
 const second = view.makeCard(b, "");
+// Standalone notes get importance and urgency buttons, but no reading status.
+{
+  const topNote = { id: 41, libraryID: 1, key: "TOPNOTE", isNote: () => true, isRegularItem: () => false,
+    getNote: () => "<p>Idea</p>", getNoteTitle: () => "Idea" };
+  const realParser = view.win.DOMParser;
+  view.win.DOMParser = class { parseFromString() { return { body: { textContent: "Idea" } }; } };
+  const noteCard = view.makeCard(topNote, "");
+  view.win.DOMParser = realParser;
+  assert.equal(noteCard.statusControl, undefined);
+  assert.ok(noteCard.priorityControl && noteCard.urgentControl);
+  noteCard.priorityControl.fire("click", { stopPropagation() {} });
+  assert.equal(ctx.importantOf(topNote), true);
+  assert.equal(ctx.urgentOf(topNote), false);
+  view.refreshStatus(noteCard);
+  assert.equal(noteCard.priorityControl.attrs.get("aria-pressed"), "true");
+  assert.equal(noteCard.priorityControl.textContent, "★");
+  assert.equal(noteCard.urgentControl.attrs.get("aria-pressed"), "false");
+  view.cards.delete(topNote.id);
+}
 first.node.fire("click");
 assert.equal(first.cover.attrs.get("aria-pressed"), "true");
 assert.equal(opened.length, 0);

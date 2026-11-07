@@ -555,3 +555,10 @@
   color:light-dark(color-mix(in srgb,var(--sl-priority-color) 85%,black),color-mix(in srgb,var(--sl-priority-color) 65%,white));
   border-color:var(--sl-priority-color); background:color-mix(in srgb,var(--sl-priority-color) 14%,Canvas);
 }
+
+/* Unset ★/◷ follow the empty-status rule: hidden until hover or keyboard focus. A set one always stays visible. */
+.sl-gallery .sl-priority[aria-pressed="false"][data-hide-empty="true"] { display:none; }
+.sl-gallery .sl-card:is(:hover,:focus-within) .sl-priority[aria-pressed="false"][data-hide-empty="true"] { display:inline-flex; }
+.sl-table-workflow .sl-table-priority[aria-pressed="false"][data-hide-empty="true"] { opacity:0; }
+.row:hover .sl-table-workflow .sl-table-priority[aria-pressed="false"][data-hide-empty="true"],
+.sl-table-workflow:focus-within .sl-table-priority[aria-pressed="false"][data-hide-empty="true"] { opacity:1; }

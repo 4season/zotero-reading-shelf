@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.1"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.2"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,7 +15,7 @@ Reading Shelf turns a Zotero collection into a bookshelf. See each paper's previ
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.3.1.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
+1. Download `zotero-reading-shelf-1.3.2.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
 2. In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…** and select the file.
 3. Select a collection and click **Gallery**. Click **Table** to go back to the normal list.
 
@@ -37,7 +37,7 @@ If another gallery plugin is installed and the two overlap, turn one of them off
 - **Reorder:** drag a card, or use the + / − button on the card. With the − button focused (Tab to it), Alt + ←/→ moves the card.
 - **Reading progress:** PDF cards show a progress bar based on the last page you read.
 - **Reading status:** *No status*, *To read*, *Reading* or *Completed*. Change it from the card or from the status column in the table. Clearing the status removes the paper from your reading list.
-- **Importance and urgency:** ★ marks importance and ◷ marks urgency. They are separate from status, so they stay as they are when you change a paper's status.
+- **Importance and urgency:** ★ marks importance and ◷ marks urgency. They are separate from status, so they stay as they are when you change a paper's status. A ★ or ◷ that is off appears only when you hover over the card (or focus it with the keyboard); one that is on always stays visible. You can turn this off in the settings. Standalone notes and files in a collection get ★ and ◷ too (but no reading status), so they can be placed in the Eisenhower lanes like papers.
 - Putting a paper in the reading list sets it to *To read* (a paper already marked *Reading* stays that way). Moving it to *Unordered items* clears its status. Moving a *Completed* paper back to the reading list sets it to *To read*.
 - Opening a paper in Zotero's own reader marks it *Reading*. Optionally, the status can be cleared when you close its last reader tab (off by default; PDF readers outside Zotero are not detected).
 

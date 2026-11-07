@@ -91,6 +91,8 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   const other=columns[0].renderCell(1,'||',{},false,doc);
   assert.equal(other.children[0].dataset.empty,'true');
   assert.equal(other.children[0].dataset.hideEmpty,'true');
+  assert.equal(other.children[1].dataset.hideEmpty,'true');
+  assert.equal(other.children[2].dataset.hideEmpty,'true');
   assert.equal(other.children[1].textContent,'☆');
   assert.equal(other.children[2].textContent,'○');
   assert.equal(updated.children[1].textContent,'★');

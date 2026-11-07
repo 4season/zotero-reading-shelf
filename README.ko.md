@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.1"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.2"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,7 +15,7 @@ Reading Shelf는 Zotero 컬렉션을 서재처럼 보여 주는 플러그인입�
 
 ## 설치
 
-1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.1.xpi`를 내려받습니다.
+1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.2.xpi`를 내려받습니다.
 2. Zotero에서 **도구 → 플러그인 → ⚙ → 파일에서 플러그인 설치…**를 선택하고 받은 파일을 고릅니다.
 3. 컬렉션을 선택하고 **갤러리**를 누르면 서재가 열립니다. **테이블**을 누르면 원래 목록으로 돌아갑니다.
 
@@ -37,7 +37,7 @@ Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩�
 - **순서 바꾸기:** 카드를 끌어 놓거나 카드의 + / − 버튼을 씁니다. Tab으로 − 버튼에 초점을 두고 Alt + ←/→를 누르면 카드가 이동합니다.
 - **읽기 진행률:** PDF 카드에는 마지막으로 읽은 페이지를 기준으로 진행 막대가 표시됩니다.
 - **읽기 상태:** *상태 없음*, *읽을 예정*, *읽는 중*, *완료됨* 중 하나입니다. 카드나 테이블의 상태 열에서 바꿉니다. 상태를 없애면 읽기 목록에서도 빠집니다.
-- **중요도·긴급도:** ★는 중요도, ◷는 긴급도입니다. 읽기 상태와 따로 저장되므로 상태를 바꿔도 그대로 유지됩니다.
+- **중요도·긴급도:** ★는 중요도, ◷는 긴급도입니다. 읽기 상태와 따로 저장되므로 상태를 바꿔도 그대로 유지됩니다. 꺼진 ★·◷는 카드에 마우스를 올리거나 키보드로 선택할 때만 나타나고, 켜진 것은 항상 보입니다. 설정에서 끌 수 있습니다. 컬렉션에 있는 단독 노트와 파일에도 ★·◷를 줄 수 있어(읽기 상태는 제외) 논문처럼 아이젠하워 영역에 놓을 수 있습니다.
 - 읽기 목록에 넣으면 *읽을 예정*이 됩니다(이미 *읽는 중*이면 그대로입니다). *미분류 자료*로 옮기면 상태가 없어지고, *완료됨* 자료를 읽기 목록으로 다시 넣으면 *읽을 예정*으로 돌아갑니다.
 - Zotero 내장 리더로 열면 *읽는 중*이 됩니다. 원하면 마지막 리더 탭을 닫을 때 상태를 없앨 수도 있습니다(기본값은 꺼짐이며, Zotero 밖의 PDF 프로그램은 알 수 없습니다).
 

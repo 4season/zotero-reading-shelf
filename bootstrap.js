@@ -248,10 +248,13 @@ async function startup({ id, rootURI, version }) {
       const cell = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
       cell.className = "cell sl-table-workflow " + (column.className || "");
       const item = doc.defaultView?.ZoteroPane?.itemsView?.getRow(index)?.ref;
-      if (!item || item.isNote?.()) return cell;
+      // Notes get only importance and urgency; notes nested under a reference are left alone.
+      if (!item || (item.isNote?.() && item.parentItemID)) return cell;
       const [status, important, urgent] = String(data).split("|");
-      const picker = createStatusPicker(doc, status || "", value => setItemStatus([item], value));
-      cell.append(picker.wrapper);
+      if (!item.isNote?.()) {
+        const picker = createStatusPicker(doc, status || "", value => setItemStatus([item], value));
+        cell.append(picker.wrapper);
+      }
       for (const [name, enabled, symbol, label] of [
         ["important", !!important, "★", "Important"], ["urgent", !!urgent, "◷", "Urgent"]
       ]) {
@@ -262,6 +265,7 @@ async function startup({ id, rootURI, version }) {
         button.title = tr(label) + ": " + tr(enabled ? "On" : "Off");
         button.setAttribute("aria-label", button.title);
         button.setAttribute("aria-pressed", String(enabled));
+        button.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
         button.addEventListener("click", event => {
           event.stopPropagation();
           setPriority([item], name, !(name === "important" ? importantOf(item) : urgentOf(item)));
@@ -1248,17 +1252,22 @@ class Gallery {
     }
     if (!note) node.append(progress);
     let statusControl, statusPicker, statusFace, priorityControl, urgentControl;
-    if (!child && !note && item.isRegularItem()) {
-      const picker = createStatusPicker(this.doc, tableStatus(item), value => setItemStatus([item], value));
-      statusControl = picker.select;
-      statusPicker = picker.wrapper;
-      statusFace = picker.face;
-      statusControl.setAttribute("aria-label", tr("Reading status") + ": " + title);
+    // Importance and urgency apply to every top-level card, including standalone notes and files;
+    // the reading status stays limited to references.
+    if (!child) {
       const row = this.element("div", "sl-workflow-controls");
+      if (!note && item.isRegularItem()) {
+        const picker = createStatusPicker(this.doc, tableStatus(item), value => setItemStatus([item], value));
+        statusControl = picker.select;
+        statusPicker = picker.wrapper;
+        statusFace = picker.face;
+        statusControl.setAttribute("aria-label", tr("Reading status") + ": " + title);
+        row.append(statusPicker);
+      }
       priorityControl = this.button("☆", event => { event.stopPropagation(); setPriority([item], "important", !importantOf(item)); }, "sl-priority");
       urgentControl = this.button("◷", event => { event.stopPropagation(); setPriority([item], "urgent", !urgentOf(item)); }, "sl-priority sl-urgency");
       priorityControl.title = tr("Important"); urgentControl.title = tr("Urgent");
-      row.append(statusPicker, priorityControl, urgentControl);
+      row.append(priorityControl, urgentControl);
       node.append(row);
     }
     node.addEventListener("click", event => {
@@ -1281,21 +1290,24 @@ class Gallery {
   }
 
   refreshStatus(card) {
-    if (!card.statusControl) return;
-    const status = tableStatus(card.item);
-    card.statusControl.value = status;
-    card.statusControl.className = "sl-status-control sl-status-" + status;
-    card.statusPicker.className = "sl-status-picker sl-status-" + status;
-    card.statusPicker.style.setProperty("--sl-status-color", workflowColor(status));
-    card.statusFace.textContent = tr(STATUS_LABELS[status]);
-    card.statusPicker.dataset.empty = String(!status);
-    card.statusPicker.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
-    card.statusControl.dataset.empty = String(!status);
-    card.statusControl.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
+    const hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
+    if (card.statusControl) {
+      const status = tableStatus(card.item);
+      card.statusControl.value = status;
+      card.statusControl.className = "sl-status-control sl-status-" + status;
+      card.statusPicker.className = "sl-status-picker sl-status-" + status;
+      card.statusPicker.style.setProperty("--sl-status-color", workflowColor(status));
+      card.statusFace.textContent = tr(STATUS_LABELS[status]);
+      card.statusPicker.dataset.empty = String(!status);
+      card.statusPicker.dataset.hideEmpty = hideEmpty;
+      card.statusControl.dataset.empty = String(!status);
+      card.statusControl.dataset.hideEmpty = hideEmpty;
+    }
     if (card.priorityControl) {
       const important = importantOf(card.item), urgent = urgentOf(card.item);
       card.priorityControl.textContent = important ? "★" : "☆";
       card.priorityControl.setAttribute("aria-pressed", String(important));
+      card.priorityControl.dataset.hideEmpty = card.urgentControl.dataset.hideEmpty = hideEmpty;
       card.urgentControl.textContent = urgent ? "◷" : "○";
       card.urgentControl.setAttribute("aria-pressed", String(urgent));
       for (const [control, label, enabled] of [[card.priorityControl, "Important", important], [card.urgentControl, "Urgent", urgent]]) {
