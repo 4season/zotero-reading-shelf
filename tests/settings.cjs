@@ -50,3 +50,28 @@ prefs.set('extensions.syllabus-lite.shadowStrength','off');
 listeners.get('change')({target:{getAttribute(){},closest:()=>root}});
 assert.equal(shadowControl.disabled,true);
 console.log('Settings script-before-fragment lifecycle, language menu and validated color persistence passed');
+
+const statusColor={value:'#ac458e',getAttribute:key=>key==='data-sl-color'?'plannedColor':null};
+listeners.get('change')({target:statusColor});
+assert.equal(prefs.get('extensions.syllabus-lite.plannedColor'),'#ac458e');
+statusColor.value='url(unsafe)';listeners.get('change')({target:statusColor});
+assert.equal(prefs.get('extensions.syllabus-lite.plannedColor'),'#ac458e');
+
+const reset={getAttribute:key=>key==='data-sl-reset-colors'?'status':null,closest(){return this;}};
+prefs.set('extensions.syllabus-lite.plannedColor','#ff00ff');
+prefs.set('extensions.syllabus-lite.urgentColor','#112233');
+listeners.get('command')({target:reset});
+assert.equal(prefs.get('extensions.syllabus-lite.plannedColor'),'#356b24');
+assert.equal(prefs.get('extensions.syllabus-lite.completedColor'),'#6750a4');
+assert.equal(prefs.get('extensions.syllabus-lite.urgentColor'),'#112233');
+reset.getAttribute=key=>key==='data-sl-reset-colors'?'all':null;
+listeners.get('command')({target:reset});
+assert.equal(prefs.get('extensions.syllabus-lite.urgentColor'),'#c76a6a');
+console.log('Scoped and complete color resets preserve unrelated preferences');
+
+statusColor.value='#284ba7';listeners.get('input')({target:statusColor});
+assert.equal(prefs.get('extensions.syllabus-lite.plannedColor'),'#284ba7');
+const modeCheckbox={localName:'checkbox',checked:true,getAttribute:()=> 'extensions.syllabus-lite.hideModeControl',closest(selector){return selector.startsWith('checkbox')?this:null;}};
+listeners.get('command')({target:modeCheckbox});
+assert.equal(prefs.get('extensions.syllabus-lite.hideModeControl'),true);
+console.log('Native checkbox command persistence and live macOS color-panel input passed');

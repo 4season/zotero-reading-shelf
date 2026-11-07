@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 (() => {
   const prefix = "extensions.syllabus-lite.";
+  const colorDefaults = {plannedColor:"#356b24",readingColor:"#1659b7",completedColor:"#6750a4",importantColor:"#8a4b00",urgencyColor:"#a82330",urgentColor:"#c76a6a",laterColor:"#638ebd",queueColor:"#789866"};
+  const resetGroups = {status:["plannedColor","readingColor","completedColor"],priority:["importantColor","urgencyColor"],borders:["urgentColor","laterColor","queueColor"],all:Object.keys(colorDefaults)};
   const updateDependencies = () => {
     const root = document.getElementById("sl-settings");
     if (!root) return;
@@ -21,7 +23,7 @@
     const language = Zotero.Prefs.get(prefix + "language", true) === "en" ? "en" : "ko";
     for (const node of root.querySelectorAll("[data-sl-en]")) {
       const text = node.getAttribute("data-sl-" + language);
-      if (["checkbox", "menuitem", "menulist"].includes(node.localName)) node.setAttribute("label", text);
+      if (["checkbox", "menuitem", "menulist", "button"].includes(node.localName)) node.setAttribute("label", text);
       else if (node.localName === "label" && node.hasAttribute("value")) node.setAttribute("value", text);
       else node.textContent = text;
     }
@@ -37,16 +39,34 @@
   // Zotero loads pane scripts before inserting the fragment, then dispatches load/showing.
   document.addEventListener("load", event => { if (event.target.id === "sl-settings") initialize(); }, true);
   document.addEventListener("showing", event => { if (event.target.id === "sl-settings") initialize(); }, true);
+  const persistColor = event => {
+    const key = event.target.getAttribute?.("data-sl-color");
+    if (Object.hasOwn(colorDefaults, key) && /^#[0-9a-f]{6}$/i.test(event.target.value)) {
+      Zotero.Prefs.set(prefix + key, event.target.value, true);
+    }
+  };
+  // macOS color panels emit input while open and change only on close.
+  document.addEventListener("input", persistColor, true);
   document.addEventListener("command", event => {
+    const reset = event.target.closest?.("[data-sl-reset-colors]") || event.target;
+    const group = reset.getAttribute?.("data-sl-reset-colors");
+    if (resetGroups[group]) {
+      for (const key of resetGroups[group]) Zotero.Prefs.set(prefix + key, colorDefaults[key], true);
+      initialize();
+      return;
+    }
+    const control = event.target.closest?.("checkbox[preference], menulist[preference]");
+    const pref = control?.getAttribute?.("preference");
+    if (pref?.startsWith(prefix)) {
+      const value = control.localName === "checkbox" ? control.checked : control.value;
+      if (typeof value === "boolean" || typeof value === "string") Zotero.Prefs.set(pref, value, true);
+    }
     if (event.target.id === "sl-language" || event.target.closest?.("#sl-language")) setTimeout(initialize, 0);
     else if (event.target.closest?.("#sl-settings")) setTimeout(updateDependencies, 0);
   }, true);
   document.addEventListener("change", event => {
     if (event.target.closest?.("#sl-settings")) setTimeout(updateDependencies, 0);
-    const key = event.target.getAttribute?.("data-sl-color");
-    if (["urgentColor", "laterColor", "queueColor"].includes(key) && /^#[0-9a-f]{6}$/i.test(event.target.value)) {
-      Zotero.Prefs.set(prefix + key, event.target.value, true);
-    }
+    persistColor(event);
   }, true);
   initialize();
 })();

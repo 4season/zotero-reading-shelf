@@ -45,7 +45,7 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   assert.equal(columns[0].dataProvider(b),'reading||');
   submenu.menus[0].onCommand(null,context);
   assert.equal(columns[0].dataProvider(a),'||');
-  const doc={createElementNS:()=>({dataset:{},children:[], handlers:{}, attrs:{}, append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.handlers[k]=fn;}})};
+  const doc={createElementNS:()=>({style:{setProperty(){}},dataset:{},children:[], handlers:{}, attrs:{}, append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.handlers[k]=fn;}})};
   const tree={getRow:()=>({ref:a})};
   doc.defaultView={ZoteroPane:{itemsView:tree}};
   const cell=columns[0].renderCell(0,'reading||',{className:'cell'},false,doc);

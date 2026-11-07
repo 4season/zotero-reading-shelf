@@ -40,6 +40,15 @@ def main():
     digest = hashlib.sha256(xpi.read_bytes()).hexdigest()
     checksum = xpi.with_suffix(".xpi.sha256")
     checksum.write_text(f"{digest}  {xpi.name}\n", encoding="utf-8")
+    updates = {"addons": {addon["id"]: {"updates": [{
+        "version": manifest["version"],
+        "update_link": f"https://github.com/4season/zotero-reading-shelf/releases/download/v{manifest['version']}/{xpi.name}",
+        "update_hash": "sha256:" + digest,
+        "applications": {"zotero": {"strict_min_version": addon["strict_min_version"], "strict_max_version": addon["strict_max_version"]}},
+    }]}}}
+    update_file = args.out_dir / "updates.json"
+    update_file.write_text(json.dumps(updates, indent=2) + "\n", encoding="utf-8")
+    print(update_file)
     print(xpi)
     print(checksum)
 

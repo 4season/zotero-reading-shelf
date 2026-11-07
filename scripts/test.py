@@ -3,6 +3,7 @@
 import argparse
 from pathlib import Path
 import subprocess
+import sys
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
@@ -18,6 +19,7 @@ def main():
     subprocess.run(["node", str(ROOT / "tests/gallery.cjs")], check=True)
     subprocess.run(["node", str(ROOT / "tests/status.cjs")], check=True)
     subprocess.run(["node", str(ROOT / "tests/settings.cjs")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "tests/updates.py")], check=True)
     if args.zotero_omni:
         with TemporaryDirectory() as temp, ZipFile(args.zotero_omni) as zotero:
             folder = Path(temp)
