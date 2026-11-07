@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.6"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.7"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,7 +15,7 @@ Reading Shelf turns a Zotero collection into a bookshelf. See each paper's previ
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.3.6.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
+1. Download `zotero-reading-shelf-1.3.7.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
 2. In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…** and select the file.
 3. Select a collection and click **Gallery**. Click **Table** to go back to the normal list.
 
@@ -53,7 +53,7 @@ By default the layout you pick applies to all collections. To remember a separat
 
 ![Opening a paper's notes and attachments right under it, then right-clicking one in Zotero](docs/images/core-article-attachments.gif)
 
-Click a paper that has notes or more than one attachment and they fan out as cards right beside it, with previews, so you can see what is attached without opening anything. Right-click any card, including these child cards, for Zotero's usual context menu (open in a new tab or window, show in Finder or in the library, and more). Double-click to open an attachment or note. Click an empty area to fold them away again.
+Click a paper that has notes or more than one attachment and they fan out as cards right beside it, with previews, so you can see what is attached without opening anything. Right-click any card, including these child cards, for Zotero's usual context menu (open in a new tab or window, show in Finder or in the library, and more). Double-click to open an attachment or note. Click an empty area to fold them away again. The opened paper follows you when you switch between **Gallery** and **Table**: open in one, and it is open in the other too.
 
 ### Collection notes
 

@@ -605,10 +605,15 @@ class Gallery {
     this.toggle.textContent = tr(active ? "Table" : "Gallery");
     this.toggle.setAttribute("aria-pressed", String(active));
     if (!active) {
-      if (this.gallery) this.lastScroll = { collectionID: this.collection.id, top: this.gallery.scrollTop };
+      if (this.gallery) {
+        this.lastScroll = { collectionID: this.collection.id, top: this.gallery.scrollTop };
+        this.mirrorExpansionToTable();
+      }
       this.clear();
       return;
     }
+    // Coming from the table: remember which paper was left open there so it can be opened here too.
+    const adoptID = this.gallery ? null : this.openTableSelection();
     const sameCollection = this.collection?.id === collection.id;
     const preserveScroll = sameCollection ? this.gallery.scrollTop :
       (this.lastScroll?.collectionID === collection.id ? this.lastScroll.top : 0);
@@ -653,6 +658,7 @@ class Gallery {
       this.render();
       this.gallery.scrollTop = preserveScroll;
       if (previousRects?.size) this.animateFrom(previousRects);
+      if (adoptID) this.selectCard(adoptID, false).catch(error => Zotero.logError(error));
       if (focused) this.cards.get(focused.item.id)?.[focusAction]?.focus({ preventScroll: true });
       if (sortFocused) this.sortControl?.focus({ preventScroll: true });
       if (editorFocused && this.descriptionDraft?.editor) {
@@ -662,6 +668,43 @@ class Gallery {
     } catch (error) {
       Zotero.logError(error);
       this.gallery.append(this.element("p", "sl-muted", "Could not load this gallery."));
+    }
+  }
+
+  // The table and the gallery share one "opened paper": the gallery opens one card at a time, the
+  // table can have many rows open. These two methods carry it across when you switch views.
+  mirrorExpansionToTable() {
+    const tree = this.pane.itemsView;
+    if (!tree?.rowProvider || !this.collection) return;
+    try {
+      const openID = this.expanded?.collectionID === this.collection.id ? this.expanded.itemID : null;
+      const rowOf = id => {
+        const index = id == null ? undefined : tree.getRowIndexByID(id);
+        return typeof index === "number" ? index : null;
+      };
+      const previous = this.tableOpened != null && this.tableOpened !== openID ? rowOf(this.tableOpened) : null;
+      if (previous !== null && tree.isContainerOpen(previous)) tree.rowProvider.collapseRows([previous]);
+      const index = rowOf(openID);
+      if (index !== null && !tree.isContainerOpen(index)) tree.rowProvider.expandRows([index]);
+      this.tableOpened = openID;
+    } catch (error) {
+      Zotero.logError(error);
+    }
+  }
+
+  openTableSelection() {
+    const tree = this.pane.itemsView;
+    try {
+      const ids = tree?.getSelectedItems?.(true) || [];
+      if (ids.length !== 1) return null;
+      const item = Zotero.Items.get(ids[0]);
+      if (!item || Array.isArray(item)) return null;
+      const rootID = item.parentItemID || item.id;
+      const index = tree.getRowIndexByID(rootID);
+      return typeof index === "number" && tree.isContainerOpen(index) ? rootID : null;
+    } catch (error) {
+      Zotero.logError(error);
+      return null;
     }
   }
 
@@ -1459,7 +1502,7 @@ class Gallery {
     this.gallery.append(copy);
     const exit = copy.animate(
       [{ opacity: 1 }, { opacity: 0, transform: "translateX(-6px)" }],
-      { duration: 160, easing: MOTION_EASING, fill: "forwards" }
+      { duration: 240, easing: MOTION_EASING, fill: "forwards" }
     );
     const remove = () => copy.remove();
     exit.finished.then(remove, remove);

@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.6"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.7"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,7 +15,7 @@ Reading Shelf는 Zotero 컬렉션을 서재처럼 보여 주는 플러그인입�
 
 ## 설치
 
-1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.6.xpi`를 내려받습니다.
+1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.7.xpi`를 내려받습니다.
 2. Zotero에서 **도구 → 플러그인 → ⚙ → 파일에서 플러그인 설치…**를 선택하고 받은 파일을 고릅니다.
 3. 컬렉션을 선택하고 **갤러리**를 누르면 서재가 열립니다. **테이블**을 누르면 원래 목록으로 돌아갑니다.
 
@@ -53,7 +53,7 @@ Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩�
 
 ![자료 바로 옆에 노트와 첨부파일을 펼치고 우클릭 메뉴를 쓰는 모습](docs/images/core-article-attachments.gif)
 
-노트나 첨부파일이 둘 이상 있는 자료를 클릭하면, 딸린 노트와 첨부파일이 미리보기와 함께 카드로 바로 옆에 펼쳐집니다. 파일을 열어 보지 않아도 무엇이 붙어 있는지 알 수 있습니다. 펼쳐진 카드를 포함해 어느 카드든 우클릭하면 Zotero의 기본 메뉴(새 탭이나 새 창에서 열기, Finder나 라이브러리에서 보기 등)가 나옵니다. 더블클릭하면 첨부파일이나 노트가 열리고, 빈 곳을 클릭하면 다시 접힙니다.
+노트나 첨부파일이 둘 이상 있는 자료를 클릭하면, 딸린 노트와 첨부파일이 미리보기와 함께 카드로 바로 옆에 펼쳐집니다. 파일을 열어 보지 않아도 무엇이 붙어 있는지 알 수 있습니다. 펼쳐진 카드를 포함해 어느 카드든 우클릭하면 Zotero의 기본 메뉴(새 탭이나 새 창에서 열기, Finder나 라이브러리에서 보기 등)가 나옵니다. 더블클릭하면 첨부파일이나 노트가 열리고, 빈 곳을 클릭하면 다시 접힙니다. **갤러리**와 **테이블**을 오갈 때도 펼친 자료가 따라갑니다. 한쪽에서 펼쳐 두면 다른 쪽에서도 펼쳐져 있습니다.
 
 ### 컬렉션 메모
 

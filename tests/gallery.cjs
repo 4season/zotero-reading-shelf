@@ -485,7 +485,7 @@ const attachment = (type, available) => ({
   view.clearSelection();
   const exiting = view.gallery.children.find(node => node.classes.has("sl-child-exit"));
   assert.equal(exiting.inert, true);
-  assert.equal(exiting.lastAnimation.options.duration, 160);
+  assert.equal(exiting.lastAnimation.options.duration, 240);
   await Promise.resolve();
   assert.ok(!view.gallery.children.includes(exiting));
   assert.equal(view.selection, null);
@@ -566,6 +566,45 @@ const attachment = (type, available) => ({
     memo.delete(901);
     ctx.IOUtils = realIO;
     displayed.length = 0;
+  }
+  // The table and the gallery share the opened paper when you switch between them.
+  {
+    const rows = { 5: 0, 6: 1, 7: 2 }, open = new Set();
+    const expanded = [], collapsed = [];
+    let selected = [];
+    const realItems = ctx.Zotero.Items, realTree = view.pane.itemsView;
+    ctx.Zotero.Items = { get: id => id === 61 ? { id: 61, parentItemID: 6 } : { id, parentItemID: 0 } };
+    view.pane.itemsView = {
+      rowProvider: { expandRows: i => { expanded.push(...i); i.forEach(x => open.add(x)); }, collapseRows: i => { collapsed.push(...i); i.forEach(x => open.delete(x)); } },
+      getRowIndexByID: id => id in rows ? rows[id] : false,
+      isContainerOpen: i => open.has(i),
+      getSelectedItems: () => selected
+    };
+    const savedExpanded = view.expanded, savedOpened = view.tableOpened;
+    // gallery -> table: the open card's row is opened, and the one opened before is closed again
+    view.expanded = { collectionID: view.collection.id, itemID: 5 };
+    view.mirrorExpansionToTable();
+    assert.deepEqual(Array.from(expanded), [0]);
+    view.expanded = { collectionID: view.collection.id, itemID: 6 };
+    view.mirrorExpansionToTable();
+    assert.deepEqual(Array.from(collapsed), [0]);
+    assert.deepEqual(Array.from(expanded), [0, 1]);
+    view.expanded = null;
+    view.mirrorExpansionToTable();
+    assert.deepEqual(Array.from(collapsed), [0, 1]);
+    // table -> gallery: a selected paper, or the parent of a selected child, that is open in the table
+    selected = [7];
+    assert.equal(view.openTableSelection(), null); // not open
+    open.add(2);
+    assert.equal(view.openTableSelection(), 7);
+    selected = [61]; // a child row of paper 6
+    assert.equal(view.openTableSelection(), null); // 6 is closed
+    open.add(1);
+    assert.equal(view.openTableSelection(), 6);
+    selected = [5, 6];
+    assert.equal(view.openTableSelection(), null); // only a single selection counts
+    view.expanded = savedExpanded; view.tableOpened = savedOpened;
+    ctx.Zotero.Items = realItems; view.pane.itemsView = realTree;
   }
   const pending = [];
   const lookupsStarted = [];
