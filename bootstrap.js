@@ -292,9 +292,6 @@ async function startup({ id, rootURI, version }) {
   }, true));
   for (const key of ["language", "matrixMode", "rememberCollectionMode", "hideEmptyStatus"]) {
     preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
-      if (key === "matrixMode" && Zotero.Prefs.get(PREF + "rememberCollectionMode", true) === true) {
-        for (const view of windows.values()) if (view.collection) Zotero.Prefs.set(collectionModeKey(view.collection), Zotero.Prefs.get(PREF + "matrixMode", true) === true, true);
-      }
       for (const view of windows.values()) view.sync();
       refreshWorkflow();
     }, true));
@@ -701,6 +698,12 @@ class Gallery {
     this.description = this.element("div", "sl-description");
     this.gallery.append(this.description);
     this.renderDescription(data.description);
+    // With per-collection memory on, pin the mode the first time a collection is shown so that
+    // later changes elsewhere (other collections, the global default) never alter it.
+    if (Zotero.Prefs.get(PREF + "rememberCollectionMode", true) === true &&
+        typeof Zotero.Prefs.get(collectionModeKey(this.collection), true) !== "boolean") {
+      Zotero.Prefs.set(collectionModeKey(this.collection), matrixModeFor(this.collection), true);
+    }
     this.matrix = matrixModeFor(this.collection);
     this.sections = {
       ordered: this.section("Reading order", true, "Drag papers here or use + on a card."),

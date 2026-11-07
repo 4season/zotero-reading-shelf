@@ -114,6 +114,13 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   prefs.set(ctx.collectionModeKey(c1),true);
   assert.equal(ctx.matrixModeFor(c1),true);
   assert.equal(ctx.matrixModeFor(c2),false);
+  // Saved per-collection choices are independent of each other and of the global default.
+  prefs.set(ctx.collectionModeKey(c2),false);
+  prefs.set('extensions.syllabus-lite.matrixMode',true);
+  assert.equal(ctx.matrixModeFor(c1),true);
+  assert.equal(ctx.matrixModeFor(c2),false);
+  prefs.set('extensions.syllabus-lite.matrixMode',false);
+  assert.equal(ctx.matrixModeFor(c1),true);
   prefs.set('extensions.syllabus-lite.rememberCollectionMode',false);
   assert.equal(ctx.matrixModeFor(c1),false);
   prefs.set('extensions.syllabus-lite.language','en');

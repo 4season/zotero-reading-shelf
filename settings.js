@@ -6,12 +6,13 @@
   const updateDependencies = () => {
     const root = document.getElementById("sl-settings");
     if (!root) return;
-    const matrix = Zotero.Prefs.get(prefix + "matrixMode", true) === true || Zotero.Prefs.get(prefix + "rememberCollectionMode", true) === true;
+    const remember = Zotero.Prefs.get(prefix + "rememberCollectionMode", true) === true;
+    const matrix = Zotero.Prefs.get(prefix + "matrixMode", true) === true || remember;
     const borders = matrix && Zotero.Prefs.get(prefix + "matrixBorders", true) !== false;
     const shadows = Zotero.Prefs.get(prefix + "shadowStrength", true) !== "off";
     for (const node of root.querySelectorAll("[data-sl-depends]")) {
       const dependency = node.getAttribute("data-sl-depends");
-      node.disabled = !(dependency === "matrixMode" ? matrix : dependency === "matrixBorders" ? borders : shadows);
+      node.disabled = !(dependency === "rememberOff" ? !remember : dependency === "matrixMode" ? matrix : dependency === "matrixBorders" ? borders : shadows);
       node.setAttribute("aria-disabled", String(node.disabled));
       const row = node.closest?.(".sl-setting-row");
       if (row) row.setAttribute("data-disabled", String(node.disabled));
