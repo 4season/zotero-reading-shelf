@@ -92,7 +92,8 @@ Settings that depend on another option are greyed out but keep their values.
 
 ## Known limits
 
-- Tested on macOS with Zotero 10.0.8. Windows and Linux have not been tried with the installed Zotero app.
+- Tested on macOS with Zotero 10.0.8 and on Windows 11 (over Remote Desktop). Linux has not been tried with the installed Zotero app.
+- On Windows, animations can look switched off because the system has them off, which is common over Remote Desktop and in virtual machines. Set **Appearance → Animations** to *Always on* in the settings to use them anyway.
 - Previews work for PDFs, EPUBs and images. Encrypted or unsupported files may show no preview. On macOS, Quick Look (and Poppler, if you have installed it) is used as a fallback.
 
 ## Feedback and language

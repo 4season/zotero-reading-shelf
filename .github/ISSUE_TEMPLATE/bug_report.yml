@@ -26,7 +26,7 @@ body:
     id: os
     attributes:
       label: Operating system / 운영체제
-      description: The plugin has only been checked on macOS so far, so Windows and Linux reports are especially helpful. 지금까지 macOS에서만 확인했으므로 Windows·Linux 제보가 특히 도움이 됩니다.
+      description: The plugin has been checked on macOS and Windows 11 so far, so Linux reports and other setups are especially helpful. 지금까지 macOS와 Windows 11에서 확인했으므로 Linux와 다른 환경의 제보가 특히 도움이 됩니다.
       options:
         - macOS
         - Windows
