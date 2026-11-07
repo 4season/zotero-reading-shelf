@@ -254,6 +254,9 @@ async function startup({ id, rootURI, version }) {
       if (!item.isNote?.()) {
         const picker = createStatusPicker(doc, status || "", value => setItemStatus([item], value));
         cell.append(picker.wrapper);
+      } else {
+        // Notes have no status; an empty slot keeps ★ and ◷ in the same columns as the other rows.
+        cell.append(doc.createElementNS("http://www.w3.org/1999/xhtml", "span"));
       }
       for (const [name, enabled, symbol, label] of [
         ["important", !!important, "★", "Important"], ["urgent", !!urgent, "◷", "Urgent"]

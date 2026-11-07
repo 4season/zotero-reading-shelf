@@ -562,3 +562,8 @@
 .sl-table-workflow .sl-table-priority[aria-pressed="false"][data-hide-empty="true"] { opacity:0; }
 .row:hover .sl-table-workflow .sl-table-priority[aria-pressed="false"][data-hide-empty="true"],
 .sl-table-workflow:focus-within .sl-table-priority[aria-pressed="false"][data-hide-empty="true"] { opacity:1; }
+
+/* Reserve the full button height so showing ★/◷ on hover never moves the card content,
+   and give note cards (which have no author line) the same breathing room under the title. */
+.sl-gallery .sl-workflow-controls { min-height:1.65em; }
+.sl-gallery .sl-note-card .sl-workflow-controls { margin-top:.5em; }

@@ -91,6 +91,16 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   const other=columns[0].renderCell(1,'||',{},false,doc);
   assert.equal(other.children[0].dataset.empty,'true');
   assert.equal(other.children[0].dataset.hideEmpty,'true');
+  // A top-level note gets an empty status slot plus the two buttons; a note under a reference gets nothing.
+  tree.getRow=()=>({ref:{isNote:()=>true,libraryID:1,key:'TOPNOTE'}});
+  const noteCell=columns[0].renderCell(2,'||',{},false,doc);
+  assert.equal(noteCell.children.length,3);
+  assert.equal(noteCell.children[0].children.length,0);
+  assert.equal(noteCell.children[1].textContent,'☆');
+  assert.equal(noteCell.children[2].textContent,'○');
+  tree.getRow=()=>({ref:{isNote:()=>true,parentItemID:9,libraryID:1,key:'CHILDNOTE'}});
+  assert.equal(columns[0].renderCell(3,'||',{},false,doc).children.length,0);
+  tree.getRow=()=>({ref:b});
   assert.equal(other.children[1].dataset.hideEmpty,'true');
   assert.equal(other.children[2].dataset.hideEmpty,'true');
   assert.equal(other.children[1].textContent,'☆');
