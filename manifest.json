@@ -5,7 +5,7 @@
   "description": "A bookshelf and Eisenhower reading planner for Zotero collections, with reading status and PDF progress.",
   "applications": {
     "zotero": {
-      "id": "syllabus-lite@local.zotero",
+      "id": "reading-shelf@4season.github.io",
       "strict_min_version": "10.0",
       "strict_max_version": "10.*",
       "update_url": "https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/updates.json"

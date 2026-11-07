@@ -22,8 +22,8 @@ def main():
 
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
     addon = manifest["applications"]["zotero"]
-    if addon["id"] != "syllabus-lite@local.zotero" or not addon["update_url"].startswith("https://"):
-        raise SystemExit("Expected the original add-on ID and an HTTPS update URL.")
+    if addon["id"] != "reading-shelf@4season.github.io" or not addon["update_url"].startswith("https://"):
+        raise SystemExit("Expected the Reading Shelf add-on ID and an HTTPS update URL.")
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     xpi = args.out_dir / f"zotero-reading-shelf-{manifest['version']}.xpi"

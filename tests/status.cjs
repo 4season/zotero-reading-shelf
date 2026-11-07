@@ -30,7 +30,7 @@ const ctx = vm.createContext({
 });
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),ctx);
 (async () => {
-  await ctx.startup({id:'syllabus-lite@local.zotero',rootURI:'fixture/',version:'1.2.1'});
+  await ctx.startup({id:'reading-shelf@4season.github.io',rootURI:'fixture/',version:'1.2.1'});
   assert.equal(columns.length,1);
   // Settings saved under the old "syllabus-lite" name are copied once, without overwriting new values.
   {

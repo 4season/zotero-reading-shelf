@@ -11,7 +11,7 @@ root = Path(__file__).resolve().parents[1]
 with TemporaryDirectory() as temp:
     subprocess.run([sys.executable, str(root / 'scripts/build.py'), '--out-dir', temp], check=True, stdout=subprocess.DEVNULL)
     metadata = json.loads((Path(temp) / 'updates.json').read_text())
-    entry = metadata['addons']['syllabus-lite@local.zotero']['updates'][0]
+    entry = metadata['addons']['reading-shelf@4season.github.io']['updates'][0]
     package = Path(temp) / ('zotero-reading-shelf-' + entry['version'] + '.xpi')
     assert entry['update_hash'] == 'sha256:' + hashlib.sha256(package.read_bytes()).hexdigest()
     assert entry['update_link'] == 'https://github.com/4season/zotero-reading-shelf/releases/download/v' + entry['version'] + '/' + package.name
