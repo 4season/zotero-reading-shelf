@@ -283,6 +283,7 @@ ctx.setItemStatus([queued], "reading");
 assert.equal(ctx.tableStatus(queued), "reading");
 ctx.setItemStatus([queued], "");
 assert.equal(ctx.tableStatus(queued), "");
+assert.equal(ctx.readingData(collection).order.includes(queued.key),false);
 ctx.setItemStatus([queued], "invalid");
 assert.equal(ctx.tableStatus(queued), "");
 view.layoutCards([]);

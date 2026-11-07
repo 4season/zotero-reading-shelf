@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const prefs = new Map();
 const columns = [], menus = [], removed = [], observers = [], infoRows = [];
-let readerHook;
+let readerHook, notifier;
 const ctx = vm.createContext({
   APP_SHUTDOWN: 2,
   Zotero: {
@@ -22,7 +22,7 @@ const ctx = vm.createContext({
     PreferencePanes: { register: async () => {} },
     Prefs: { get: key => prefs.get(key), set: (key, value) => prefs.set(key, value),
       registerObserver: key => { observers.push(key); return key; }, unregisterObserver() {} },
-    Notifier: { registerObserver: () => 1, unregisterObserver() {} },
+    Notifier: { registerObserver: observer => {notifier=observer;return 1;}, unregisterObserver() {} },
     uiReadyPromise: new Promise(() => {}),
     logError: error => { throw error; }
   }
@@ -78,9 +78,21 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   ctx.Zotero.Items = {get:id=>id===44?parent:child};
   ctx.setPriority([parent], 'important', true);
   ctx.setPriority([parent], 'urgent', true);
-  readerHook({reader:{itemID:45}});
+  readerHook({reader:{itemID:45,tabID:'reader-1'}});
   assert.equal(ctx.tableStatus(child), 'reading');
   assert.equal(ctx.tableStatus(parent), 'reading');
+  prefs.set('extensions.syllabus-lite.clearStatusOnClose',true);
+  readerHook({reader:{itemID:45,tabID:'reader-2'}});
+  notifier.notify('close','tab',[['reader-1']]);
+  assert.equal(ctx.tableStatus(parent),'reading');
+  notifier.notify('close','tab',[['reader-2']]);
+  assert.equal(ctx.tableStatus(parent),'');
+  assert.equal(ctx.importantOf(parent),true);
+  assert.equal(ctx.urgentOf(parent),true);
+  prefs.set('extensions.syllabus-lite.clearStatusOnClose',false);
+  readerHook({reader:{itemID:45,tabID:'reader-3'}});
+  notifier.notify('close','tab',['reader-3']);
+  assert.equal(ctx.tableStatus(parent),'reading');
   assert.equal(ctx.importantOf(parent), true);
   assert.equal(ctx.urgentOf(parent), true);
   assert.match(infoRows[0].onGetData({item:child}), /읽는 중.*중요.*긴급/);
@@ -95,6 +107,14 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   ctx.setPriority([b],'important',false);
   assert.equal(ctx.importantOf(b),false);
   assert.equal(ctx.tableStatus(b),'planned');
+  const c1={id:1,libraryID:1,key:'C1'},c2={id:2,libraryID:1,key:'C2'};
+  prefs.set('extensions.syllabus-lite.matrixMode',false);
+  prefs.set('extensions.syllabus-lite.rememberCollectionMode',true);
+  prefs.set(ctx.collectionModeKey(c1),true);
+  assert.equal(ctx.matrixModeFor(c1),true);
+  assert.equal(ctx.matrixModeFor(c2),false);
+  prefs.set('extensions.syllabus-lite.rememberCollectionMode',false);
+  assert.equal(ctx.matrixModeFor(c1),false);
   prefs.set('extensions.syllabus-lite.language','en');
   assert.equal(ctx.tr('Reading'),'Reading');
   assert.match(infoRows[0].onGetData({item:parent}), /Reading.*Important.*Urgent/);

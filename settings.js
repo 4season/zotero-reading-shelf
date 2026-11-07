@@ -4,7 +4,7 @@
   const updateDependencies = () => {
     const root = document.getElementById("sl-settings");
     if (!root) return;
-    const matrix = Zotero.Prefs.get(prefix + "matrixMode", true) === true;
+    const matrix = Zotero.Prefs.get(prefix + "matrixMode", true) === true || Zotero.Prefs.get(prefix + "rememberCollectionMode", true) === true;
     const borders = matrix && Zotero.Prefs.get(prefix + "matrixBorders", true) !== false;
     const shadows = Zotero.Prefs.get(prefix + "shadowStrength", true) !== "off";
     for (const node of root.querySelectorAll("[data-sl-depends]")) {

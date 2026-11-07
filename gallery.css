@@ -454,7 +454,7 @@
 .sl-card:hover .sl-status-control[data-empty="true"], .sl-card:focus-within .sl-status-control[data-empty="true"] { display:inline-block; }
 .sl-status-badge + .sl-status-badge { margin-inline-start:4px; }
 .sl-status-urgent { color:light-dark(#a22a30, #ffaaaa); }
-.sl-matrix { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px 22px; margin-top:21px; }
+.sl-matrix { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; margin-top:21px; }
 .sl-matrix > .sl-section { margin-top:0; border:0; padding:12px; border-radius:8px; background:var(--fill-quinary, ButtonFace); }
 .sl-matrix .sl-grid { --sl-column-width:min(100%, var(--sl-card-width,176px)); }
 .sl-matrix .sl-card { max-width:100%; }
@@ -535,3 +535,11 @@
 .sl-status-picker select.sl-status-control:is(:hover,:focus,:active),
 .sl-card:is(:hover,:focus-within) .sl-status-picker select.sl-status-control { opacity:0; }
 .sl-table-workflow .sl-table-priority[aria-pressed="true"] { font-weight:400; }
+
+/* Lane labels sit above their boxes; both axes share the same spacing. */
+.sl-matrix > .sl-section { display:flex; flex-direction:column; padding:0; min-height:0; border:0; background:transparent; }
+.sl-matrix > .sl-section h2 { margin:0 0 clamp(8px,.7em,12px); line-height:1.4; }
+.sl-matrix .sl-lane-body { flex:1; min-width:0; min-height:12em; padding:12px; border:2px solid var(--sl-urgentColor,#c76a6a); border-radius:8px; background:var(--fill-quinary,ButtonFace); box-sizing:border-box; }
+.sl-matrix .sl-lane-later .sl-lane-body { border-color:var(--sl-laterColor,#638ebd); }
+.sl-matrix .sl-lane-queue .sl-lane-body { min-height:8em; border-color:var(--sl-queueColor,#789866); }
+.sl-gallery[data-matrix-borders="false"] .sl-matrix .sl-lane-body { border-color:transparent; }

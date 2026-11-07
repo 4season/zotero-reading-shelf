@@ -20,7 +20,7 @@ let statusMenu;
 const orderStatusCache = new Map();
 const STATUS_LABELS = { "": "No status", planned: "To read", reading: "Reading" };
 const UI_KO = {
-  "On":"켜짐", "Off":"꺼짐", "No status":"상태 없음", "To read":"읽을 예정", "Reading":"읽는 중", "Important":"중요", "Urgent":"긴급",
+  "On":"켜짐", "Off":"꺼짐", "Bookshelf":"일반 서재", "Eisenhower":"아이젠하워", "No status":"상태 없음", "To read":"읽을 예정", "Reading":"읽는 중", "Important":"중요", "Urgent":"긴급",
   "Gallery":"갤러리", "Table":"테이블", "Reading order":"읽기 목록", "Unordered items":"미분류 자료",
   "Card size":"자료 크기", "Sort ▾":"정렬 ▾", "Table order":"테이블 순서", "Title":"제목", "Author":"저자", "Year":"연도", "Added":"추가일", "Date added":"추가일",
   "Save":"저장", "Cancel":"취소", "Child note":"부속 노트", "Note":"노트", "Preview":"미리보기",
@@ -56,11 +56,15 @@ function createStatusPicker(doc, status, onChange) {
   select.value = status;
   select.addEventListener("click", event => event.stopPropagation());
   select.addEventListener("dblclick", event => event.stopPropagation());
+  let pointerSelection = false;
+  select.addEventListener("pointerdown", () => { pointerSelection = true; });
+  select.addEventListener("keydown", event => { pointerSelection = false; if (event.key === "Escape") select.blur(); });
   select.addEventListener("change", () => {
     face.textContent = tr(STATUS_LABELS[select.value]);
     wrapper.className = "sl-status-picker sl-status-" + select.value;
     wrapper.dataset.empty = String(!select.value);
     onChange(select.value);
+    if (pointerSelection) { pointerSelection = false; select.blur(); }
   });
   wrapper.append(face, select);
   return { wrapper, select, face };
@@ -76,24 +80,75 @@ function refreshWorkflow(relayout = true) {
     tree?.invalidateRowCache?.(true);
     tree?.tree?.invalidate?.();
     for (const card of view.cards.values()) view.refreshStatus(card);
-    if (relayout && view.gallery && view.matrix) view.animateLayout(() => view.layoutCards(view.orderKeys));
+    if (relayout && view.gallery) view.animateLayout(() => view.layoutCards(view.orderKeys));
   }
   if (infoRow) Zotero.ItemPaneManager.refreshInfoRow(infoRow);
+}
+function removeFromReadingOrders(items) {
+  const keys = new Set(items.map(item => statusItem(item).libraryID + "." + statusItem(item).key));
+  const collections = new Map();
+  for (const item of items) for (const id of statusItem(item).getCollections?.() || []) {
+    const collection = Zotero.Collections.get(id);
+    if (collection) collections.set(collection.id, collection);
+  }
+  for (const view of windows.values()) if (view.collection) collections.set(view.collection.id, view.collection);
+  for (const collection of collections.values()) {
+    const data = readingData(collection);
+    const order = data.order.filter(key => !keys.has(collection.libraryID + "." + key));
+    if (order.length !== data.order.length) Zotero.Prefs.set(preferenceKey(collection), JSON.stringify({ ...data, order }), true);
+  }
+  for (const view of windows.values()) if (view.collection && view.gallery && view.unorderedCards) {
+    view.orderKeys = readingData(view.collection).order;
+    view.animateLayout(() => view.layoutCards(view.orderKeys));
+  }
+}
+function collectionModeKey(collection) { return PREF + "collectionMode." + collection.libraryID + "." + collection.key; }
+function matrixModeFor(collection) {
+  if (collection && Zotero.Prefs.get(PREF + "rememberCollectionMode", true) === true) {
+    const saved = Zotero.Prefs.get(collectionModeKey(collection), true);
+    if (typeof saved === "boolean") return saved;
+  }
+  return Zotero.Prefs.get(PREF + "matrixMode", true) === true;
+}
+const readerTabs = new Map();
+function rememberReader(reader, tabID = reader.tabID) {
+  if (tabID) readerTabs.set(tabID, reader.itemID);
+  markReading(Zotero.Items.get(reader.itemID));
+}
+function closeReaderTabs(ids) {
+  const closed = new Set(ids.flat(Infinity));
+  const itemIDs = new Set();
+  for (const id of closed) { const itemID = readerTabs.get(id); if (itemID) itemIDs.add(itemID); readerTabs.delete(id); }
+  if (Zotero.Prefs.get(PREF + "clearStatusOnClose", true) !== true) return;
+  const items = [];
+  for (const id of itemIDs) {
+    const item = statusItem(Zotero.Items.get(id));
+    if (!item || tableStatus(item) !== "reading") continue;
+    const stillOpen = [...readerTabs.values()].some(other => {
+      const parent = statusItem(Zotero.Items.get(other));
+      return parent?.libraryID === item.libraryID && parent?.key === item.key;
+    });
+    if (!stillOpen) items.push(item);
+  }
+  if (items.length) setItemStatus(items, "");
 }
 function setItemStatus(items, status) {
   if (!Object.hasOwn(STATUS_LABELS, status)) return;
   let changed = false;
   let priorityChanged = false;
+  let shelfChanged = false;
   for (let item of items) {
     item = statusItem(item);
     if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") {
       Zotero.Prefs.set(itemPref(item, "important"), true, true);
       priorityChanged = true;
     }
+    shelfChanged ||= Boolean(tableStatus(item)) !== Boolean(status);
     if (Zotero.Prefs.get(itemPref(item, "status"), true) === status) continue;
     Zotero.Prefs.set(itemPref(item, "status"), status, true); changed = true;
   }
-  if (changed) refreshWorkflow(priorityChanged);
+  if (status === "") removeFromReadingOrders(items);
+  if (changed) refreshWorkflow(priorityChanged || shelfChanged);
 }
 function setPriority(items, name, value) {
   for (const item of items) {
@@ -109,7 +164,7 @@ function markReading(item) {
   if (!item || item.isNote?.()) return;
   setItemStatus([statusItem(item)], "reading");
 }
-function onReaderToolbar({ reader }) { markReading(Zotero.Items.get(reader.itemID)); }
+function onReaderToolbar({ reader }) { rememberReader(reader); }
 function tableStatus(item) {
   item = statusItem(item);
   const status = Zotero.Prefs.get(itemPref(item, "status"), true);
@@ -221,8 +276,11 @@ async function startup({ id, rootURI }) {
   preferenceObservers = VISIBILITY_PREFS.map(([key]) => Zotero.Prefs.registerObserver(PREF + key, () => {
     for (const view of windows.values()) view.applyVisibilitySettings();
   }, true));
-  for (const key of ["language", "matrixMode", "hideEmptyStatus"]) {
+  for (const key of ["language", "matrixMode", "rememberCollectionMode", "hideEmptyStatus"]) {
     preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
+      if (key === "matrixMode" && Zotero.Prefs.get(PREF + "rememberCollectionMode", true) === true) {
+        for (const view of windows.values()) if (view.collection) Zotero.Prefs.set(collectionModeKey(view.collection), Zotero.Prefs.get(PREF + "matrixMode", true) === true, true);
+      }
       for (const view of windows.values()) view.sync();
       refreshWorkflow();
     }, true));
@@ -237,9 +295,10 @@ async function startup({ id, rootURI }) {
       if (type === "tab" && ["add", "select"].includes(event)) {
         for (const id of ids) {
           const reader = Zotero.Reader.getByTabID(id);
-          if (reader) markReading(Zotero.Items.get(reader.itemID));
+          if (reader) rememberReader(reader, id);
         }
       }
+      if (type === "tab" && event === "close") closeReaderTabs(ids);
       for (const view of windows.values()) {
         if (type === "tab" && event === "select") view.sync();
         if (type === "collection" && view.collection && ids.includes(view.collection.id)) view.schedule();
@@ -269,7 +328,7 @@ function onMainWindowLoad({ window }) {
   const view = new Gallery(window);
   if (view.mount()) windows.set(window, view);
   // Reconcile readers already open before this plugin update, including background tabs/windows.
-  for (const reader of Zotero.Reader._readers || []) markReading(Zotero.Items.get(reader.itemID));
+  for (const reader of Zotero.Reader._readers || []) rememberReader(reader);
 }
 
 function onMainWindowUnload({ window }) {
@@ -288,6 +347,7 @@ function shutdown(_data, reason) {
   for (const observer of preferenceObservers) Zotero.Prefs.unregisterObserver(observer);
   preferenceObservers = [];
   orderStatusCache.clear();
+  readerTabs.clear();
   for (const window of windows.keys()) onMainWindowUnload({ window });
 }
 
@@ -480,7 +540,10 @@ class Gallery {
     this.gallery.setAttribute("aria-label", NAME + " gallery");
     this.applyVisibilitySettings();
     this.gallery.addEventListener("click", event => {
-      if (event.target.matches?.(".sl-gallery, .sl-section, .sl-grid")) this.clearSelection();
+      if (event.target.matches?.(".sl-gallery, .sl-section, .sl-grid, .sl-lane-body")) {
+        this.doc.activeElement?.blur?.();
+        this.clearSelection();
+      }
     });
     this.container.classList.add("sl-show");
     this.container.append(this.gallery);
@@ -586,7 +649,14 @@ class Gallery {
     const savedSort = Zotero.Prefs.get(PREF + "sort", true);
     const sort = SORT_OPTIONS.has(savedSort) ? savedSort : "table";
     const controls = this.element("div", "sl-gallery-controls");
-    controls.append(this.sizeControl(), this.sortMenu(sort));
+    const mode = this.button(matrixModeFor(this.collection) ? "Bookshelf" : "Eisenhower", () => {
+      const enabled = !matrixModeFor(this.collection);
+      if (Zotero.Prefs.get(PREF + "rememberCollectionMode", true) === true) {
+        Zotero.Prefs.set(collectionModeKey(this.collection), enabled, true);
+        for (const view of windows.values()) if (view.collection?.id === this.collection.id) view.sync();
+      } else Zotero.Prefs.set(PREF + "matrixMode", enabled, true);
+    }, "sl-edit sl-mode");
+    controls.append(mode, this.sizeControl(), this.sortMenu(sort));
     header.append(controls);
     this.gallery.style.setProperty("--sl-card-gap", CARD_GAP + "px");
     this.gallery.append(header);
@@ -594,7 +664,7 @@ class Gallery {
     this.description = this.element("div", "sl-description");
     this.gallery.append(this.description);
     this.renderDescription(data.description);
-    this.matrix = Zotero.Prefs.get(PREF + "matrixMode", true) === true;
+    this.matrix = matrixModeFor(this.collection);
     this.sections = {
       ordered: this.section("Reading order", true, "Drag papers here or use + on a card."),
       unordered: this.section("Unordered items", false, "No unordered items.")
@@ -611,6 +681,11 @@ class Gallery {
       this.sections.ordered.section.classList.add("sl-lane-urgent");
       this.sections.later.section.classList.add("sl-lane-later");
       this.sections.queue.section.classList.add("sl-lane-queue");
+      for (const group of [this.sections.ordered, this.sections.later, this.sections.queue]) {
+        const body = this.element("div", "sl-lane-body");
+        body.append(group.grid);
+        group.section.append(body);
+      }
       lanes.append(this.sections.ordered.section, this.sections.later.section, this.sections.queue.section);
       this.gallery.insertBefore(lanes, this.sections.unordered.section);
     }
@@ -911,6 +986,8 @@ class Gallery {
   layoutCards(order) {
     this.orderKeys = order;
     const byKey = new Map(this.unorderedCards.map(card => [card.item.key, card]));
+    const statusKeys = this.unorderedCards.filter(card => tableStatus(card.item)).map(card => card.item.key);
+    order = [...new Set([...order, ...statusKeys])];
     this.orderedCards = order.map(key => byKey.get(key)).filter(Boolean);
     const ordered = new Set(this.orderedCards);
     const unordered = this.unorderedCards.filter(card => !ordered.has(card));
@@ -954,6 +1031,8 @@ class Gallery {
   }
 
   move(key, before, ordered) {
+    const card = this.unorderedCards?.find(card => card.item.key === key);
+    if (!ordered && card) { setItemStatus([card.item], ""); }
     const current = readingData(this.collection).order;
     const next = moveInOrder(current, key, before, ordered);
     if (current.length === next.length && current.every((value, i) => value === next[i])) return;
