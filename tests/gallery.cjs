@@ -173,6 +173,12 @@ view.win.matchMedia = () => ({ matches: false });
 let animationFrame;
 view.win.requestAnimationFrame = callback => { animationFrame = callback; return 1; };
 view.gallery = new Element();
+prefs.set("extensions.syllabus-lite.matrixBorders", false);
+view.applyVisibilitySettings();
+assert.equal(view.gallery.dataset.matrixBorders, "false");
+prefs.set("extensions.syllabus-lite.matrixBorders", true);
+view.applyVisibilitySettings();
+assert.equal(view.gallery.dataset.matrixBorders, "true");
 for (const [key, className] of [
   ["hideCardButtons", "sl-hide-card-buttons"],
   ["hideChildIndicator", "sl-hide-child-indicator"],

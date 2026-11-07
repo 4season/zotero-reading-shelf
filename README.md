@@ -4,7 +4,7 @@ Reading Shelf is an independent third-party plugin compatible with Zotero. It ad
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.2.0-beta.4.xpi` from the GitHub release.
+1. Download `zotero-reading-shelf-1.2.0-beta.5.xpi` from the GitHub release.
 2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
 3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
 
@@ -30,7 +30,9 @@ Set **읽을 예정** (to read) or **읽는 중** (reading) using the status sel
 
 ![Table status guide](docs/images/status-guide.svg)
 
-The table's **Reading Shelf** column shares reading status, importance and urgency with the gallery. Click the status label to choose a status, or click the star/clock to toggle importance/urgency. Empty rows also have an editable No status label. Enable it through the table header's column picker if necessary. The **Info** pane includes a read-only Reading Shelf workflow row for bibliographic items. Attached files share their parent reference's status. Native reader opening and tab selection mark the reference as reading, including opening from the table. External applications opened outside Zotero's reader cannot be observed reliably.
+The star means **importance** and the pie/clock means **urgency**; these are independent of the reading-status dropdown. Enabled buttons have a filled symbol, colored background and border.
+
+The table's **Reading Shelf** column shares reading status, importance and urgency with the gallery. Click the status label to choose a status, or click the star/clock to toggle importance/urgency. Empty status labels stay hidden until row hover or keyboard focus, following the Hide empty status preference. Enable it through the table header's column picker if necessary. The **Info** pane includes a read-only Reading Shelf workflow row for bibliographic items. Attached files share their parent reference's status. Native reader opening and tab selection mark the reference as reading, including opening from the table. External applications opened outside Zotero's reader cannot be observed reliably.
 
 Status, importance and urgency are local to this Zotero profile and shared across collections for the same reference. No tags, Extra fields or bibliographic metadata are changed. An item in an existing local reading order defaults to “to read” until explicitly changed. Queue membership alone is not a measurement of reading completion.
 
@@ -39,7 +41,8 @@ In **Settings → Reading Shelf**:
 - Choose **한국어 / English** for the plugin interface.
 - Hide empty statuses by default; hovering or keyboard focus reveals the selector. Existing status badges stay visible.
 - Hide reading-order **+ / −**, child indicators, the size slider and Sort independently.
-- Choose whole-card shadow strength (**Off / Soft / Medium / Strong**). Dark-mode shadows are off by default and have a separate opt-in.
+- Choose preview-only shadow strength (**Off / Soft / Medium / Strong**). Dark-mode shadows are off by default and have a separate opt-in.
+- Disable colored matrix borders without losing the saved colors.
 - Pick individual border colors for the urgent, important and queue **regions**. Colors apply immediately.
 - Enable the **Eisenhower 1 × 2 mode**: urgent and important references on the left, important but less urgent references on the right; a full-width second row holds queued references without importance, and other items remain below. Use star/clock switches or drag into a lane to classify. Dragging into a lane also adds the item to the reading queue. Removing queue membership does not clear importance.
 

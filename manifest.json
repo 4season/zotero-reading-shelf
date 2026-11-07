@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Reading Shelf",
-  "version": "1.2.0-beta.4",
+  "version": "1.2.0-beta.5",
   "description": "An attachment gallery with per-collection reading order and PDF progress.",
   "applications": {
     "zotero": {
@@ -10,5 +10,9 @@
       "strict_max_version": "10.*",
       "update_url": "https://zotero-syllabus-lite.invalid/updates.json"
     }
+  },
+  "icons": {
+    "48": "icons/reading-shelf.svg",
+    "96": "icons/reading-shelf.svg"
   }
 }

@@ -20,7 +20,7 @@ let statusMenu;
 const orderStatusCache = new Map();
 const STATUS_LABELS = { "": "No status", planned: "To read", reading: "Reading" };
 const UI_KO = {
-  "No status":"상태 없음", "To read":"읽을 예정", "Reading":"읽는 중", "Important":"중요", "Urgent":"긴급",
+  "On":"켜짐", "Off":"꺼짐", "No status":"상태 없음", "To read":"읽을 예정", "Reading":"읽는 중", "Important":"중요", "Urgent":"긴급",
   "Gallery":"갤러리", "Table":"테이블", "Reading order":"읽기 목록", "Unordered items":"미분류 자료",
   "Card size":"자료 크기", "Sort ▾":"정렬 ▾", "Table order":"테이블 순서", "Title":"제목", "Author":"저자", "Year":"연도", "Added":"추가일", "Date added":"추가일",
   "Save":"저장", "Cancel":"취소", "Child note":"부속 노트", "Note":"노트", "Preview":"미리보기",
@@ -38,6 +38,8 @@ function createStatusPicker(doc, status, onChange) {
   const make = tag => doc.createElementNS("http://www.w3.org/1999/xhtml", tag);
   const wrapper = make("label");
   wrapper.className = "sl-status-picker sl-status-" + status;
+  wrapper.dataset.empty = String(!status);
+  wrapper.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
   const face = make("span");
   face.className = "sl-status-face";
   face.setAttribute("aria-hidden", "true");
@@ -57,6 +59,7 @@ function createStatusPicker(doc, status, onChange) {
   select.addEventListener("change", () => {
     face.textContent = tr(STATUS_LABELS[select.value]);
     wrapper.className = "sl-status-picker sl-status-" + select.value;
+    wrapper.dataset.empty = String(!select.value);
     onChange(select.value);
   });
   wrapper.append(face, select);
@@ -80,13 +83,17 @@ function refreshWorkflow(relayout = true) {
 function setItemStatus(items, status) {
   if (!Object.hasOwn(STATUS_LABELS, status)) return;
   let changed = false;
+  let priorityChanged = false;
   for (let item of items) {
     item = statusItem(item);
-    if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") Zotero.Prefs.set(itemPref(item, "important"), true, true);
+    if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") {
+      Zotero.Prefs.set(itemPref(item, "important"), true, true);
+      priorityChanged = true;
+    }
     if (Zotero.Prefs.get(itemPref(item, "status"), true) === status) continue;
     Zotero.Prefs.set(itemPref(item, "status"), status, true); changed = true;
   }
-  if (changed) refreshWorkflow();
+  if (changed) refreshWorkflow(priorityChanged);
 }
 function setPriority(items, name, value) {
   for (const item of items) {
@@ -158,9 +165,9 @@ async function startup({ id, rootURI }) {
       ]) {
         const button = doc.createElementNS("http://www.w3.org/1999/xhtml", "button");
         button.className = "sl-table-priority sl-status-" + name;
-        button.textContent = symbol;
-        button.title = tr(label);
-        button.setAttribute("aria-label", tr(label));
+        button.textContent = name === "important" ? (enabled ? "★" : "☆") : (enabled ? "◷" : "○");
+        button.title = tr(label) + ": " + tr(enabled ? "On" : "Off");
+        button.setAttribute("aria-label", button.title);
         button.setAttribute("aria-pressed", String(enabled));
         button.addEventListener("click", event => {
           event.stopPropagation();
@@ -207,6 +214,8 @@ async function startup({ id, rootURI }) {
     pluginID: id,
     src: "settings.xhtml",
     scripts: ["settings.js"],
+    stylesheets: ["settings.css"],
+    image: "icons/reading-shelf.svg",
     label: "Reading Shelf"
   }).catch(error => Zotero.logError(error));
   preferenceObservers = VISIBILITY_PREFS.map(([key]) => Zotero.Prefs.registerObserver(PREF + key, () => {
@@ -218,7 +227,7 @@ async function startup({ id, rootURI }) {
       refreshWorkflow();
     }, true));
   }
-  for (const key of ["shadowStrength", "shadowDark", "urgentColor", "laterColor", "queueColor"]) {
+  for (const key of ["shadowStrength", "shadowDark", "matrixBorders", "urgentColor", "laterColor", "queueColor"]) {
     preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
       for (const view of windows.values()) view.applyVisibilitySettings();
     }, true));
@@ -544,6 +553,7 @@ class Gallery {
     if (!this.gallery) return;
     const strength = Zotero.Prefs.get(PREF + "shadowStrength", true);
     this.gallery.dataset.shadow = ["off", "soft", "medium", "strong"].includes(strength) ? strength : "medium";
+    this.gallery.dataset.matrixBorders = String(Zotero.Prefs.get(PREF + "matrixBorders", true) !== false);
     this.gallery.dataset.shadowDark = String(Zotero.Prefs.get(PREF + "shadowDark", true) === true);
     for (const [key, fallback] of [["urgentColor", "#c76a6a"], ["laterColor", "#638ebd"], ["queueColor", "#789866"]]) {
       const value = Zotero.Prefs.get(PREF + key, true);
@@ -1108,9 +1118,15 @@ class Gallery {
     card.statusControl.dataset.empty = String(!status);
     card.statusControl.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
     if (card.priorityControl) {
-      card.priorityControl.textContent = importantOf(card.item) ? "★" : "☆";
-      card.priorityControl.setAttribute("aria-pressed", String(importantOf(card.item)));
-      card.urgentControl.setAttribute("aria-pressed", String(urgentOf(card.item)));
+      const important = importantOf(card.item), urgent = urgentOf(card.item);
+      card.priorityControl.textContent = important ? "★" : "☆";
+      card.priorityControl.setAttribute("aria-pressed", String(important));
+      card.urgentControl.textContent = urgent ? "◷" : "○";
+      card.urgentControl.setAttribute("aria-pressed", String(urgent));
+      for (const [control, label, enabled] of [[card.priorityControl, "Important", important], [card.urgentControl, "Urgent", urgent]]) {
+        control.title = tr(label) + ": " + tr(enabled ? "On" : "Off");
+        control.setAttribute("aria-label", control.title);
+      }
     }
   }
 

@@ -1,25 +1,25 @@
-# Reading Shelf 1.2.0-beta.4
+# Reading Shelf 1.2.0-beta.5
 
-This prerelease refines settings, matrix layout, descriptions and workflow controls.
+This prerelease softens preview shadows and improves workflow controls and preferences.
 
-- Localize every settings label and shadow option to the selected language. Group settings into Visibility, Workflow and Appearance.
-- Keep both priority lanes equal in height, including an empty lane, and reserve a usable minimum drop area. Stack lanes on narrow windows.
-- Fix dragging a queue-only reference back to Other items without moving it through an important lane first.
-- Remove the separate Edit description button. Preserve double-click/Enter editing and grow both description and editor with their content.
-- Size status labels from their displayed text. Controls wrap when a card is narrow; the native dropdown and keyboard interaction are retained.
-- Make the native table's Reading Shelf column editable: choose reading status directly and toggle the star/clock for importance and urgency. The same preferences drive the matrix, gallery and table. Child attachments share their parent's workflow state.
-- Spread the configurable shadow around the whole card with no downward offset. Dark-mode shadows remain opt-in.
+- Apply a much lighter shadow only around the attachment preview. Titles, authors and controls have no surrounding shadow. Keep configurable strengths and opt-in dark-mode shadows.
+- Hide empty table status labels by default, revealing them on row hover or keyboard focus. The existing Hide empty status preference controls both views.
+- Distinguish importance and urgency by shape, background and border: ☆ → ★ and ○ → ◷. Add localized on/off tooltips. The pie/clock control remains urgency, independent of reading status.
+- Increase settings section spacing and heading size in both languages, align color rows, and load a scoped settings stylesheet through Zotero's preferences API.
+- Add a switch for colored Eisenhower borders. Disabling borders preserves lane geometry and saved colors.
+- Add a lightweight SVG icon with books, a bookmark and a shelf, used by the plugin manager and preferences sidebar.
+- Avoid matrix relayout when only reading status changes; retain relayout for priority changes and legacy priority migration. Reuse per-card importance/urgency lookups during control refresh.
 
 ## Install
 
-Download **zotero-reading-shelf-1.2.0-beta.4.xpi** and use **Tools → Plugins → ⚙ → Install Plugin From File…**. Existing plugin ID, local descriptions/order and workflow preferences are retained. Updates remain manual.
+Download **zotero-reading-shelf-1.2.0-beta.5.xpi** and use **Tools → Plugins → ⚙ → Install Plugin From File…**. Existing add-on ID and saved settings/order/descriptions remain compatible. Updates remain manual.
 
 ## Verification and limits
 
-Portable regression tests passed for queue removal/reclassification, row-specific table edits, priority propagation, description editing/source preservation, settings lifecycle/localization, bounded thumbnail concurrency and cancellation. The installed Zotero PDF.js passed bounded-read and cancellation integration tests. A browser rendering fixture passed six Korean/English card-size combinations (65%, 100%, 150%), equal-height empty lanes and long description/editor growth; the rendered layout was also inspected visually.
+Regression tests cover hidden-empty status metadata, distinct toggle symbols, table edits, border preference propagation, independent status/priority updates, queue drag removal, settings lifecycle/localization and thumbnail cancellation/concurrency. Installed Zotero PDF.js passed bounded-read and cancellation checks. A browser fixture verified preview-only shadows, active toggle backgrounds, border disabling, six language/card-size combinations and long memo growth. Preview rendering, the SVG icon and an HTML approximation of the settings layout were visually inspected.
 
-Targets Zotero 10.x. The native table callback and plugin API wrapping were checked against Zotero 10.0.7 source. Browser fixtures do not replace interactive testing inside Zotero. Windows/Linux runtime checks, total-RAM and frame-time benchmarks have not been performed. No runtime dependency or background polling was added; the existing bounded thumbnail queues remain in place.
+Native Zotero UI interaction and Windows/Linux execution remain unverified. No RAM or frame-time benchmark is claimed. Existing offscreen rendering and bounded thumbnail queues remain; no runtime dependency, background polling or animated shadow was added.
 
 ## License
 
-AGPL-3.0-only. Matching source includes build instructions, upstream acknowledgements and exact bundled dependency sources.
+AGPL-3.0-only. Matching source includes build instructions, the editable SVG icon, upstream acknowledgements and bundled dependency sources.

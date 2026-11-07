@@ -11,3 +11,4 @@ pref("extensions.syllabus-lite.shadowDark", false);
 pref("extensions.syllabus-lite.urgentColor", "#c76a6a");
 pref("extensions.syllabus-lite.laterColor", "#638ebd");
 pref("extensions.syllabus-lite.queueColor", "#789866");
+pref("extensions.syllabus-lite.matrixBorders", true);

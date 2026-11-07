@@ -45,7 +45,7 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   assert.equal(columns[0].dataProvider(b),'reading||');
   submenu.menus[0].onCommand(null,context);
   assert.equal(columns[0].dataProvider(a),'||');
-  const doc={createElementNS:()=>({children:[], handlers:{}, attrs:{}, append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.handlers[k]=fn;}})};
+  const doc={createElementNS:()=>({dataset:{},children:[], handlers:{}, attrs:{}, append(...nodes){this.children.push(...nodes);},setAttribute(k,v){this.attrs[k]=v;},addEventListener(k,fn){this.handlers[k]=fn;}})};
   const tree={getRow:()=>({ref:a})};
   doc.defaultView={ZoteroPane:{itemsView:tree}};
   const cell=columns[0].renderCell(0,'reading||',{className:'cell'},false,doc);
@@ -63,6 +63,12 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   // Handler resolves the clicked row, independent of the current selection.
   tree.getRow=()=>({ref:b});
   const other=columns[0].renderCell(1,'||',{},false,doc);
+  assert.equal(other.children[0].dataset.empty,'true');
+  assert.equal(other.children[0].dataset.hideEmpty,'true');
+  assert.equal(other.children[1].textContent,'☆');
+  assert.equal(other.children[2].textContent,'○');
+  assert.equal(updated.children[1].textContent,'★');
+  assert.equal(updated.children[2].textContent,'◷');
   other.children[0].children[1].value='reading';
   other.children[0].children[1].handlers.change();
   assert.equal(ctx.tableStatus(b),'reading');
@@ -92,11 +98,14 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   prefs.set('extensions.syllabus-lite.language','en');
   assert.equal(ctx.tr('Reading'),'Reading');
   assert.match(infoRows[0].onGetData({item:parent}), /Reading.*Important.*Urgent/);
-  let cacheClears=0, redraws=0;
-  ctx.fixtureView={pane:{itemsView:{invalidateRowCache:value=>{assert.equal(value,true);cacheClears++;},tree:{invalidate:()=>redraws++}}},cards:new Map(),dispose(){}};
+  let cacheClears=0, redraws=0, layouts=0;
+  ctx.fixtureView={pane:{itemsView:{invalidateRowCache:value=>{assert.equal(value,true);cacheClears++;},tree:{invalidate:()=>redraws++}}},cards:new Map(),gallery:{},matrix:true,animateLayout(){layouts++;},dispose(){}};
   vm.runInContext('windows.set("fixture", fixtureView)',ctx);
   ctx.setItemStatus([a],'planned');
   assert.ok(cacheClears>0 && redraws>0);
+  assert.equal(layouts,0); // Reading state changes do not reflow independent matrix lanes.
+  ctx.setPriority([a],'urgent',true);
+  assert.equal(layouts,1);
   vm.runInContext('windows.clear()',ctx);
   console.log('Parent/file consistency, reader opening, independent priority migration, localization and native cache invalidation passed');
   ctx.shutdown({},1);
