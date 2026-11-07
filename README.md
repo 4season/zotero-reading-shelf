@@ -49,6 +49,12 @@ Use the mode button next to **Sort** to switch the bookshelf to an Eisenhower la
 
 By default the layout you pick applies to all collections. To remember a separate layout for each collection, turn on **Remember Eisenhower / bookshelf mode per collection** in the settings. The **Eisenhower mode** checkbox in the settings always shows the same mode as the mode button; with per-collection memory on, it applies to the collection selected in Zotero.
 
+### See notes and attachments at a glance
+
+![Opening a paper's notes and attachments right under it, then right-clicking one in Zotero](docs/images/core-article-attachments.gif)
+
+Click a paper that has notes or more than one attachment and they fan out as cards right beside it, with previews, so you can see what is attached without opening anything. Right-click any card, including these child cards, for Zotero's usual context menu (open in a new tab or window, show in Finder or in the library, and more). Double-click to open an attachment or note. Click an empty area to fold them away again.
+
 ### Collection notes
 
 Double-click the note at the top of a collection to edit it. Markdown and LaTeX are supported:
@@ -70,8 +76,6 @@ Open Zotero's settings and choose **Reading Shelf** to:
 Settings that depend on another option are greyed out but keep their values.
 
 ![Reading-status colors and reset in Zotero](docs/images/core-article-colors.gif)
-
-You can also click a card to select it, double-click it to open its attachment or note, and right-click for Zotero's usual menu.
 
 ## Your data and privacy
 
