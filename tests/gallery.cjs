@@ -555,6 +555,14 @@ const attachment = (type, available) => ({
     await view.prepareCover(reopened, { signal: { aborted: false } });
     assert.deepEqual(displayed, [["MEMO", "file:///memo.jpg"]]);
     assert.equal(ioCalls, 0);
+    // A rebuilt card shows a known preview immediately, with its proportions, before any lookup.
+    memo.set(902, { uri: "file:///known.jpg", pages: null, ratio: "4 / 3" });
+    const known = view.makeCard({ ...epub, id: 902, key: "KNOWN", libraryID: 1, getDisplayTitle: () => "Known" }, "", true);
+    assert.equal(known.knownCover, true);
+    assert.equal(known.preview.style["--sl-cover-ratio"], "4 / 3");
+    assert.equal(ioCalls, 0);
+    view.cards.delete(902);
+    memo.delete(902);
     memo.delete(901);
     ctx.IOUtils = realIO;
     displayed.length = 0;

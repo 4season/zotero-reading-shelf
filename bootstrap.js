@@ -217,6 +217,10 @@ const failedCovers = new Map();
 // notes and attachments reuses them instead of reading the cache files and parsing notes again.
 const coverMemo = new Map();
 const noteExcerpts = new Map();
+function forgetCover(card) {
+  coverMemo.delete(card.item.id);
+  if (card.attachment?.id !== undefined) coverMemo.delete(card.attachment.id);
+}
 function remember(map, id, value) {
   map.delete(id);
   map.set(id, value);
@@ -348,7 +352,12 @@ async function startup({ id, rootURI, version }) {
   observerID = Zotero.Notifier.registerObserver({
     notify(event, type, ids) {
       if (type === "item") {
-        for (const id of ids) { coverMemo.delete(Number(id)); noteExcerpts.delete(Number(id)); }
+        for (const id of ids) {
+          coverMemo.delete(Number(id));
+          noteExcerpts.delete(Number(id));
+          const parentID = Zotero.Items?.get?.(Number(id))?.parentItemID;
+          if (parentID) coverMemo.delete(parentID);
+        }
       }
       if (type === "tab" && ["add", "select"].includes(event)) {
         for (const id of ids) {
@@ -1343,6 +1352,7 @@ class Gallery {
     const card = { item, title, node, cover, preview, placeholder, order, progress, statusControl, statusPicker, statusFace, priorityControl, urgentControl, child, canExpand, attachments, visible: false };
     this.refreshStatus(card);
     this.cards.set(item.id, card);
+    if (!note) this.showKnownCover(card);
     this.markSelected(card, this.selection?.collectionID === this.collection.id && this.selection.itemID === item.id);
     return card;
   }
@@ -1512,13 +1522,14 @@ class Gallery {
       card.request = null;
     }
     card.cover.querySelector("img")?.remove();
+    card.knownCover = false;
   }
 
   // Rendering a preview is heavy main-thread work; hold it back until a running card animation
   // has finished so the motion does not stutter.
   loadCardWhenIdle(card) {
     const wait = (this.animatingUntil || 0) - Date.now();
-    if (wait <= 0 || typeof this.win.setTimeout !== "function") { this.loadCard(card); return; }
+    if (card.knownCover || wait <= 0 || typeof this.win.setTimeout !== "function") { this.loadCard(card); return; }
     if (card.deferred) return;
     card.deferred = true;
     this.win.setTimeout(() => {
@@ -1528,7 +1539,7 @@ class Gallery {
   }
 
   loadCard(card) {
-    if (card.request) return;
+    if (card.request || card.knownCover) return;
     const request = new this.win.AbortController();
     card.request = request;
     lookupQueue.set(request, () => this.prepareCover(card, request).catch(error => {
@@ -1608,19 +1619,24 @@ class Gallery {
       return;
     }
 
-    if (card.attachment?.id !== undefined) remember(coverMemo, card.attachment.id, cover);
+    if (card.attachment?.id !== undefined) {
+      cover.attachmentID = card.attachment.id;
+      remember(coverMemo, card.attachment.id, cover);
+      remember(coverMemo, card.item.id, cover); // lets a rebuilt card show it before any lookup
+    }
     const img = this.element("img");
     img.alt = "";
     img.draggable = false;
     img.addEventListener("load", () => {
       if (request.signal.aborted) return;
       if (img.naturalWidth && img.naturalHeight) {
-        card.preview.style.setProperty("--sl-cover-ratio", `${img.naturalWidth} / ${img.naturalHeight}`);
+        cover.ratio = `${img.naturalWidth} / ${img.naturalHeight}`;
+        card.preview.style.setProperty("--sl-cover-ratio", cover.ratio);
       }
       img.classList.add("sl-loaded");
     });
     img.addEventListener("error", () => {
-      if (card.attachment?.id !== undefined) coverMemo.delete(card.attachment.id); // cache file went away
+      forgetCover(card);
       img.remove();
       if (!request.signal.aborted) card.placeholder.textContent = tr(type) + " · " + tr("No preview");
     });
@@ -1628,6 +1644,28 @@ class Gallery {
     card.cover.append(img);
     if (cover.pages) card.pages = cover.pages;
     this.updateCardProgress(card, request);
+  }
+
+  // A card rebuilt for something whose preview was already produced shows it right away, with the
+  // right proportions, instead of a blank placeholder that changes shape once the image loads.
+  showKnownCover(card) {
+    const known = coverMemo.get(card.item.id);
+    if (!known || card.cover.querySelector("img")) return;
+    if (known.ratio) card.preview.style.setProperty("--sl-cover-ratio", known.ratio);
+    const img = this.element("img");
+    img.alt = "";
+    img.draggable = false;
+    img.classList.add("sl-loaded");
+    img.addEventListener("error", () => { forgetCover(card); img.remove(); card.knownCover = false; });
+    img.src = known.uri;
+    card.cover.append(img);
+    card.knownCover = true;
+    if (known.pages) card.pages = known.pages;
+    const attachment = known.attachmentID !== undefined ? Zotero.Items?.get?.(known.attachmentID) : null;
+    if (attachment && !Array.isArray(attachment)) {
+      card.attachment = attachment;
+      this.updateCardProgress(card, undefined);
+    }
   }
 
   updateCardProgress(card, request) {

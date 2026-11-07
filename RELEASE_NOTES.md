@@ -1,25 +1,24 @@
-# Reading Shelf 1.3.5 — Faster reopening of notes and attachments
+# Reading Shelf 1.3.6 — Previews appear instantly when you reopen
 
 **English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
-![Dragging papers between lanes and switching modes in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-eisenhower.gif)
+![Opening a paper's notes and attachments right under it, then right-clicking one in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-attachments.gif)
 
 ## What's improved
 
-- **Reopening a paper's notes and attachments is faster.** Previews and note excerpts that were already produced are reused instead of being read and built again every time. They are refreshed when the item changes.
-- **Previews that could not be created are retried less often** (every 30 minutes instead of every 2). Encrypted or unsupported files no longer trigger repeated slow attempts while you browse.
+- **A preview you have already seen shows up the moment its card appears.** Reopening a paper's notes and attachments no longer starts with an empty box that changes shape and fills in a moment later; the picture is there at once, with its proper proportions, together with the reading-progress bar for PDFs.
+- Previews that were already made no longer wait for an animation to finish. Only previews that still have to be created are held back until the motion is over.
+- If an attachment changes, its remembered preview and its paper's are dropped so an outdated picture is never shown.
 
-## What's fixed
-
-- **Cards no longer grow slightly when you open one.** Opening a card adds a row and can bring in the scrollbar, which used to narrow the gallery, drop a column and enlarge every card. The gallery now keeps room for the scrollbar so the width stays the same.
+The README now also has a short demo and a section about seeing a paper's notes and attachments at a glance and using the right-click menu on them.
 
 ## Update
 
-Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.5.xpi** via **⚙ → Install Plugin From File…**.
+Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.6.xpi** via **⚙ → Install Plugin From File…**.
 
 ## Known limits
 
-Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The card-size fix is based on a screen recording and could not be reproduced in the test browser; if cards still grow when you open one, please report it.
+Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The first time a preview is shown it still has to be created, so that one can take a moment.
 
 ## License
 
