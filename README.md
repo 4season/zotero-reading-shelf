@@ -11,78 +11,81 @@
 </p>
 <p align="center"><strong>English</strong> · <a href="README.ko.md">한국어</a></p>
 
-A local bookshelf and Eisenhower reading planner for Zotero collections. Browse attachment previews, arrange reading order, keep Markdown/LaTeX collection notes and change reading status without leaving the library.
+Reading Shelf turns a Zotero collection into a bookshelf. See each paper's preview, put papers in the order you plan to read them, track what you are reading, and sort them with an Eisenhower (urgent/important) layout. Everything stays inside Zotero.
 
 ## Install
 
-Download `zotero-reading-shelf-1.2.1.xpi` from [Releases](https://github.com/4season/zotero-reading-shelf/releases/tag/v1.2.1). In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…**. Select a collection and click **Gallery**. Click **Table** to return to the native table. Starting with 1.2.1, Zotero can fetch updates from GitHub Releases. Users on 1.2.0 or earlier must install 1.2.1 manually once to activate the new update URL.
+1. Download `zotero-reading-shelf-1.2.1.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
+2. In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…** and select the file.
+3. Select a collection and click **Gallery**. Click **Table** to go back to the normal list.
 
-Targets Zotero 10.x; existing Syllabus Lite/Reading Shelf preferences retain the same add-on ID. Switch off other gallery plugins when their controls overlap.
+Requires Zotero 10.x. Your settings from earlier versions are kept.
 
-## Features
+**Updating:** From 1.2.1 on, Zotero can update the plugin automatically if automatic plugin updates are turned on. If you use 1.2.0 or earlier, install 1.2.1 manually once; updates are automatic after that.
 
-### Bookshelf, status and reading order
+**Language:** The plugin starts in Korean. To switch to English, open Zotero's settings, choose **Reading Shelf**, and set **Language** to English.
+
+If another gallery plugin is installed and the two overlap, turn one of them off.
+
+## What you can do
+
+### Arrange your reading list
 
 ![Core Article in Zotero: bookshelf, importance and Eisenhower mode](docs/images/core-article-tour.gif)
 
-The bookshelf groups queued or actively reading references above unordered items. Completed references have a separate Completed section; importance and urgency are preserved. Returning a completed reference to a reading lane sets it to To read. Drag cards to reorder, or use the optional +/− buttons. Clearing reading status removes the reference from saved reading queues while retaining importance and urgency. Table status labels use native menus; star and pie/clock controls toggle importance and urgency independently. Clicking outside a status control releases its focus.
+- **Bookshelf:** papers you plan to read or are reading appear first, in your order. Other papers appear under *Unordered items*, and finished ones under *Completed*.
+- **Reorder:** drag a card, press Alt + ←/→ on a selected card, or use the optional + / − buttons on the card.
+- **Reading status:** *No status*, *To read*, *Reading* or *Completed*. Change it from the card or from the status column in the table. Clearing the status removes the paper from your reading list.
+- **Importance and urgency:** ★ marks importance and ◷ marks urgency. They are separate from status, so they stay as they are when you change a paper's status.
+- Putting a paper in the reading list sets it to *To read* (a paper already marked *Reading* stays that way). Moving it to *Unordered items* clears its status. Moving a *Completed* paper back to the reading list sets it to *To read*.
+- Opening a paper in Zotero's own reader marks it *Reading*. Optionally, the status can be cleared when you close its last reader tab (off by default; PDF readers outside Zotero are not detected).
 
-Double-click a collection note to edit Markdown and LaTeX. Use `$…$` or `\(…\)` inline, and separate `$$…$$` or `\[…\]` blocks for equations. Save with Ctrl/Cmd+Enter; cancel with Escape. Long notes and the editor grow with content. Very large sources above 100,000 characters display as plain text while preserving the original source.
+### Eisenhower layout
 
-### Eisenhower planner
+Use the mode button next to **Sort** to switch the bookshelf to an Eisenhower layout: *Urgent & important* and *Important, not urgent* sit side by side, with the *Reading queue* below. Drag papers between them. Switch the same button back to return to the bookshelf.
 
-Put urgent/important and important/not-urgent references in two top lanes, with a full-width reading queue below. Labels sit above the boxes; horizontal and vertical gaps match. Use the gallery's mode switch to return to a normal bookshelf. Enable **Remember mode per collection** to keep separate modes; otherwise the global mode applies.
+By default the layout you pick applies to all collections. To remember a separate layout for each collection, turn on **Remember Eisenhower / bookshelf mode per collection** in the settings.
 
-### Reader and appearance options
+### Collection notes
+
+Double-click the note at the top of a collection to edit it. Markdown and LaTeX are supported:
+
+- Inline math: `$…$` or `\(…\)`
+- Equations on their own lines: `$$…$$` or `\[…\]`
+- Save with Ctrl/Cmd + Enter; cancel with Esc.
+
+Notes longer than 100,000 characters are shown as plain text so Zotero stays responsive; the text itself is never changed.
+
+### Customize
+
+Open Zotero's settings and choose **Reading Shelf** to:
+
+- change card size, sorting, and which buttons and controls are shown (including the mode button);
+- set colors for *To read*, *Reading* and *Completed*, the ★ and ◷ buttons, and the Eisenhower borders, by color picker or `#RRGGBB` code, and reset one group or all colors;
+- adjust preview shadows (off, soft, medium, strong; dark mode optional).
+
+Settings that depend on another option are greyed out but keep their values.
 
 ![Reading-status colors and reset in Zotero](docs/images/core-article-colors.gif)
 
-The GIFs were captured from the Core Article collection in Zotero 10.0.8 and cropped to the gallery area.
+You can also click a card to select it, double-click it to open its attachment or note, and right-click for Zotero's usual menu.
 
-- Native Zotero reader opening marks the reference as Reading. Optionally clear that status when its last tracked reader tab closes; keep importance and urgency. The option is off by default. External applications are not tracked.
-- Optionally remember bookshelf/Eisenhower mode per collection. This is off by default; disabling it retains stored per-collection choices for later reuse.
-- Resize cards, sort unordered items and hide optional controls, including the mode switch to the right of Sort. Empty status labels remain hidden until hover or keyboard access.
-- Set reading-status colors (To read, Reading, Completed) and separate importance/urgency button colors. Use the color picker or enter a `#RRGGBB` value. Reset a color group or all colors to defaults; Eisenhower box borders have their own clearly labeled group.
-- Choose preview-only shadow strength; dark-mode shadows are opt-in. Set lane border colors or turn borders off. Dependent settings disable without clearing saved values.
-- Click cards to select; open related child notes/attachments and use Zotero's native context menu. Double-click to open a reference's attachment or note.
+## Your data and privacy
 
-## Storage and platform coverage
+- Reading order, collection notes, modes and statuses are saved on your computer in Zotero's preferences. This plugin does not sync them to other computers.
+- Preview images are cached in a `syllabus-lite-thumbnails` folder inside your Zotero data folder.
+- Your files are never uploaded anywhere.
 
-Reading order, collection notes, modes and workflow state are local Zotero preferences; they are not synced by this plugin. Thumbnail cache files are stored under `syllabus-lite-thumbnails` in the Zotero data directory. The plugin does not upload reference files.
+## Known limits
 
-Portable tests and XPI builds passed on **Windows, macOS and Linux** in [GitHub Actions](https://github.com/4season/zotero-reading-shelf/actions). macOS also passed tests with the installed Zotero PDF.js. Native Zotero 10.0.8 checks verified mode/priority controls, mode visibility, custom color application and color resets. Browser checks cover multiline XML-host notes, Markdown/MathML, layout and status interactions. These tests do **not** launch the installed Zotero UI on Windows/Linux systems.
+- Tested on macOS with Zotero 10.0.8. Windows and Linux have not been tried with the installed Zotero app.
+- Previews work for PDFs, EPUBs and images. Encrypted or unsupported files may show no preview. On macOS, Quick Look (and Poppler, if you have installed it) is used as a fallback.
+- Dragging cards has not been checked by hand in the installed Zotero app.
 
-PDF.js, EPUB and image previews use host APIs. Quick Look and optional Homebrew/MacPorts Poppler fallbacks are guarded by `Zotero.isMac`; Windows/Linux do not invoke those paths. Preview availability can differ for unsupported/encrypted documents. No external preview software is installed automatically.
+## License and credits
 
-## Build and test
+Reading Shelf is free software under **AGPL-3.0-only**. It builds on [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus) by Jan Baykara and contributors, and was inspired by [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary) by Guillaume Chapron; both are AGPLv3. Bundled markdown-it and KaTeX are MIT-licensed. See [NOTICE.md](NOTICE.md) for details.
 
-Python 3 and Node.js are needed. Runtime libraries are vendored; the plugin adds no npm runtime dependency or polling service.
+Reading Shelf is an independent plugin and is not affiliated with Zotero. Zotero is a registered trademark of the Corporation for Digital Scholarship.
 
-```sh
-python scripts/test.py
-python scripts/build.py
-```
-
-Build outputs go to `dist/`. Optional installed-Zotero PDF test on macOS:
-
-```sh
-python scripts/test.py --zotero-omni /Applications/Zotero.app/Contents/Resources/app/omni.ja
-```
-
-For a browser regression fixture, run `python -m http.server 8767` and open `http://127.0.0.1:8767/tests/layout.html`. For the feature screens, open `docs/demo.html?lang=ko&mode=matrix` or `docs/demo.html?lang=en&mode=shelf` through the same server.
-
-## Licenses and reference plugins
-
-Reading Shelf is **AGPL-3.0-only**. Full license text, attribution, modification notices, dependency notices and matching source accompany the XPI. The major reference plugins are explicitly:
-
-| Project | License | Relationship |
-| --- | --- | --- |
-| [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus) — Jan Baykara and contributors | [AGPLv3](https://github.com/janbaykara/zotero-syllabus/blob/main/LICENSE) | Gallery implementation lineage and personal reading-order note format |
-| [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary) — Guillaume Chapron | [AGPLv3](https://github.com/gchapron/ZoteroThumbLibrary/blob/main/LICENSE) | Cover browsing, card size and gallery usability reference |
-| [Zotero](https://github.com/zotero/zotero) — host application | [AGPLv3](https://github.com/zotero/zotero/blob/main/COPYING) | Host APIs and PDF.js supplied by Zotero |
-
-The two major reference plugins and Zotero's original license files were checked on 2026-11-07. Bundled markdown-it, KaTeX and their dependency notices remain MIT. `vendor/upstream/` contains matching dependency source archives, not user data or temporary files. See [NOTICE.md](NOTICE.md) for exact license blob identifiers and full provenance. Zotero is a registered trademark of the Corporation for Digital Scholarship; this is an independent third-party plugin with its own icon.
-
-## Updating a release
-
-`scripts/build.py` writes the XPI, SHA-256 checksum and `updates.json`. Publish the XPI as a GitHub Release asset first, then commit the generated `updates.json` at the repository root. Its versioned download URL, compatibility bounds and exact XPI hash are validated by `tests/updates.py`. The feed serves stable releases; no separate hosting service is required. Zotero's automatic plugin updates must be enabled.
+Developers: see [CONTRIBUTING.md](CONTRIBUTING.md) for building, testing and releasing.
