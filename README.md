@@ -13,6 +13,10 @@
 
 Reading Shelf turns a Zotero collection into a bookshelf. See each paper's preview, put papers in the order you plan to read them, track what you are reading, and sort them with an Eisenhower (urgent/important) layout. Everything stays inside Zotero.
 
+### Why I made it
+
+I study by reading papers, and as my library grew it became hard to see at a glance which papers I actually needed to study. Deciding which of them to focus on and plan around was an even bigger obstacle. A long table answered neither question. I built Reading Shelf to answer both, and it has helped me far more than I expected. I hope it helps you too.
+
 ## Install
 
 1. Download `zotero-reading-shelf-1.3.8.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
