@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Reading Shelf",
-  "version": "1.2.1",
-  "description": "An attachment gallery with per-collection reading order and PDF progress.",
+  "version": "1.2.2",
+  "description": "A bookshelf and Eisenhower reading planner for Zotero collections, with reading status and PDF progress.",
   "applications": {
     "zotero": {
       "id": "syllabus-lite@local.zotero",
