@@ -53,7 +53,7 @@ class Element {
   }
 }
 const project = path.resolve(__dirname, "..");
-const prefs = new Map();
+const prefs = new Map([["extensions.syllabus-lite.language", "en"]]);
 const loadedScripts = [];
 const ctx = vm.createContext({
   Components: { utils: { Sandbox: () => vm.createContext({}) } },
@@ -260,6 +260,31 @@ view.endDrag();
 assert.equal(orderedGroup.placeholder, null);
 assert.equal(orderedGroup.empty.hidden, false);
 console.log("Local status persistence, queue fallback and empty-list drop reservation passed");
+
+// Matrix lanes are independent of the queue and urgency; moving a card updates both classification and order.
+view.matrix = true;
+const later = view.section("Important, not urgent", true, "Drop here");
+later.lane = "later";
+orderedGroup.lane = "urgent";
+view.sections.later = later;
+ctx.setPriority([a], "important", true);
+ctx.setPriority([a], "urgent", true);
+ctx.setPriority([b], "important", true);
+ctx.setPriority([b], "urgent", false);
+view.layoutCards(["A"]);
+assert.equal(orderedGroup.cards[0].item.key, "A");
+assert.equal(later.cards[0].item.key, "B");
+assert.equal(second.ordered, false);
+second.node.fire("dragstart", {dataTransfer});
+orderedGroup.section.fire("drop", point);
+assert.equal(ctx.urgentOf(b), true);
+assert.equal(ctx.importantOf(b), true);
+view.layoutCards(["A", "B"]);
+assert.equal(later.cards.length, 0);
+assert.equal(orderedGroup.cards.length, 2);
+view.matrix = false;
+view.layoutCards(["A"]);
+console.log("Two-lane matrix grouping and drag classification passed");
 
 const attachment = (type, available) => ({
   attachmentContentType: type,

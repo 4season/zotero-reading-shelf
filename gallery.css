@@ -431,3 +431,37 @@
 .sl-status-reading { color: light-dark(#1659b7, #95bdff); background: light-dark(#edf4ff, #243b5c); }
 .sl-status-planned { color: light-dark(#356b24, #afd996); background: light-dark(#edf6e9, #293c23); }
 .sl-status-important { color: light-dark(#975400, #f2cb74); background: light-dark(#fff6dc, #463b21); }
+
+/* Match native toolbar sizing and keep search shrinkable on narrow windows. */
+#zotero-items-toolbar .sl-toggle {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 7em;
+  height: 24px;
+  margin-inline: 6px 0;
+  padding: 1px 8px;
+  font-size: 1em;
+  line-height: 1.25;
+}
+#zotero-tb-search { min-width: 80px; }
+.sl-card:not(.sl-child-card) .sl-preview {
+  box-shadow: 0 1px 4px light-dark(rgb(18 32 55 / .16), transparent);
+  outline: 1px solid light-dark(rgb(18 32 55 / .10), transparent);
+  outline-offset: -1px;
+}
+.sl-workflow-controls { min-height:1.8em; display:flex; gap:5px; align-items:center; margin-top:.3em; }
+.sl-workflow-controls .sl-status-control { margin-top:0; min-width:0; }
+.sl-priority { border:0; background:transparent; color:var(--fill-secondary, GrayText); font:inherit; padding:0 .2em; cursor:pointer; }
+.sl-priority[aria-pressed="true"] { color:light-dark(#936400, #f3cd77); }
+.sl-status-control[data-empty="true"][data-hide-empty="true"] { display:none; }
+.sl-card:hover .sl-status-control[data-empty="true"], .sl-card:focus-within .sl-status-control[data-empty="true"] { display:inline-block; }
+.sl-card:hover .sl-status-control, .sl-card:focus-within .sl-status-control { opacity:1; pointer-events:auto; }
+.sl-status-control { transition:opacity 140ms ease; }
+.sl-status-badge + .sl-status-badge { margin-inline-start:4px; }
+.sl-status-urgent { color:light-dark(#a22a30, #ffaaaa); }
+.sl-matrix { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; }
+.sl-matrix > .sl-section { border:0; padding:12px; border-radius:8px; background:var(--fill-quinary, ButtonFace); }
+.sl-matrix .sl-grid { --sl-column-width:min(100%, var(--sl-card-width,176px)); }
+.sl-matrix .sl-card { max-width:100%; }
+@media (prefers-reduced-motion: reduce) { .sl-status-control { transition:none; } }

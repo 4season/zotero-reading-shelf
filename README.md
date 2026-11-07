@@ -4,7 +4,7 @@ Reading Shelf is an independent third-party plugin compatible with Zotero. It ad
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.2.0-beta.1.xpi` from the GitHub release.
+1. Download `zotero-reading-shelf-1.2.0-beta.2.xpi` from the GitHub release.
 2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
 3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
 
@@ -24,17 +24,30 @@ If you already use the earlier Syllabus Lite build, install over it. Reading She
 
 ![Gallery and related note guide](docs/images/gallery-guide.svg)
 
-The **Gallery / Table** toggle sits to the left of quick search. Notes show a text excerpt in a readable note card. Dragging the first item into an empty **Reading order** reserves a card-sized space before you drop it.
+The **Gallery / Table** toggle sits immediately to the right of quick search and uses a compact toolbar size. Notes show a text excerpt in a readable note card. Dragging the first item into an empty **Reading order** reserves a card-sized space before you drop it.
 
-Set **읽을 예정** (to read), **읽는 중** (reading), or **중요** (important) using the status selector beneath a regular item, or right-click one or more items and choose **Reading Shelf · 상태**. Choose **상태 없음** to explicitly clear the status. In Table view, enable the **Reading Shelf** column through the table header's column picker if necessary. Status badges are sortable using the native column header.
+Set **읽을 예정** (to read) or **읽는 중** (reading) using the status selector, or right-click one or more items and choose **Reading Shelf → Reading status**. Importance (★) and urgency (clock) are separate switches. Clearing the reading status keeps those switches unchanged. The beta.1 combined “important” status is preserved as importance when migrated.
 
 ![Table status guide](docs/images/status-guide.svg)
 
-Status is shared across collections for the same item and stored locally in this Zotero profile. It does not modify tags, Extra, or synced item metadata. An existing local reading-order entry defaults to **읽을 예정** until you explicitly set or clear its status. Reading order remains collection-specific. These are manual workflow labels, not an automatic measurement of reading completion.
+The table's **Reading Shelf** column shows reading status and priority badges. Enable it through the table header's column picker if necessary. The **Info** pane includes a read-only Reading Shelf workflow row for bibliographic items. Attached files share their parent reference's status. Native reader opening and tab selection mark the reference as reading, including opening from the table. External applications opened outside Zotero's reader cannot be observed reliably.
 
-In **Settings → Reading Shelf**, hide the reading-order **+ / −** buttons and the child note/attachment indicator independently. Clicking a card can still reveal child items when the indicator is hidden. Size and sort controls have their own switches.
+Status, importance and urgency are local to this Zotero profile and shared across collections for the same reference. No tags, Extra fields or bibliographic metadata are changed. An item in an existing local reading order defaults to “to read” until explicitly changed. Queue membership alone is not a measurement of reading completion.
 
-The illustrations use synthetic examples and are diagrams, not captured Zotero screenshots. `docs/demo.html` is an additional browser preview fixture, not the installed Zotero interface.
+In **Settings → Reading Shelf**:
+
+- Choose **한국어 / English** for the plugin interface.
+- Hide empty statuses by default; hovering or keyboard focus reveals the selector. Existing status badges stay visible.
+- Hide reading-order **+ / −**, child indicators, the size slider and Sort independently.
+- Enable the **Eisenhower 1 × 2 mode**: urgent and important references on the left, important but less urgent references on the right; other items remain below. Use star/clock switches or drag into a lane to classify. Dragging into a lane also adds the item to the reading queue. Removing queue membership does not clear importance.
+
+These illustrations are diagrams using synthetic examples, not captured Zotero screenshots. `docs/demo.html` is a browser fixture, not the installed Zotero interface.
+
+## Platform and performance boundaries
+
+PDF.js, EPUB covers and local image previews use Zotero/Gecko APIs on all targeted desktop platforms. Quick Look and fixed Homebrew/MacPorts Poppler paths are guarded by `Zotero.isMac`; those optional fallbacks are not invoked on Windows or Linux. Unsupported documents may therefore have different preview availability on different systems. No external tools are installed by the plugin.
+
+Animation measurements are batched before animation writes, thumbnail work remains bounded and cancellable, and the small light-mode shadow is static. Reduced-motion preferences are respected. Automated fixtures pass on macOS; the new interface and actual Windows/Linux execution still need interactive testing. No total-RAM or frame-time benchmark is claimed.
 
 ## Storage and previews
 

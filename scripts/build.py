@@ -9,7 +9,7 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_FILES = (
     "manifest.json", "bootstrap.js", "description.js", "gallery.css", "prefs.js",
-    "settings.xhtml", "LICENSE", "NOTICE.md", "vendor/markdown-it.min.js",
+    "settings.xhtml", "settings.js", "LICENSE", "NOTICE.md", "vendor/markdown-it.min.js",
     "vendor/markdown-it-LICENSE.txt", "vendor/markdown-it-dependency-notices.txt",
     "vendor/katex.min.js", "vendor/katex-LICENSE.txt",
 )

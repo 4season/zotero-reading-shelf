@@ -18,26 +18,71 @@ const windows = new Map();
 let statusColumn;
 let statusMenu;
 const orderStatusCache = new Map();
-const STATUS_LABELS = { "": "상태 없음", planned: "읽을 예정", reading: "읽는 중", important: "중요" };
-
+const STATUS_LABELS = { "": "No status", planned: "To read", reading: "Reading" };
+const UI_KO = {
+  "No status":"상태 없음", "To read":"읽을 예정", "Reading":"읽는 중", "Important":"중요", "Urgent":"긴급",
+  "Gallery":"갤러리", "Table":"테이블", "Reading order":"읽기 목록", "Unordered items":"미분류 자료",
+  "Card size":"자료 크기", "Sort ▾":"정렬 ▾", "Table order":"테이블 순서", "Title":"제목", "Author":"저자", "Year":"연도", "Added":"추가일", "Date added":"추가일",
+  "Save":"저장", "Cancel":"취소", "Child note":"부속 노트", "Note":"노트", "Preview":"미리보기",
+  "No creator in Zotero":"등록된 저자 없음", "No preview":"미리보기 없음", "No attachment":"첨부파일 없음", "Web link":"웹 링크", "Web snapshot":"웹 스냅샷", "Image":"이미지", "File":"파일", "Untitled note":"제목 없는 노트",
+  "Add a collection description…":"컬렉션 설명을 입력하세요…", "Add a collection description...":"컬렉션 설명을 입력하세요…",
+  "Drag papers here or use + on a card.":"자료를 끌어 놓거나 + 버튼으로 추가하세요.", "No unordered items.":"미분류 자료가 없습니다.",
+  "Urgent & important":"긴급하고 중요한 자료", "Important, not urgent":"중요하지만 덜 급한 자료", "Other items":"그 밖의 자료",
+  "Drop here":"여기에 놓으세요", "Empty note":"빈 노트", "Reading status":"읽기 상태", "Priority":"중요도",
+  "Double-click to open":"더블클릭하여 열기", "Select item, double-click to open":"자료 선택, 더블클릭하여 열기", "Click to show notes and attachments":"클릭하여 노트와 첨부파일 보기", "Double-click or press Enter to edit":"더블클릭하거나 Enter 키로 수정", "Add to reading order":"읽기 목록에 추가", "Remove from reading order":"읽기 목록에서 제외", "Move left / right with Alt + arrow keys":"Alt + 방향키로 순서 이동", "Pages":"페이지", "Heading":"제목", "bold":"굵게", "inline math":"인라인 수식", "separate equation":"별도 수식",
+  "Sort unordered items":"미분류 자료 정렬", "Collection description":"컬렉션 설명", "Reading progress":"읽기 진행률",
+  "Could not load this gallery.":"갤러리를 불러오지 못했습니다.", "The gallery change could not be saved.":"변경사항을 저장하지 못했습니다."
+};
+function tr(text) { return Zotero.Prefs.get(PREF + "language", true) === "en" ? text : (UI_KO[text] || text); }
+function statusItem(item) { return item?.parentItemID ? (Zotero.Items.get(item.parentItemID) || item) : item; }
+function itemPref(item, name) { item = statusItem(item); return PREF + name + "." + item.libraryID + "." + item.key; }
+function importantOf(item) { return Zotero.Prefs.get(itemPref(item, "important"), true) === true || Zotero.Prefs.get(itemPref(item, "status"), true) === "important"; }
+function urgentOf(item) { return Zotero.Prefs.get(itemPref(item, "urgent"), true) === true; }
+function refreshWorkflow(relayout = true) {
+  // Refresh row values, not column definitions: native columns otherwise cache stale cell data.
+  for (const view of windows.values()) {
+    const tree = view.pane.itemsView;
+    tree?.invalidateRowCache?.(true);
+    tree?.tree?.invalidate?.();
+    for (const card of view.cards.values()) view.refreshStatus(card);
+    if (relayout && view.gallery && view.matrix) view.animateLayout(() => view.layoutCards(view.orderKeys));
+  }
+  if (infoRow) Zotero.ItemPaneManager.refreshInfoRow(infoRow);
+}
 function setItemStatus(items, status) {
   if (!Object.hasOwn(STATUS_LABELS, status)) return;
-  for (const item of items) {
-    Zotero.Prefs.set(PREF + "status." + item.libraryID + "." + item.key, status, true);
+  let changed = false;
+  for (let item of items) {
+    item = statusItem(item);
+    if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") Zotero.Prefs.set(itemPref(item, "important"), true, true);
+    if (Zotero.Prefs.get(itemPref(item, "status"), true) === status) continue;
+    Zotero.Prefs.set(itemPref(item, "status"), status, true); changed = true;
   }
-  Zotero.ItemTreeManager.refreshColumns();
-  for (const view of windows.values()) {
-    for (const card of view.cards.values()) view.refreshStatus(card);
-  }
+  if (changed) refreshWorkflow();
 }
-
+function setPriority(items, name, value) {
+  for (const item of items) {
+    if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") {
+      Zotero.Prefs.set(itemPref(item, "important"), true, true);
+      Zotero.Prefs.set(itemPref(item, "status"), "planned", true);
+    }
+    Zotero.Prefs.set(itemPref(item, name), value, true);
+  }
+  refreshWorkflow();
+}
+function markReading(item) {
+  if (!item || item.isNote?.()) return;
+  setItemStatus([statusItem(item)], "reading");
+}
+function onReaderToolbar({ reader }) { markReading(Zotero.Items.get(reader.itemID)); }
 function tableStatus(item) {
-  const status = Zotero.Prefs.get(PREF + "status." + item.libraryID + "." + item.key, true);
+  item = statusItem(item);
+  const status = Zotero.Prefs.get(itemPref(item, "status"), true);
+  if (status === "important") return "planned"; // Migrate beta.1's combined field without losing priority.
   if (typeof status === "string" && Object.hasOwn(STATUS_LABELS, status)) return status;
-  // Infer queued status from local collection order without modifying item metadata.
   for (const id of item.getCollections?.() ?? []) {
-    const collection = Zotero.Collections.get(id);
     try {
+      const collection = Zotero.Collections.get(id);
       const raw = Zotero.Prefs.get(preferenceKey(collection), true);
       if (!raw) continue;
       let cached = orderStatusCache.get(id);
@@ -51,6 +96,7 @@ function tableStatus(item) {
   }
   return "";
 }
+let infoRow;
 
 let root;
 let descriptionRenderer;
@@ -69,15 +115,16 @@ function uninstall() {}
 async function startup({ id, rootURI }) {
   root = rootURI;
   statusColumn = await Zotero.ItemTreeManager.registerColumn({
-    pluginID: id, dataKey: "readingStatus", label: "Reading Shelf", width: "112",
-    dataProvider: item => tableStatus(item),
+    pluginID: id, dataKey: "readingStatus", label: "Reading Shelf", width: "132", staticWidth: true,
+    dataProvider: item => [tableStatus(item), importantOf(item) ? "important" : "", urgentOf(item) ? "urgent" : ""].join("|"),
     renderCell: (_index, data, column, _first, doc) => {
       const cell = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
       cell.className = "cell " + (column.className || "");
-      if (data) {
+      for (const value of String(data).split("|").filter(Boolean)) {
         const badge = doc.createElementNS("http://www.w3.org/1999/xhtml", "span");
-        badge.className = "sl-status-badge sl-status-" + data;
-        badge.textContent = STATUS_LABELS[data] || "";
+        badge.className = "sl-status-badge sl-status-" + value;
+        badge.textContent = STATUS_LABELS[value] ? tr(STATUS_LABELS[value]) : value === "important" ? "★" : "◷";
+        badge.title = tr(STATUS_LABELS[value] || (value === "important" ? "Important" : "Urgent"));
         cell.append(badge);
       }
       return cell;
@@ -86,29 +133,56 @@ async function startup({ id, rootURI }) {
   statusMenu = await Zotero.MenuManager.registerMenu({
     pluginID: id, menuID: "reading-shelf-status", target: "main/library/item",
     menus: [{ menuType: "submenu", onShowing: (_event, context) => {
-      context.menuElem.setAttribute("label", "Reading Shelf · 상태");
+      context.menuElem.setAttribute("label", "Reading Shelf · " + tr("Reading status"));
       context.setEnabled(!!context.items?.length);
     }, menus: Object.entries(STATUS_LABELS).map(([status, label]) => ({
       menuType: "menuitem",
       onShowing: (_event, context) => {
-        context.menuElem.setAttribute("label", label);
+        context.menuElem.setAttribute("label", tr(label));
         context.menuElem.setAttribute("type", "checkbox");
         context.menuElem.setAttribute("checked", String(context.items?.length > 0 &&
           context.items.every(item => tableStatus(item) === status)));
       },
       onCommand: (_event, context) => setItemStatus(context.items || [], status)
-    })) }]
+    })).concat(["important", "urgent"].map(name => ({
+      menuType: "menuitem", onShowing: (_event, context) => {
+        context.menuElem.setAttribute("label", tr(name === "important" ? "Important" : "Urgent"));
+        context.menuElem.setAttribute("type", "checkbox");
+        context.menuElem.setAttribute("checked", String(context.items?.every(name === "important" ? importantOf : urgentOf)));
+      }, onCommand: (_event, context) => setPriority(context.items || [], name,
+        !context.items?.every(name === "important" ? importantOf : urgentOf))
+    }))) }]
   });
+  infoRow = await Zotero.ItemPaneManager.registerInfoRow({
+    pluginID: id, rowID: "reading-shelf-workflow", position: "start", editable: false,
+    label: { l10nID: "", text: "Reading Shelf" },
+    onGetData: ({ item }) => [tableStatus(item) ? tr(STATUS_LABELS[tableStatus(item)]) : "", importantOf(item) ? tr("Important") : "", urgentOf(item) ? tr("Urgent") : ""].filter(Boolean).join(" · "),
+    onItemChange: ({ item, setEnabled }) => setEnabled(!!item && !item.isNote?.())
+  });
+  Zotero.Reader.registerEventListener("renderToolbar", onReaderToolbar, id);
   await Zotero.PreferencePanes.register({
     pluginID: id,
     src: "settings.xhtml",
+    scripts: ["settings.js"],
     label: "Reading Shelf"
   }).catch(error => Zotero.logError(error));
   preferenceObservers = VISIBILITY_PREFS.map(([key]) => Zotero.Prefs.registerObserver(PREF + key, () => {
     for (const view of windows.values()) view.applyVisibilitySettings();
   }, true));
+  for (const key of ["language", "matrixMode", "hideEmptyStatus"]) {
+    preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
+      for (const view of windows.values()) view.sync();
+      refreshWorkflow();
+    }, true));
+  }
   observerID = Zotero.Notifier.registerObserver({
     notify(event, type, ids) {
+      if (type === "tab" && ["add", "select"].includes(event)) {
+        for (const id of ids) {
+          const reader = Zotero.Reader.getByTabID(id);
+          if (reader) markReading(Zotero.Items.get(reader.itemID));
+        }
+      }
       for (const view of windows.values()) {
         if (type === "tab" && event === "select") view.sync();
         if (type === "collection" && view.collection && ids.includes(view.collection.id)) view.schedule();
@@ -137,6 +211,8 @@ function onMainWindowLoad({ window }) {
   if (windows.has(window)) return;
   const view = new Gallery(window);
   if (view.mount()) windows.set(window, view);
+  const reader = Zotero.Reader.getByTabID(window.Zotero_Tabs?.selectedID);
+  if (reader) markReading(Zotero.Items.get(reader.itemID));
 }
 
 function onMainWindowUnload({ window }) {
@@ -146,6 +222,8 @@ function onMainWindowUnload({ window }) {
 
 function shutdown(_data, reason) {
   if (reason === APP_SHUTDOWN) return;
+  Zotero.Reader.unregisterEventListener("renderToolbar", onReaderToolbar);
+  if (infoRow) Zotero.ItemPaneManager.unregisterInfoRow(infoRow);
   if (statusColumn) Zotero.ItemTreeManager.unregisterColumn(statusColumn);
   if (statusMenu) Zotero.MenuManager.unregisterMenu(statusMenu);
   if (observerID) Zotero.Notifier.unregisterObserver(observerID);
@@ -269,7 +347,7 @@ class Gallery {
   element(tag, className, text) {
     const node = this.doc.createElementNS("http://www.w3.org/1999/xhtml", tag);
     if (className) node.className = className;
-    if (text !== undefined) node.textContent = text;
+    if (text !== undefined) node.textContent = tr(text);
     return node;
   }
 
@@ -294,8 +372,8 @@ class Gallery {
       this.sync();
     }, "sl-toggle");
     this.toggle.title = NAME;
-    const search = this.doc.getElementById("zotero-tb-search-spinner") || this.doc.getElementById("zotero-tb-search");
-    toolbar.insertBefore(this.toggle, search || null);
+    const search = this.doc.getElementById("zotero-tb-search");
+    toolbar.insertBefore(this.toggle, search?.nextElementSibling || null);
     if (!this.pane.itemsView) {
       this.treeMount = new this.win.MutationObserver(() => this.schedule());
       this.treeMount.observe(this.doc.getElementById("zotero-items-tree"), { childList: true, subtree: true });
@@ -322,7 +400,7 @@ class Gallery {
     const collection = rows?.length === 1 && rows[0].isCollection() ? rows[0].ref : null;
     this.toggle.disabled = !collection;
     const active = !!(this.enabled && collection && this.win.Zotero_Tabs?.selectedID === "zotero-pane");
-    this.toggle.textContent = active ? "Table" : "Gallery";
+    this.toggle.textContent = tr(active ? "Table" : "Gallery");
     this.toggle.setAttribute("aria-pressed", String(active));
     if (!active) {
       if (this.gallery) this.lastScroll = { collectionID: this.collection.id, top: this.gallery.scrollTop };
@@ -451,10 +529,21 @@ class Gallery {
     this.description = this.element("div", "sl-description");
     this.gallery.append(this.description);
     this.renderDescription(data.description);
+    this.matrix = Zotero.Prefs.get(PREF + "matrixMode", true) === true;
     this.sections = {
       ordered: this.section("Reading order", true, "Drag papers here or use + on a card."),
       unordered: this.section("Unordered items", false, "No unordered items.")
     };
+    if (this.matrix) {
+      const lanes = this.element("div", "sl-matrix");
+      this.sections.later = this.section("Important, not urgent", true, "Drop here");
+      this.sections.ordered.section.querySelector("h2").textContent = tr("Urgent & important");
+      this.sections.unordered.section.querySelector("h2").textContent = tr("Other items");
+      this.sections.ordered.lane = "urgent";
+      this.sections.later.lane = "later";
+      lanes.append(this.sections.ordered.section, this.sections.later.section);
+      this.gallery.insertBefore(lanes, this.sections.unordered.section);
+    }
     this.unorderedCards = sortItems(items, sort, authors).map(item => this.makeCard(item, authors.get(item.id)));
     if (this.expanded?.collectionID === this.collection.id) {
       const parent = this.cards.get(this.expanded.itemID);
@@ -470,7 +559,7 @@ class Gallery {
     slider.type = "range";
     slider.min = MIN_CARD_SCALE;
     slider.max = MAX_CARD_SCALE;
-    slider.setAttribute("aria-label", "Card size");
+    slider.setAttribute("aria-label", tr("Card size"));
     const value = this.element("span", "sl-size-value");
     value.setAttribute("aria-hidden", "true");
 
@@ -507,7 +596,7 @@ class Gallery {
     face.setAttribute("aria-hidden", "true");
     const select = this.element("select");
     this.sortControl = select;
-    select.setAttribute("aria-label", "Sort unordered items");
+    select.setAttribute("aria-label", tr("Sort unordered items"));
     const add = (value, text) => {
       const option = this.element("option", "", text);
       option.value = value;
@@ -517,11 +606,11 @@ class Gallery {
     for (const [key, text] of SORT_FIELDS) {
       const [asc, desc] = ["year", "added"].includes(key) ? ["↑", "↓"] : ["A–Z", "Z–A"];
       const name = key === "added" ? "Added" : text;
-      add(key + ":asc", name + " " + asc);
-      add(key + ":desc", name + " " + desc);
+      add(key + ":asc", tr(name) + " " + asc);
+      add(key + ":desc", tr(name) + " " + desc);
     }
     select.value = sort;
-    label.title = "Sort unordered items · " + select.selectedOptions[0].textContent;
+    label.title = tr("Sort unordered items") + " · " + select.selectedOptions[0].textContent;
     select.addEventListener("change", () => {
       Zotero.Prefs.set(PREF + "sort", select.value, true);
       this.sync();
@@ -536,9 +625,9 @@ class Gallery {
     if (draft) {
       const editor = this.element("textarea", "sl-description-input");
       editor.rows = 4;
-      editor.placeholder = "## Heading · **bold** · $inline math$ · $$separate equation$$";
+      editor.placeholder = "## " + tr("Heading") + " · **" + tr("bold") + "** · $" + tr("inline math") + "$ · $$" + tr("separate equation") + "$$";
       editor.value = draft.value;
-      editor.setAttribute("aria-label", "Collection description");
+      editor.setAttribute("aria-label", tr("Collection description"));
       draft.editor = editor;
       editor.addEventListener("input", () => { draft.value = editor.value; });
       const save = () => {
@@ -570,7 +659,7 @@ class Gallery {
     }
     const display = this.element("div", "sl-description-text", text || "Add a collection description…");
     display.tabIndex = 0;
-    display.title = "Double-click or press Enter to edit";
+    display.title = tr("Double-click or press Enter to edit");
     display.classList.toggle("sl-muted", !text);
     if (text) {
       try {
@@ -630,16 +719,26 @@ class Gallery {
       event.preventDefault();
       event.stopPropagation();
       const key = this.drag.item.key;
+      const lane = group.lane;
+      const item = this.drag.item;
       this.endDrag();
+      if (lane) {
+        Zotero.Prefs.set(itemPref(item, "important"), true, true);
+        Zotero.Prefs.set(itemPref(item, "urgent"), lane === "urgent", true);
+      } else if (this.matrix && !ordered) {
+        if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") Zotero.Prefs.set(itemPref(item, "status"), "planned", true);
+        Zotero.Prefs.set(itemPref(item, "important"), false, true);
+      }
       this.move(key, target.before, ordered);
+      refreshWorkflow();
     });
     return group;
   }
 
   dropTarget(group, event) {
     if (!this.drag) return null;
-    if (!group.ordered) return this.drag.ordered ? { remove: true } : null;
-    const cards = this.orderedCards;
+    if (!group.ordered) return (this.matrix ? importantOf(this.drag.item) : this.drag.ordered) ? { remove: true } : null;
+    const cards = group.cards || this.orderedCards;
     if (!cards.length) return { empty: true };
     const direct = event.target.closest?.(".sl-card");
     const overChild = !!direct && this.childCards.some(card => card.node === direct);
@@ -682,7 +781,7 @@ class Gallery {
     if (target.empty) {
       group.line.hidden = true;
       if (!group.placeholder) {
-        group.placeholder = this.element("div", "sl-drop-placeholder", "여기에 놓아 읽기 목록에 추가");
+        group.placeholder = this.element("div", "sl-drop-placeholder", "Drop here");
         group.placeholder.style.minHeight = Math.max(160, this.drag.node.getBoundingClientRect().height) + "px";
         group.emptyWasHidden = group.empty.hidden;
         group.empty.hidden = true;
@@ -725,7 +824,17 @@ class Gallery {
     this.orderedCards = order.map(key => byKey.get(key)).filter(Boolean);
     const ordered = new Set(this.orderedCards);
     const unordered = this.unorderedCards.filter(card => !ordered.has(card));
-    for (const [group, cards] of [[this.sections.ordered, this.orderedCards], [this.sections.unordered, unordered]]) {
+    const groups = this.matrix ? [
+      [this.sections.ordered, this.unorderedCards.filter(card => importantOf(card.item) && urgentOf(card.item))],
+      [this.sections.later, this.unorderedCards.filter(card => importantOf(card.item) && !urgentOf(card.item))],
+      [this.sections.unordered, this.unorderedCards.filter(card => !importantOf(card.item))]
+    ] : [[this.sections.ordered, this.orderedCards], [this.sections.unordered, unordered]];
+    if (this.matrix) {
+      const ranks = new Map(order.map((key, i) => [key, i]));
+      for (const [, cards] of groups.slice(0, 2)) cards.sort((a,b) => (ranks.get(a.item.key) ?? Infinity) - (ranks.get(b.item.key) ?? Infinity));
+    }
+    for (const [group, cards] of groups) {
+      group.cards = cards;
       group.empty.hidden = cards.length > 0;
       let next = group.empty.nextElementSibling;
       const place = card => {
@@ -738,12 +847,13 @@ class Gallery {
       };
       for (const card of cards) {
         place(card);
-        if (card.ordered !== group.ordered) {
-          card.ordered = group.ordered;
+        const inOrder = this.matrix ? order.includes(card.item.key) : group.ordered;
+        if (card.ordered !== inOrder) {
+          card.ordered = inOrder;
           card.order.textContent = card.ordered ? "−" : "+";
-          const action = (card.ordered ? "Remove from reading order: " : "Add to reading order: ") + card.title;
+          const action = (tr(card.ordered ? "Remove from reading order" : "Add to reading order") + ": ") + card.title;
           card.order.setAttribute("aria-label", action);
-          card.order.title = action + (card.ordered ? " · Use Option+← / Option+→ to move" : "");
+          card.order.title = action + (card.ordered ? " · " + tr("Move left / right with Alt + arrow keys") : "");
         }
         if (this.expanded?.collectionID === this.collection.id && this.expanded.itemID === card.item.id) {
           this.childCards.forEach(place);
@@ -773,9 +883,9 @@ class Gallery {
     for (const card of positions.keys()) card.motion?.cancel();
     change();
     if (focus?.isConnected && focus !== this.doc.activeElement) focus.focus({ preventScroll: true });
-    for (const [card, old] of positions) {
-      if (!card.node.isConnected) continue;
-      const current = card.node.getBoundingClientRect();
+    const destination = new Map([...positions.keys()].filter(card => card.node.isConnected).map(card => [card, card.node.getBoundingClientRect()]));
+    for (const [card, current] of destination) {
+      const old = positions.get(card);
       const x = old.left - current.left;
       const y = old.top - current.top;
       const scale = resizing && current.width ? old.width / current.width : 1;
@@ -798,7 +908,7 @@ class Gallery {
       for (const view of windows.values()) {
         if (view.collection?.id === collection.id && (refresh || view !== this)) view.sync();
       }
-      Zotero.ItemTreeManager?.refreshColumns();
+      refreshWorkflow(false);
       for (const card of this.cards.values()) this.refreshStatus(card);
       return true;
     } catch (error) {
@@ -810,7 +920,7 @@ class Gallery {
 
   makeCard(item, author, child = false) {
     const note = item.isNote?.() ?? false;
-    const title = note ? (item.getNoteTitle() || "Untitled note") : item.getDisplayTitle();
+    const title = note ? (item.getNoteTitle() || tr("Untitled note")) : item.getDisplayTitle();
     const attachments = !child && item.isRegularItem() ? (item.getAttachments?.() ?? []) : [];
     const canExpand = !child && item.isRegularItem() && (!!item.getNotes?.().length || attachments.length > 1);
     const node = this.element("article", child ? "sl-card sl-child-card" : "sl-card");
@@ -828,11 +938,11 @@ class Gallery {
     }
     const cover = this.element("button", "sl-cover");
     cover.type = "button";
-    cover.title = title + " · Double-click to open";
-    cover.setAttribute("aria-label", title + " · Select item, double-click to open");
+    cover.title = title + " · " + tr("Double-click to open");
+    cover.setAttribute("aria-label", title + " · " + tr("Select item, double-click to open"));
     if (canExpand) {
       cover.setAttribute("aria-expanded", "false");
-      cover.title += " · Click to show notes and attachments";
+      cover.title += " · " + tr("Click to show notes and attachments");
     }
     cover.addEventListener("keydown", event => {
       if (event.key !== "Enter") return;
@@ -845,7 +955,7 @@ class Gallery {
     cover.append(placeholder);
     if (note) {
       const parsed = new this.win.DOMParser().parseFromString((item.getNote?.() || "").slice(0, 131072).replace(/<\/(?:p|div|li|h[1-6])>/gi, "$& "), "text/html");
-      placeholder.textContent = parsed.body.textContent.trim().replace(/\s+/g, " ").slice(0, 700) || "빈 노트";
+      placeholder.textContent = parsed.body.textContent.trim().replace(/\s+/g, " ").slice(0, 700) || tr("Empty note");
       placeholder.className = "sl-note-excerpt";
     }
     const preview = this.element("div", "sl-preview");
@@ -867,7 +977,7 @@ class Gallery {
     name.title = title;
     const progress = this.element("div", "sl-progress");
     if (child) {
-      node.append(this.element("div", "sl-child-label", note ? "Child note" : "Attachment · " + attachmentLabel(item)));
+      node.append(this.element("div", "sl-child-label", note ? "Child note" : (tr("File") + " · " + tr(attachmentLabel(item)))));
     }
     node.append(preview);
     if (order) node.append(order);
@@ -879,23 +989,28 @@ class Gallery {
       node.append(byline);
     }
     if (!note) node.append(progress);
-    let statusControl;
+    let statusControl, priorityControl, urgentControl;
     if (!child && !note && item.isRegularItem()) {
       statusControl = this.element("select", "sl-status-control");
-      statusControl.setAttribute("aria-label", "읽기 상태: " + title);
+      statusControl.setAttribute("aria-label", tr("Reading status") + ": " + title);
       for (const [value, label] of Object.entries(STATUS_LABELS)) {
         const option = this.element("option", "", label);
         option.value = value;
         statusControl.append(option);
       }
       statusControl.addEventListener("change", () => setItemStatus([item], statusControl.value));
-      node.append(statusControl);
+      const row = this.element("div", "sl-workflow-controls");
+      priorityControl = this.button("☆", event => { event.stopPropagation(); setPriority([item], "important", !importantOf(item)); }, "sl-priority");
+      urgentControl = this.button("◷", event => { event.stopPropagation(); setPriority([item], "urgent", !urgentOf(item)); }, "sl-priority sl-urgency");
+      priorityControl.title = tr("Important"); urgentControl.title = tr("Urgent");
+      row.append(statusControl, priorityControl, urgentControl);
+      node.append(row);
     }
     node.addEventListener("click", event => {
-      if (!order?.contains(event.target) && !statusControl?.contains(event.target)) this.selectCard(item.id).catch(error => Zotero.logError(error));
+      if (!order?.contains(event.target) && !statusControl?.contains(event.target) && !priorityControl?.contains(event.target) && !urgentControl?.contains(event.target)) this.selectCard(item.id).catch(error => Zotero.logError(error));
     });
     node.addEventListener("dblclick", event => {
-      if (order?.contains(event.target) || statusControl?.contains(event.target)) return;
+      if (order?.contains(event.target) || statusControl?.contains(event.target) || priorityControl?.contains(event.target) || urgentControl?.contains(event.target)) return;
       this.open(item).catch(error => Zotero.logError(error));
     });
     node.addEventListener("contextmenu", event => {
@@ -903,7 +1018,7 @@ class Gallery {
       event.stopPropagation();
       this.openContextMenu(card, event).catch(error => Zotero.logError(error));
     });
-    const card = { item, title, node, cover, preview, placeholder, order, progress, statusControl, child, canExpand, attachments, visible: false };
+    const card = { item, title, node, cover, preview, placeholder, order, progress, statusControl, priorityControl, urgentControl, child, canExpand, attachments, visible: false };
     this.refreshStatus(card);
     this.cards.set(item.id, card);
     this.markSelected(card, this.selection?.collectionID === this.collection.id && this.selection.itemID === item.id);
@@ -915,6 +1030,13 @@ class Gallery {
     const status = tableStatus(card.item);
     card.statusControl.value = status;
     card.statusControl.className = "sl-status-control sl-status-" + status;
+    card.statusControl.dataset.empty = String(!status);
+    card.statusControl.dataset.hideEmpty = String(Zotero.Prefs.get(PREF + "hideEmptyStatus", true) !== false);
+    if (card.priorityControl) {
+      card.priorityControl.textContent = importantOf(card.item) ? "★" : "☆";
+      card.priorityControl.setAttribute("aria-pressed", String(importantOf(card.item)));
+      card.urgentControl.setAttribute("aria-pressed", String(urgentOf(card.item)));
+    }
   }
 
   markSelected(card, selected) {
@@ -1037,8 +1159,10 @@ class Gallery {
     const attachment = this.cards.get(item.id)?.attachment ?? await primaryAttachment(item);
     if (attachment) {
       await this.pane.viewAttachment(attachment.id);
+      markReading(item);
     } else {
       await this.pane.viewItems([item]);
+      if (item.isAttachment?.()) markReading(item);
     }
   }
 
@@ -1059,7 +1183,7 @@ class Gallery {
     card.request = request;
     lookupQueue.set(request, () => this.prepareCover(card, request).catch(error => {
       if (request.signal.aborted) return;
-      card.placeholder.textContent = "No preview";
+      card.placeholder.textContent = tr("No preview");
       Zotero.logError(error);
     }));
     drainCoverLookups();
@@ -1071,12 +1195,12 @@ class Gallery {
     if (signal.aborted) return;
     if (!attachment) {
       card.placeholder.textContent = card.item.getField("url") || card.item.getField("DOI")
-        ? "Web link" : "No attachment";
+        ? tr("Web link") : tr("No attachment");
       return;
     }
     card.attachment = attachment;
     const type = attachmentLabel(attachment);
-    card.placeholder.textContent = type;
+    card.placeholder.textContent = tr(type);
     if (!attachment.isFileAttachment()) return;
 
     const source = await coverSource(attachment, signal);
@@ -1124,7 +1248,7 @@ class Gallery {
   showCover(card, request, type, cover) {
     if (request.signal.aborted) return;
     if (!cover) {
-      card.placeholder.textContent = type + " · No preview";
+      card.placeholder.textContent = tr(type) + " · " + tr("No preview");
       return;
     }
 
@@ -1140,7 +1264,7 @@ class Gallery {
     });
     img.addEventListener("error", () => {
       img.remove();
-      if (!request.signal.aborted) card.placeholder.textContent = type + " · No preview";
+      if (!request.signal.aborted) card.placeholder.textContent = tr(type) + " · " + tr("No preview");
     });
     img.src = cover.uri;
     card.cover.append(img);
@@ -1178,8 +1302,8 @@ class Gallery {
     const meter = this.element("progress");
     meter.max = 100;
     meter.value = percent;
-    meter.setAttribute("aria-label", "Reading progress");
-    card.progress.title = page + " / " + pages + " pages";
+    meter.setAttribute("aria-label", tr("Reading progress"));
+    card.progress.title = page + " / " + pages + " " + tr("Pages");
     card.progress.append(meter, this.element("span", "", percent + "%"));
   }
 }
