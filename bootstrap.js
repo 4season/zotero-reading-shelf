@@ -328,7 +328,7 @@ async function startup({ id, rootURI, version }) {
         }
       }
     }
-  }, ["tab", "setting", "collection", "item"], "syllabus-lite");
+  }, ["tab", "setting", "collection", "item"], "reading-shelf");
   Zotero.uiReadyPromise.then(() => {
     if (!observerID) return;
     for (const window of Zotero.getMainWindows()) onMainWindowLoad({ window });
@@ -1612,7 +1612,7 @@ async function coverSource(attachment, signal) {
   const path = await attachment.getFilePathAsync();
   if (!path || signal.aborted) return null;
   const stat = await IOUtils.stat(path);
-  const dir = PathUtils.join(Zotero.DataDirectory.dir, "syllabus-lite-thumbnails");
+  const dir = PathUtils.join(Zotero.DataDirectory.dir, "reading-shelf-thumbnails");
   const cacheKey = [attachment.libraryID, attachment.key, stat.size, stat.lastModified].join("-");
   const image = PathUtils.join(dir, cacheKey + ".jpg");
   const info = PathUtils.join(dir, cacheKey + ".json");

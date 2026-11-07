@@ -76,7 +76,7 @@ You can also click a card to select it, double-click it to open its attachment o
 ## Your data and privacy
 
 - Reading order, collection notes, modes and statuses are saved on your computer in Zotero's preferences. This plugin does not sync them to other computers.
-- Preview images are cached in a `syllabus-lite-thumbnails` folder inside your Zotero data folder.
+- Preview images are cached in a `reading-shelf-thumbnails` folder inside your Zotero data folder. They can be deleted at any time and are regenerated as needed. Earlier versions used a folder named `syllabus-lite-thumbnails`, which is no longer used and can be deleted.
 - Your files are never uploaded anywhere.
 
 ## Known limits

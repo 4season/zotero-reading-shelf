@@ -496,7 +496,7 @@ const attachment = (type, available) => ({
   const returning = card("CACHED");
   view.loadCard(returning);
   await new Promise(setImmediate);
-  assert.deepEqual(displayed, [["CACHED", "file:///data/syllabus-lite-thumbnails/1-CACHED-42-123.jpg"]]);
+  assert.deepEqual(displayed, [["CACHED", "file:///data/reading-shelf-thumbnails/1-CACHED-42-123.jpg"]]);
   finishRender(null);
   await new Promise(setImmediate);
   assert.equal(displayed.length, 1);

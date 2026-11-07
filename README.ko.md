@@ -76,7 +76,7 @@ Zotero 설정에서 **Reading Shelf**를 열면 다음을 바꿀 수 있습니�
 ## 데이터와 개인정보
 
 - 읽기 순서·컬렉션 메모·모드·읽기 상태는 내 컴퓨터의 Zotero 설정에 저장되며, 이 플러그인은 다른 컴퓨터로 동기화하지 않습니다.
-- 미리보기 이미지는 Zotero 데이터 폴더의 `syllabus-lite-thumbnails` 폴더에 임시 저장됩니다.
+- 미리보기 이미지는 Zotero 데이터 폴더의 `reading-shelf-thumbnails` 폴더에 임시 저장되며, 언제든 지워도 필요할 때 다시 만들어집니다. 이전 버전이 쓰던 `syllabus-lite-thumbnails` 폴더는 더 이상 쓰지 않으므로 지워도 됩니다.
 - 파일을 외부로 업로드하지 않습니다.
 
 ## 알려진 한계
