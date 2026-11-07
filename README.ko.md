@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.0"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.1"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -15,7 +15,7 @@ Reading Shelf는 Zotero 컬렉션을 서재처럼 보여 주는 플러그인입�
 
 ## 설치
 
-1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.0.xpi`를 내려받습니다.
+1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.1.xpi`를 내려받습니다.
 2. Zotero에서 **도구 → 플러그인 → ⚙ → 파일에서 플러그인 설치…**를 선택하고 받은 파일을 고릅니다.
 3. 컬렉션을 선택하고 **갤러리**를 누르면 서재가 열립니다. **테이블**을 누르면 원래 목록으로 돌아갑니다.
 
@@ -47,7 +47,7 @@ Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩�
 
 ![Zotero에서 아이젠하워 화면으로 바꾸고 영역 사이로 자료를 옮기는 모습](docs/images/core-article-eisenhower.gif)
 
-기본적으로 고른 모드는 모든 컬렉션에 똑같이 적용됩니다. 컬렉션마다 따로 기억하게 하려면 설정에서 **컬렉션별로 아이젠하워 / 일반 서재 모드 기억**을 켜세요.
+기본적으로 고른 모드는 모든 컬렉션에 똑같이 적용됩니다. 컬렉션마다 따로 기억하게 하려면 설정에서 **컬렉션별로 아이젠하워 / 일반 서재 모드 기억**을 켜세요. 설정의 **아이젠하워 모드** 체크박스는 항상 모드 버튼과 같은 상태를 보여 주며, 컬렉션별 기억을 켜면 Zotero에서 선택한 컬렉션에 적용됩니다.
 
 ### 컬렉션 메모
 

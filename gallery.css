@@ -516,7 +516,7 @@
 .sl-gallery .sl-priority, .sl-table-priority {
   appearance:none; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center;
   width:1.65em; height:1.65em; flex:0 0 auto; min-width:0; min-height:0;
-  margin:0; padding:0; border:1px solid transparent; border-radius:5px; font:inherit; line-height:1;
+  margin:0; padding:0; border:1px solid light-dark(#d5d8dd,#444a53); border-radius:5px; font:inherit; line-height:1;
   background:transparent; color:light-dark(#70747a,#b8bdc5); cursor:pointer;
 }
 .sl-gallery .sl-priority[aria-pressed="true"], .sl-table-priority[aria-pressed="true"] {

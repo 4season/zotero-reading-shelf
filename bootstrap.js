@@ -314,7 +314,7 @@ async function startup({ id, rootURI, version }) {
   preferenceObservers = VISIBILITY_PREFS.map(([key]) => Zotero.Prefs.registerObserver(PREF + key, () => {
     for (const view of windows.values()) view.applyVisibilitySettings();
   }, true));
-  for (const key of ["language", "matrixMode", "rememberCollectionMode", "hideEmptyStatus"]) {
+  for (const key of ["language", "matrixMode", "rememberCollectionMode", "hideEmptyStatus", "modeRevision"]) {
     preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
       for (const view of windows.values()) view.sync();
       refreshWorkflow();
@@ -710,7 +710,8 @@ class Gallery {
       const enabled = !matrixModeFor(this.collection);
       if (Zotero.Prefs.get(PREF + "rememberCollectionMode", true) === true) {
         Zotero.Prefs.set(collectionModeKey(this.collection), enabled, true);
-        for (const view of windows.values()) if (view.collection?.id === this.collection.id) view.sync();
+        // The observer below redraws every window and refreshes an open settings pane.
+        Zotero.Prefs.set(PREF + "modeRevision", (Zotero.Prefs.get(PREF + "modeRevision", true) || 0) + 1, true);
       } else Zotero.Prefs.set(PREF + "matrixMode", enabled, true);
     }, "sl-edit sl-mode");
     mode.hidden = Zotero.Prefs.get(PREF + "hideModeControl", true) === true;

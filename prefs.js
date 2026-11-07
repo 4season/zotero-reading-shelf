@@ -20,3 +20,4 @@ pref("extensions.reading-shelf.readingColor", "#1659b7");
 pref("extensions.reading-shelf.importantColor", "#8a4b00");
 pref("extensions.reading-shelf.urgencyColor", "#a82330");
 pref("extensions.reading-shelf.completedColor", "#6750a4");
+pref("extensions.reading-shelf.modeRevision", 0);

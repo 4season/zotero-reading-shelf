@@ -15,3 +15,5 @@
 #sl-settings .sl-settings-subgroup h4 { font: inherit; font-size: 1.05rem; font-weight: 650; margin: 0 0 8px; }
 
 #sl-settings .sl-color-hex { width: 7em; font: inherit; padding: 4px 6px; }
+
+.sl-settings-note { margin:0 0 6px 24px; font-size:.9em; color:GrayText; }

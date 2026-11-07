@@ -75,3 +75,46 @@ const modeCheckbox={localName:'checkbox',checked:true,getAttribute:()=> 'extensi
 listeners.get('command')({target:modeCheckbox});
 assert.equal(prefs.get('extensions.reading-shelf.hideModeControl'),true);
 console.log('Native checkbox command persistence and live macOS color-panel input passed');
+
+// The Eisenhower checkbox and the gallery's mode button stay compatible.
+{
+  const modeBox={localName:'checkbox',checked:false,getAttribute:()=>null,hasAttribute:key=>key==='data-sl-mode',closest(selector){return selector==='checkbox[data-sl-mode]'?this:null;}};
+  const originalQuery=root.querySelectorAll;
+  root.querySelectorAll=selector=>selector==='[data-sl-mode]'?[modeBox]:originalQuery(selector);
+  const P='extensions.reading-shelf.';
+  let selected=null;
+  ctx.Zotero.getMainWindow=()=>({ZoteroPane:{getSelectedCollection:()=>selected}});
+  const press=checked=>{modeBox.checked=checked;listeners.get('command')({target:modeBox});};
+  // Memory off: checkbox shows and sets the shared mode.
+  prefs.set(P+'rememberCollectionMode',false);
+  prefs.set(P+'matrixMode',true);
+  listeners.get('showing')({target:root});
+  assert.equal(modeBox.checked,true);
+  press(false);
+  assert.equal(prefs.get(P+'matrixMode'),false);
+  prefs.set(P+'matrixMode',true); // the gallery button changed the shared mode
+  listeners.get('showing')({target:root});
+  assert.equal(modeBox.checked,true);
+  // Memory on: both act on the selected collection and leave the shared mode alone.
+  prefs.set(P+'rememberCollectionMode',true);
+  selected={libraryID:1,key:'ABCDE'};
+  prefs.set(P+'collectionMode.1.ABCDE',false);
+  listeners.get('showing')({target:root});
+  assert.equal(modeBox.checked,false);
+  const before=prefs.get(P+'modeRevision')||0;
+  press(true);
+  assert.equal(prefs.get(P+'collectionMode.1.ABCDE'),true);
+  assert.equal(prefs.get(P+'matrixMode'),true);
+  assert.equal(prefs.get(P+'modeRevision'),before+1);
+  prefs.set(P+'collectionMode.1.ABCDE',false); // the gallery button switched this collection back
+  listeners.get('showing')({target:root});
+  assert.equal(modeBox.checked,false);
+  selected={libraryID:1,key:'OTHER'}; // a collection with no saved choice falls back to the shared mode
+  listeners.get('showing')({target:root});
+  assert.equal(modeBox.checked,true);
+  // Memory on without a selected collection edits the shared mode.
+  selected=null;
+  press(false);
+  assert.equal(prefs.get(P+'matrixMode'),false);
+  console.log('Eisenhower checkbox and mode button stay in sync (shared and per-collection)');
+}

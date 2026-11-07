@@ -1,32 +1,23 @@
-# Reading Shelf 1.3.0 — New add-on ID (reinstall required)
+# Reading Shelf 1.3.1 — Mode checkbox in sync, even priority buttons
 
 **English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
 ![Dragging papers between lanes and switching modes in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-eisenhower.gif)
 
-## Action required when updating from 1.2.x
+## What's changed
 
-Reading Shelf now has its own add-on ID, `reading-shelf@4season.github.io`, instead of the one inherited from the plugin it is based on. Zotero treats this as a different plugin, so **it will not be offered as an automatic update**:
+- **The Eisenhower mode checkbox in the settings and the mode button in the gallery now always agree.** Changing either one updates the other, including when the settings window is open while you use the button.
+  - With per-collection memory off, both change the mode shared by all collections.
+  - With per-collection memory on, both act on the collection selected in Zotero and leave other collections alone. (Before, the checkbox was disabled in this case and showed a value that did not match the collection you were looking at.)
+- **★ and ◷ buttons look evenly spaced.** Buttons that are off now have a faint frame of the same size as the ones that are on, so the row no longer looks wider on cards where they are off. Their size and position did not change.
 
-1. In Zotero, open **Tools → Plugins** and remove the old **Reading Shelf**.
-2. Install **zotero-reading-shelf-1.3.0.xpi** via **⚙ → Install Plugin From File…** and restart if asked.
+## Update
 
-Do not keep both installed; their gallery buttons and settings would overlap.
-
-## What carries over
-
-Your settings, reading statuses, importance and urgency, reading order, per-collection modes and collection notes are kept. On first start 1.3.0 copies the settings saved by earlier versions into the new `extensions.reading-shelf.*` names (since 1.2.4); nothing already saved is overwritten, and the old values stay in place. Preview images are rebuilt on first view.
-
-## Also in this release
-
-- Settings are stored under the Reading Shelf name (`extensions.reading-shelf.*`) instead of the name of the plugin Reading Shelf is based on.
-- Previews are cached in `reading-shelf-thumbnails` (since 1.2.3). The old `syllabus-lite-thumbnails` folder can be deleted.
-
-Release 1.2.4 was not published as an update; 1.3.0 includes everything in it.
+This version keeps the add-on ID introduced in 1.3.0, so Zotero can offer it as an automatic update when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.1.xpi** via **⚙ → Install Plugin From File…**.
 
 ## Known limits
 
-Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The carry-over of old settings is covered by automated tests; it has not been run against many real libraries yet.
+Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The checkbox/button sync is covered by automated tests and a browser demo; the settings window itself has not been exercised with many real libraries.
 
 ## License
 
