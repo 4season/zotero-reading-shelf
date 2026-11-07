@@ -379,8 +379,7 @@
 .sl-hide-card-buttons .sl-order,
 .sl-hide-child-indicator .sl-cover[aria-expanded]::after,
 .sl-hide-size .sl-size,
-.sl-hide-sort .sl-sort,
-.sl-hide-size.sl-hide-sort .sl-gallery-controls {
+.sl-hide-sort .sl-sort {
   display: none;
 }
 

@@ -65,6 +65,9 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
  assert(getComputedStyle(c.statusControl).opacity==='0','focused native picker stays transparent');
  assert(!c.cover.hasAttribute('title'),'no long cover tooltip');
  const gap=getComputedStyle(document.querySelector('.sl-matrix')).rowGap;assert(gap==='12px','matrix gap');
+ const controls=document.createElement('div');controls.className='sl-gallery-controls';const mode=document.createElement('button');mode.className='sl-mode';mode.textContent='Bookshelf';controls.append(mode);view.gallery.append(controls);view.gallery.classList.add('sl-hide-size','sl-hide-sort');
+ assert(getComputedStyle(controls).display!=='none','mode switch survives hidden size/sort controls');
+
  const slots=document.createElement('div');slots.className='sl-table-workflow cell';slots.style.width='190px';
  const picker=createStatusPicker(document,'',()=>{});const star=document.createElement('button'),urgent=document.createElement('button');star.className=urgent.className='sl-table-priority';star.textContent='☆';urgent.textContent='○';slots.append(picker.wrapper,star,urgent);document.body.append(slots);
  await new Promise(requestAnimationFrame);
