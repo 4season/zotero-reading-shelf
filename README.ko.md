@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.8"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.9"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -19,7 +19,7 @@ Reading Shelf는 Zotero 컬렉션을 서재처럼 보여 주는 플러그인입�
 
 ## 설치
 
-1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.8.xpi`를 내려받습니다.
+1. [최신 릴리즈](https://github.com/4season/zotero-reading-shelf/releases/latest)에서 `zotero-reading-shelf-1.3.9.xpi`를 내려받습니다.
 2. Zotero에서 **도구 → 플러그인 → ⚙ → 파일에서 플러그인 설치…**를 선택하고 받은 파일을 고릅니다.
 3. 컬렉션을 선택하고 **갤러리**를 누르면 서재가 열립니다. **테이블**을 누르면 원래 목록으로 돌아갑니다.
 
@@ -27,7 +27,7 @@ Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩�
 
 **업데이트:** Zotero의 플러그인 자동 업데이트가 켜져 있으면 새 버전을 자동으로 받습니다. **1.2.x에서 오셨나요?** 1.3.0은 플러그인 ID가 바뀌어 자동 업데이트로 안내되지 않습니다. **도구 → 플러그인**에서 기존 Reading Shelf를 제거한 뒤 위 방법으로 1.3.0을 설치하세요. 설정·읽기 상태·읽기 순서·메모는 그대로 이어집니다.
 
-**언어:** 기본 언어는 한국어입니다. 영어로 바꾸려면 Zotero 설정에서 **Reading Shelf**를 열고 **Language**를 English로 선택하세요.
+**언어:** 기본 언어는 영어입니다. 한국어로 쓰려면 Zotero 설정에서 **Reading Shelf**를 열고 **Language**를 한국어로 선택하세요.
 
 다른 갤러리 플러그인과 화면이 겹치면 둘 중 하나를 끄세요.
 
@@ -50,6 +50,8 @@ Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩�
 **정렬** 오른쪽의 모드 버튼으로 아이젠하워 화면으로 바꿉니다. 위쪽에 *긴급하고 중요한 자료*와 *중요하지만 덜 급한 자료*가 나란히 놓이고, 아래에 *읽기 대기열*이 있습니다. 자료를 끌어서 영역 사이로 옮기고, 같은 버튼을 다시 눌러 일반 서재로 돌아갑니다.
 
 ![Zotero에서 아이젠하워 화면으로 바꾸고 영역 사이로 자료를 옮기는 모습](docs/images/core-article-eisenhower.gif)
+
+★(와 ◷)를 준 자료는 그 표시 때문에 해당 영역에 놓입니다. **−** 버튼은 읽기 목록에서 빼고 읽기 상태를 지우지만, ★/◷를 끄거나 "그 밖의 자료"로 끌어 놓기 전까지는 그 영역에 남습니다. 버튼의 설명 문구에도 이 점이 나옵니다.
 
 기본적으로 고른 모드는 모든 컬렉션에 똑같이 적용됩니다. 컬렉션마다 따로 기억하게 하려면 설정에서 **컬렉션별로 아이젠하워 / 일반 서재 모드 기억**을 켜세요. 설정의 **아이젠하워 모드** 체크박스는 항상 모드 버튼과 같은 상태를 보여 주며, 컬렉션별 기억을 켜면 Zotero에서 선택한 컬렉션에 적용됩니다.
 
@@ -74,6 +76,7 @@ Zotero 10.x가 필요합니다. 이전 버전의 설정은 그대로 유지됩�
 Zotero 설정에서 **Reading Shelf**를 열면 다음을 바꿀 수 있습니다.
 
 - 자료 크기, 정렬, 표시할 버튼과 컨트롤(모드 전환 버튼 포함)
+- 애니메이션을 시스템의 "동작 줄이기" 설정에 따르게 할지(기본값), 항상 켤지, 끌지 선택. 시스템이 애니메이션을 꺼 두는 경우가 많은 Windows에서 도움이 됩니다
 - *읽을 예정*·*읽는 중*·*완료됨*, ★·◷ 버튼, 아이젠하워 테두리의 색상. 색상 선택기나 `#RRGGBB` 입력을 쓰며, 그룹별 또는 전체 초기화가 가능합니다.
 - 미리보기 그림자(없음·약하게·보통·강하게, 다크 모드 선택)
 

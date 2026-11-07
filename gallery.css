@@ -248,11 +248,6 @@
 .sl-card.sl-selected .sl-preview::after {
   opacity: 1;
 }
-@media (prefers-reduced-motion: reduce) {
-  .sl-preview::after {
-    transition: none;
-  }
-}
 .sl-preview {
   position: relative;
   aspect-ratio: var(--sl-cover-ratio, 3 / 4);
@@ -460,7 +455,6 @@
 .sl-matrix > .sl-section { margin-top:0; border:0; padding:12px; border-radius:8px; background:var(--fill-quinary, ButtonFace); }
 .sl-matrix .sl-grid { --sl-column-width:min(100%, var(--sl-card-width,176px)); }
 .sl-matrix .sl-card { max-width:100%; }
-@media (prefers-reduced-motion: reduce) { .sl-status-control { transition:none; } }
 
 /* Small static preview-only shadows; soft edge remains legible on white. */
 .sl-gallery { --sl-preview-shadow:0 0 2px light-dark(rgb(20 30 45 / .10),var(--sl-dark-shadow,transparent)), 0 2px 12px light-dark(rgb(20 30 45 / .07),var(--sl-dark-shadow,transparent)); --sl-preview-edge:light-dark(rgb(20 30 45 / .09),var(--sl-dark-edge,transparent)); }
@@ -577,7 +571,19 @@
 .sl-gallery .sl-card:is(:hover,:focus-within) .sl-status-picker[data-empty="true"][data-hide-empty="true"] { animation:sl-reveal 140ms ease-out; }
 .sl-table-workflow .sl-table-priority[aria-pressed="false"][data-hide-empty="true"],
 .sl-table-workflow .sl-status-picker[data-empty="true"][data-hide-empty="true"] { transition:opacity 120ms ease-out; }
+/* Motion: follows the system "reduce motion" setting unless the plugin's own setting
+   (data-sl-motion on the root) says "always" or "off". */
 @media (prefers-reduced-motion: reduce) {
-  .sl-gallery .sl-card .sl-priority, .sl-gallery .sl-card .sl-status-picker { animation:none !important; }
-  .sl-table-workflow .sl-table-priority, .sl-table-workflow .sl-status-picker { transition:none !important; }
+  :root:not([data-sl-motion="always"]) .sl-preview::after,
+  :root:not([data-sl-motion="always"]) .sl-status-control { transition:none; }
+  :root:not([data-sl-motion="always"]) .sl-gallery .sl-card .sl-priority,
+  :root:not([data-sl-motion="always"]) .sl-gallery .sl-card .sl-status-picker { animation:none !important; }
+  :root:not([data-sl-motion="always"]) .sl-table-workflow .sl-table-priority,
+  :root:not([data-sl-motion="always"]) .sl-table-workflow .sl-status-picker { transition:none !important; }
 }
+:root[data-sl-motion="off"] .sl-preview::after,
+:root[data-sl-motion="off"] .sl-status-control { transition:none; }
+:root[data-sl-motion="off"] .sl-gallery .sl-card .sl-priority,
+:root[data-sl-motion="off"] .sl-gallery .sl-card .sl-status-picker { animation:none !important; }
+:root[data-sl-motion="off"] .sl-table-workflow .sl-table-priority,
+:root[data-sl-motion="off"] .sl-table-workflow .sl-status-picker { transition:none !important; }

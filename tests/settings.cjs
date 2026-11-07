@@ -21,6 +21,9 @@ const heading=makeLabel('h3','디자인','Appearance');
 const menu={selectedItem:option,setAttribute(key,value){this[key]=value;}};
 root={id:'sl-settings',querySelectorAll:selector=>selector==='[data-sl-en]'?[checkbox,label,option,heading]:selector==='menulist'?[menu]:selector==='[data-sl-depends]'?[borderControl,color,shadowControl]:[color]};
 listeners.get('load')({target:root});
+assert.equal(checkbox.attrs.label,'Hide size'); // English is the default
+prefs.set('extensions.reading-shelf.language','ko');
+listeners.get('command')({target:{closest:()=>root}});
 assert.equal(checkbox.attrs.label,'크기 숨기기');
 prefs.set('extensions.reading-shelf.language','en');
 listeners.get('command')({target:{closest:()=>root}});

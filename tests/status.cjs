@@ -32,6 +32,12 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
 (async () => {
   await ctx.startup({id:'reading-shelf@4season.github.io',rootURI:'fixture/',version:'1.2.1'});
   assert.equal(columns.length,1);
+  // English is the default; Korean only when chosen explicitly. The Korean assertions below opt in.
+  assert.equal(ctx.tr('Reading'),'Reading');
+  prefs.set('extensions.reading-shelf.language','junk');
+  assert.equal(ctx.tr('Reading'),'Reading');
+  prefs.set('extensions.reading-shelf.language','ko');
+  assert.equal(ctx.tr('Reading'),'읽는 중');
   // Settings saved under the old "syllabus-lite" name are copied once, without overwriting new values.
   {
     const old = new Map([["language","en"],["order.1.ABCDE",'{"order":["A"],"description":""}'],["cardScale",120],["matrixMode",true],["hideSortControl",false]]);

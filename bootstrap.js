@@ -20,6 +20,19 @@ const windows = new Map();
 // Gentle ease-in-out so motion starts and ends softly instead of jumping on the first frame.
 const MOTION_EASING = "cubic-bezier(.4,0,.2,1)";
 const MOTION_MS = 280;
+// "system" follows the OS "reduce motion" setting; "always" and "off" override it. On Windows, that OS
+// setting is often off (power saving, remote desktop, virtual machines), which would otherwise hide
+// every animation without any hint.
+function motionMode() {
+  const mode = Zotero.Prefs.get(PREF + "motion", true);
+  return mode === "always" || mode === "off" ? mode : "system";
+}
+function motionReduced(win) {
+  const mode = motionMode();
+  if (mode === "always") return false;
+  if (mode === "off") return true;
+  return !!win.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+}
 let statusColumn;
 let statusMenu;
 const orderStatusCache = new Map();
@@ -34,11 +47,11 @@ const UI_KO = {
   "Drag papers here or use + on a card.":"자료를 끌어 놓거나 + 버튼으로 추가하세요.", "No unordered items.":"미분류 자료가 없습니다.",
   "Urgent & important":"긴급하고 중요한 자료", "Important, not urgent":"중요하지만 덜 급한 자료", "Other items":"그 밖의 자료",
   "Reading queue":"읽기 대기열", "Edit description":"메모 편집", "Drop here":"여기에 놓으세요", "Empty note":"빈 노트", "Reading status":"읽기 상태", "Priority":"중요도",
-  "Double-click to open":"더블클릭하여 열기", "Select item, double-click to open":"자료 선택, 더블클릭하여 열기", "Click to show notes and attachments":"클릭하여 노트와 첨부파일 보기", "Double-click or press Enter to edit":"더블클릭하거나 Enter 키로 수정", "Add to reading order":"읽기 목록에 추가", "Remove from reading order":"읽기 목록에서 제외", "Move left / right with Alt + arrow keys":"Alt + 방향키로 순서 이동", "Pages":"페이지", "Heading":"제목", "bold":"굵게", "inline math":"인라인 수식", "separate equation":"별도 수식",
+  "Double-click to open":"더블클릭하여 열기", "Select item, double-click to open":"자료 선택, 더블클릭하여 열기", "Click to show notes and attachments":"클릭하여 노트와 첨부파일 보기", "Double-click or press Enter to edit":"더블클릭하거나 Enter 키로 수정", "Add to reading order":"읽기 목록에 추가", "Remove from reading order":"읽기 목록에서 제외", "Move left / right with Alt + arrow keys":"Alt + 방향키로 순서 이동", "Stays in this lane while marked ★/◷":"★/◷가 켜져 있는 동안은 이 영역에 남습니다", "Pages":"페이지", "Heading":"제목", "bold":"굵게", "inline math":"인라인 수식", "separate equation":"별도 수식",
   "Sort unordered items":"미분류 자료 정렬", "Collection description":"컬렉션 설명", "Reading progress":"읽기 진행률",
   "Could not load this gallery.":"갤러리를 불러오지 못했습니다.", "The gallery change could not be saved.":"변경사항을 저장하지 못했습니다."
 };
-function tr(text) { return Zotero.Prefs.get(PREF + "language", true) === "en" ? text : (UI_KO[text] || text); }
+function tr(text) { return Zotero.Prefs.get(PREF + "language", true) === "ko" ? (UI_KO[text] || text) : text; }
 const WORKFLOW_COLORS = { planned: ["plannedColor", "#356b24"], reading: ["readingColor", "#1659b7"], completed: ["completedColor", "#6750a4"], important: ["importantColor", "#8a4b00"], urgent: ["urgencyColor", "#a82330"] };
 function workflowColor(name) {
   const [key, fallback] = WORKFLOW_COLORS[name] || ["", "#70747a"];
@@ -337,6 +350,9 @@ async function startup({ id, rootURI, version }) {
   preferenceObservers = VISIBILITY_PREFS.map(([key]) => Zotero.Prefs.registerObserver(PREF + key, () => {
     for (const view of windows.values()) view.applyVisibilitySettings();
   }, true));
+  preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + "motion", () => {
+    for (const view of windows.values()) view.applyMotion();
+  }, true));
   for (const key of ["language", "matrixMode", "rememberCollectionMode", "hideEmptyStatus", "modeRevision"]) {
     preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
       for (const view of windows.values()) view.sync();
@@ -568,6 +584,7 @@ class Gallery {
     this.style.rel = "stylesheet";
     this.style.href = root + "gallery.css?v=" + encodeURIComponent(assetVersion);
     this.doc.documentElement.append(this.style);
+    this.applyMotion();
     this.toggle = this.button("Gallery", () => {
       this.enabled = !this.enabled;
       Zotero.Prefs.set(PREF + "enabled", this.enabled, true);
@@ -629,7 +646,7 @@ class Gallery {
     if (this.descriptionDraft?.collectionID !== collection.id) this.descriptionDraft = null;
     // Rebuilding replaces every card node (for example when the mode changes); remember where the
     // visible ones were so they can glide to their new places instead of jumping.
-    const reduceMotion = !!this.win.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = motionReduced(this.win);
     const previousRects = sameCollection && !reduceMotion ? this.visibleCardRects() : null;
     this.clear();
     this.collection = collection;
@@ -785,7 +802,12 @@ class Gallery {
     this.style.remove();
   }
 
+  applyMotion() {
+    this.doc.documentElement?.setAttribute?.("data-sl-motion", motionMode());
+  }
+
   applyVisibilitySettings() {
+    this.applyMotion();
     if (!this.gallery) return;
     const strength = Zotero.Prefs.get(PREF + "shadowStrength", true);
     this.gallery.dataset.shadow = ["off", "soft", "medium", "strong"].includes(strength) ? strength : "medium";
@@ -1218,12 +1240,17 @@ class Gallery {
       for (const card of cards) {
         place(card);
         const inOrder = this.matrix ? order.includes(card.item.key) : group.ordered;
-        if (card.ordered !== inOrder) {
+        // In the Eisenhower layout a paper marked ★/◷ sits in its lane because of those marks, so
+        // taking it off the reading order does not move it; the tooltip says so.
+        const keepsLane = this.matrix && inOrder && importantOf(card.item);
+        if (card.ordered !== inOrder || card.keepsLane !== keepsLane) {
           card.ordered = inOrder;
+          card.keepsLane = keepsLane;
           card.order.textContent = card.ordered ? "−" : "+";
           const action = (tr(card.ordered ? "Remove from reading order" : "Add to reading order") + ": ") + card.title;
           card.order.setAttribute("aria-label", action);
-          card.order.title = action + (card.ordered ? " · " + tr("Move left / right with Alt + arrow keys") : "");
+          card.order.title = action + (card.ordered ? " · " + tr("Move left / right with Alt + arrow keys") : "") +
+            (keepsLane ? " · " + tr("Stays in this lane while marked ★/◷") : "");
         }
         if (this.expanded?.collectionID === this.collection.id && this.expanded.itemID === card.item.id) {
           this.childCards.forEach(place);
@@ -1252,7 +1279,7 @@ class Gallery {
 
   animateLayout(change, resizing = false) {
     const focus = this.doc.activeElement;
-    const animate = !this.win.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const animate = !motionReduced(this.win);
     const positions = new Map();
     if (animate) {
       for (const card of this.cards.values()) {
@@ -1485,7 +1512,7 @@ class Gallery {
         if (this.cards.get(itemID) !== card || this.selection?.itemID !== itemID) return 0;
         card.attachment = attachment;
       }
-      const reduceMotion = this.win.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reduceMotion = motionReduced(this.win);
       this.animateLayout(() => {
         this.setChildCards(card, card.attachment?.id, !reduceMotion);
         this.layoutCards(this.orderKeys);
@@ -1529,7 +1556,7 @@ class Gallery {
     this.selection = null;
     this.pane.itemsView.selection?.clearSelection();
     if (this.childCards.length) {
-      const reduceMotion = this.win.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reduceMotion = motionReduced(this.win);
       this.animateLayout(() => {
         this.setChildCards(null, undefined, !reduceMotion);
         this.layoutCards(this.orderKeys);

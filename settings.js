@@ -54,7 +54,7 @@
   const initialize = () => {
     const root = document.getElementById("sl-settings");
     if (!root) return;
-    const language = Zotero.Prefs.get(prefix + "language", true) === "en" ? "en" : "ko";
+    const language = Zotero.Prefs.get(prefix + "language", true) === "ko" ? "ko" : "en";
     for (const node of root.querySelectorAll("[data-sl-en]")) {
       const text = node.getAttribute("data-sl-" + language);
       if (["checkbox", "menuitem", "menulist", "button"].includes(node.localName)) node.setAttribute("label", text);

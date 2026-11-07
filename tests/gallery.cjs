@@ -184,6 +184,21 @@ const opened = [];
 view.open = async item => { opened.push(item.id); };
 const first = view.makeCard(a, "Kim");
 const second = view.makeCard(b, "");
+// The plugin's own animation setting overrides the system "reduce motion" flag.
+{
+  const key = "extensions.reading-shelf.motion";
+  const reduced = { matchMedia: () => ({ matches: true }) }, normal = { matchMedia: () => ({ matches: false }) };
+  prefs.delete(key);
+  assert.equal(ctx.motionReduced(reduced), true);   // follows the system by default
+  assert.equal(ctx.motionReduced(normal), false);
+  prefs.set(key, "always");
+  assert.equal(ctx.motionReduced(reduced), false);  // forced on, even if the system reduces motion
+  prefs.set(key, "off");
+  assert.equal(ctx.motionReduced(normal), true);    // forced off
+  prefs.set(key, "nonsense");
+  assert.equal(ctx.motionReduced(reduced), true);   // unknown values fall back to the system
+  prefs.delete(key);
+}
 // Preview rendering waits while a card animation is running, then proceeds.
 {
   const loaded = [], timers = [];
@@ -404,12 +419,16 @@ queue.section.fire("drop", {...point,target:{closest:()=>null}});
 assert.equal(ctx.tableStatus(a),"planned");
 assert.equal(ctx.importantOf(a),false);
 assert.equal(ctx.urgentOf(a),false);
+assert.doesNotMatch(first.order.title, /Stays in this lane/); // a queue card leaves when removed
 ctx.setItemStatus([a],"reading");
 first.node.fire("dragstart",{dataTransfer});
 later.section.fire("drop",{...point,target:{closest:()=>null}});
 assert.equal(ctx.tableStatus(a),"reading");
 assert.equal(ctx.importantOf(a),true);
 assert.equal(ctx.urgentOf(a),false);
+// A marked paper in a lane keeps its place when taken off the reading order; the button explains why.
+assert.equal(first.order.textContent, "−");
+assert.match(first.order.title, /Stays in this lane while marked/);
 first.node.fire("dragstart",{dataTransfer});
 unorderedGroup.section.fire("drop",point);
 assert.equal(ctx.tableStatus(a),"");
