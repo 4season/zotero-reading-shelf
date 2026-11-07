@@ -28,7 +28,7 @@ const UI_KO = {
   "Add a collection description…":"컬렉션 설명을 입력하세요…", "Add a collection description...":"컬렉션 설명을 입력하세요…",
   "Drag papers here or use + on a card.":"자료를 끌어 놓거나 + 버튼으로 추가하세요.", "No unordered items.":"미분류 자료가 없습니다.",
   "Urgent & important":"긴급하고 중요한 자료", "Important, not urgent":"중요하지만 덜 급한 자료", "Other items":"그 밖의 자료",
-  "Drop here":"여기에 놓으세요", "Empty note":"빈 노트", "Reading status":"읽기 상태", "Priority":"중요도",
+  "Reading queue":"읽기 대기열", "Edit description":"메모 편집", "Drop here":"여기에 놓으세요", "Empty note":"빈 노트", "Reading status":"읽기 상태", "Priority":"중요도",
   "Double-click to open":"더블클릭하여 열기", "Select item, double-click to open":"자료 선택, 더블클릭하여 열기", "Click to show notes and attachments":"클릭하여 노트와 첨부파일 보기", "Double-click or press Enter to edit":"더블클릭하거나 Enter 키로 수정", "Add to reading order":"읽기 목록에 추가", "Remove from reading order":"읽기 목록에서 제외", "Move left / right with Alt + arrow keys":"Alt + 방향키로 순서 이동", "Pages":"페이지", "Heading":"제목", "bold":"굵게", "inline math":"인라인 수식", "separate equation":"별도 수식",
   "Sort unordered items":"미분류 자료 정렬", "Collection description":"컬렉션 설명", "Reading progress":"읽기 진행률",
   "Could not load this gallery.":"갤러리를 불러오지 못했습니다.", "The gallery change could not be saved.":"변경사항을 저장하지 못했습니다."
@@ -173,6 +173,11 @@ async function startup({ id, rootURI }) {
     preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
       for (const view of windows.values()) view.sync();
       refreshWorkflow();
+    }, true));
+  }
+  for (const key of ["shadowStrength", "shadowDark", "urgentColor", "laterColor", "queueColor"]) {
+    preferenceObservers.push(Zotero.Prefs.registerObserver(PREF + key, () => {
+      for (const view of windows.values()) view.applyVisibilitySettings();
     }, true));
   }
   observerID = Zotero.Notifier.registerObserver({
@@ -494,6 +499,13 @@ class Gallery {
 
   applyVisibilitySettings() {
     if (!this.gallery) return;
+    const strength = Zotero.Prefs.get(PREF + "shadowStrength", true);
+    this.gallery.dataset.shadow = ["off", "soft", "medium", "strong"].includes(strength) ? strength : "medium";
+    this.gallery.dataset.shadowDark = String(Zotero.Prefs.get(PREF + "shadowDark", true) === true);
+    for (const [key, fallback] of [["urgentColor", "#c76a6a"], ["laterColor", "#638ebd"], ["queueColor", "#789866"]]) {
+      const value = Zotero.Prefs.get(PREF + key, true);
+      this.gallery.style.setProperty("--sl-" + key, /^#[0-9a-f]{6}$/i.test(value || "") ? value : fallback);
+    }
     for (const [key, className] of VISIBILITY_PREFS) {
       this.gallery.classList.toggle(className, Zotero.Prefs.get(PREF + key, true) === true);
     }
@@ -541,7 +553,12 @@ class Gallery {
       this.sections.unordered.section.querySelector("h2").textContent = tr("Other items");
       this.sections.ordered.lane = "urgent";
       this.sections.later.lane = "later";
-      lanes.append(this.sections.ordered.section, this.sections.later.section);
+      this.sections.queue = this.section("Reading queue", true, "Drag papers here or use + on a card.");
+      this.sections.queue.lane = "queue";
+      this.sections.ordered.section.classList.add("sl-lane-urgent");
+      this.sections.later.section.classList.add("sl-lane-later");
+      this.sections.queue.section.classList.add("sl-lane-queue");
+      lanes.append(this.sections.ordered.section, this.sections.later.section, this.sections.queue.section);
       this.gallery.insertBefore(lanes, this.sections.unordered.section);
     }
     this.unorderedCards = sortItems(items, sort, authors).map(item => this.makeCard(item, authors.get(item.id)));
@@ -661,9 +678,13 @@ class Gallery {
     display.tabIndex = 0;
     display.title = tr("Double-click or press Enter to edit");
     display.classList.toggle("sl-muted", !text);
-    if (text) {
+    if (text && text.length <= 100000) {
       try {
-        display.innerHTML = renderDescriptionMarkup(text);
+        const markup = renderDescriptionMarkup(text);
+        // Whitespace-only Markdown constructs must not leave a zero-height edit target.
+        const visibleText = markup.replace(/<[^>]*>/g, "").replace(/&(?:nbsp|#160);/g, " ").trim();
+        if (visibleText) display.innerHTML = markup;
+        else display.textContent = text;
         display.classList.add("sl-description-rich");
       } catch (error) {
         Zotero.logError(error);
@@ -690,6 +711,8 @@ class Gallery {
       edit();
     });
     this.description.append(display);
+    const editButton = this.button("Edit description", edit, "sl-edit sl-description-edit");
+    this.description.append(editButton);
   }
 
   section(title, ordered, emptyText) {
@@ -722,7 +745,10 @@ class Gallery {
       const lane = group.lane;
       const item = this.drag.item;
       this.endDrag();
-      if (lane) {
+      if (lane === "queue") {
+        if (Zotero.Prefs.get(itemPref(item, "status"), true) === "important") Zotero.Prefs.set(itemPref(item, "status"), "planned", true);
+        Zotero.Prefs.set(itemPref(item, "important"), false, true);
+      } else if (lane) {
         Zotero.Prefs.set(itemPref(item, "important"), true, true);
         Zotero.Prefs.set(itemPref(item, "urgent"), lane === "urgent", true);
       } else if (this.matrix && !ordered) {
@@ -827,7 +853,8 @@ class Gallery {
     const groups = this.matrix ? [
       [this.sections.ordered, this.unorderedCards.filter(card => importantOf(card.item) && urgentOf(card.item))],
       [this.sections.later, this.unorderedCards.filter(card => importantOf(card.item) && !urgentOf(card.item))],
-      [this.sections.unordered, this.unorderedCards.filter(card => !importantOf(card.item))]
+      [this.sections.queue, this.orderedCards.filter(card => !importantOf(card.item))],
+      [this.sections.unordered, this.unorderedCards.filter(card => !importantOf(card.item) && !ordered.has(card))]
     ] : [[this.sections.ordered, this.orderedCards], [this.sections.unordered, unordered]];
     if (this.matrix) {
       const ranks = new Map(order.map((key, i) => [key, i]));

@@ -17,6 +17,7 @@ def main():
 
     subprocess.run(["node", str(ROOT / "tests/gallery.cjs")], check=True)
     subprocess.run(["node", str(ROOT / "tests/status.cjs")], check=True)
+    subprocess.run(["node", str(ROOT / "tests/settings.cjs")], check=True)
     if args.zotero_omni:
         with TemporaryDirectory() as temp, ZipFile(args.zotero_omni) as zotero:
             folder = Path(temp)

@@ -120,6 +120,17 @@ const example = render("# Collection topic\n## Reading plan\n\nText before $V_m(
 assert.match(example, /<h1>Collection topic<\/h1>\s*<h2>Reading plan<\/h2>/);
 assert.match(example, /<p>Text before <span class="katex"><math [^>]*>.*<\/math><\/span> text after\.<\/p>/);
 assert.doesNotMatch(example, /display="block"/);
+// Long or empty-output Markdown retains an edit target and the full source.
+const longDescription = "Long description ".repeat(8000);
+view.renderDescription(longDescription);
+assert.equal(view.description.firstChild.textContent, longDescription);
+assert.equal(view.description.children.at(-1).textContent, "Edit description");
+view.description.children.at(-1).fire("click");
+assert.equal(view.description.firstChild.value, longDescription);
+view.description.firstChild.fire("keydown", {key:"Escape"});
+view.renderDescription("<!-- invisible Markdown -->");
+assert.equal(view.description.firstChild.textContent, "<!-- invisible Markdown -->");
+view.renderDescription("Original");
 console.log("Description Markdown, LaTeX, safe links, source editing and cancel passed");
 
 const sample = (id, title, dateAdded, year) => ({
@@ -267,6 +278,9 @@ const later = view.section("Important, not urgent", true, "Drop here");
 later.lane = "later";
 orderedGroup.lane = "urgent";
 view.sections.later = later;
+const queue = view.section("Reading queue", true, "Drop here");
+queue.lane = "queue";
+view.sections.queue = queue;
 ctx.setPriority([a], "important", true);
 ctx.setPriority([a], "urgent", true);
 ctx.setPriority([b], "important", true);
@@ -282,6 +296,13 @@ assert.equal(ctx.importantOf(b), true);
 view.layoutCards(["A", "B"]);
 assert.equal(later.cards.length, 0);
 assert.equal(orderedGroup.cards.length, 2);
+first.node.fire("dragstart", {dataTransfer});
+queue.section.fire("drop", { ...point, target: {closest:()=>null} });
+view.layoutCards(["A", "B"]);
+assert.equal(ctx.importantOf(a), false);
+assert.equal(queue.cards[0].item.key, "A");
+assert.equal(orderedGroup.cards.length, 1);
+assert.equal(unorderedGroup.cards.length, 0);
 view.matrix = false;
 view.layoutCards(["A"]);
 console.log("Two-lane matrix grouping and drag classification passed");

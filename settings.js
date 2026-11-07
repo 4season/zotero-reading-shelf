@@ -1,14 +1,29 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 (() => {
-  const apply = () => {
-    const language = Zotero.Prefs.get("extensions.syllabus-lite.language", true) === "en" ? "en" : "ko";
-    for (const node of document.querySelectorAll("#sl-settings [data-sl-en]")) {
+  const prefix = "extensions.syllabus-lite.";
+  const initialize = () => {
+    const root = document.getElementById("sl-settings");
+    if (!root) return;
+    const language = Zotero.Prefs.get(prefix + "language", true) === "en" ? "en" : "ko";
+    for (const node of root.querySelectorAll("[data-sl-en]")) {
       const text = node.getAttribute("data-sl-" + language);
       if (node.localName === "checkbox") node.setAttribute("label", text);
       else node.textContent = text;
     }
+    for (const node of root.querySelectorAll("[data-sl-color]")) {
+      const value = Zotero.Prefs.get(prefix + node.getAttribute("data-sl-color"), true);
+      if (/^#[0-9a-f]{6}$/i.test(value || "")) node.value = value;
+    }
   };
-  // Preference fragments are inserted before pane scripts are evaluated.
-  apply();
-  document.getElementById("sl-language")?.addEventListener("command", () => setTimeout(apply, 0));
+  // Zotero loads pane scripts before inserting the fragment, then dispatches load/showing.
+  document.addEventListener("load", event => { if (event.target.id === "sl-settings") initialize(); }, true);
+  document.addEventListener("showing", event => { if (event.target.id === "sl-settings") initialize(); }, true);
+  document.addEventListener("command", event => { if ((event.target.id === "sl-language" || event.target.closest?.("#sl-language"))) setTimeout(initialize, 0); }, true);
+  document.addEventListener("change", event => {
+    const key = event.target.getAttribute?.("data-sl-color");
+    if (["urgentColor", "laterColor", "queueColor"].includes(key) && /^#[0-9a-f]{6}$/i.test(event.target.value)) {
+      Zotero.Prefs.set(prefix + key, event.target.value, true);
+    }
+  }, true);
+  initialize();
 })();

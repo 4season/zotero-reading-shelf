@@ -4,7 +4,7 @@ Reading Shelf is an independent third-party plugin compatible with Zotero. It ad
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.2.0-beta.2.xpi` from the GitHub release.
+1. Download `zotero-reading-shelf-1.2.0-beta.3.xpi` from the GitHub release.
 2. In Zotero, open **Tools → Plugins → ⚙ → Install Plugin From File…** and select the XPI.
 3. Select one collection and click **Gallery**. Click **Table** to return to the Zotero table.
 
@@ -39,7 +39,9 @@ In **Settings → Reading Shelf**:
 - Choose **한국어 / English** for the plugin interface.
 - Hide empty statuses by default; hovering or keyboard focus reveals the selector. Existing status badges stay visible.
 - Hide reading-order **+ / −**, child indicators, the size slider and Sort independently.
-- Enable the **Eisenhower 1 × 2 mode**: urgent and important references on the left, important but less urgent references on the right; other items remain below. Use star/clock switches or drag into a lane to classify. Dragging into a lane also adds the item to the reading queue. Removing queue membership does not clear importance.
+- Choose preview shadow strength (**Off / Soft / Medium / Strong**). Dark-mode shadows are off by default and have a separate opt-in.
+- Pick individual border colors for the urgent, important and queue **regions**. Colors apply immediately.
+- Enable the **Eisenhower 1 × 2 mode**: urgent and important references on the left, important but less urgent references on the right; a full-width second row holds queued references without importance, and other items remain below. Use star/clock switches or drag into a lane to classify. Dragging into a lane also adds the item to the reading queue. Removing queue membership does not clear importance.
 
 These illustrations are diagrams using synthetic examples, not captured Zotero screenshots. `docs/demo.html` is a browser fixture, not the installed Zotero interface.
 
@@ -52,6 +54,8 @@ Animation measurements are batched before animation writes, thumbnail work remai
 ## Storage and previews
 
 Reading order and collection descriptions are stored in local Zotero preferences. For a collection without local Reading Shelf data, the plugin can read the original Syllabus personal reading order note as a starting point. Subsequent edits are stored in Reading Shelf's preferences and are local to the profile.
+
+Long collection descriptions scroll inside a bounded text area; double-click or use **Edit description** to edit. Descriptions above 100,000 characters display as plain text to avoid expensive Markdown rendering; the complete source remains editable and saved.
 
 The gallery generates thumbnails for local attachments near the viewport and stores them in the `syllabus-lite-thumbnails` subfolder of the Zotero data directory. The preview pipeline uses Zotero's bundled PDF.js, embedded EPUB covers, local images, and optional local preview tools on macOS. Missing, encrypted, and unsupported attachments may show placeholders. The plugin uses local files for preview generation.
 

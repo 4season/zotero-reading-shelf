@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const prefs=new Map();
+const listeners=new Map();
+let root=null;
+const checkbox={localName:'checkbox',attrs:{'data-sl-ko':'크기 숨기기','data-sl-en':'Hide size'},getAttribute(key){return this.attrs[key];},setAttribute(key,value){this.attrs[key]=value;}};
+const color={value:'#c76a6a',getAttribute:key=>key==='data-sl-color'?'urgentColor':null};
+const document={getElementById:()=>root,addEventListener:(event,fn,capture)=>{assert.equal(capture,true);listeners.set(event,fn);}};
+const ctx=vm.createContext({document,Zotero:{Prefs:{get:key=>prefs.get(key),set:(key,value)=>prefs.set(key,value)}},setTimeout:fn=>fn()});
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../settings.js'),'utf8'),ctx);
+assert.equal(checkbox.attrs.label,undefined);
+root={id:'sl-settings',querySelectorAll:selector=>selector==='[data-sl-en]'?[checkbox]:[color]};
+listeners.get('load')({target:root});
+assert.equal(checkbox.attrs.label,'크기 숨기기');
+prefs.set('extensions.syllabus-lite.language','en');
+listeners.get('command')({target:{closest:()=>root}});
+assert.equal(checkbox.attrs.label,'Hide size');
+color.value='#112233';listeners.get('change')({target:color});
+assert.equal(prefs.get('extensions.syllabus-lite.urgentColor'),'#112233');
+color.value='invalid';listeners.get('change')({target:color});
+assert.equal(prefs.get('extensions.syllabus-lite.urgentColor'),'#112233');
+listeners.get('showing')({target:root});
+assert.equal(color.value,'#112233');
+console.log('Settings script-before-fragment lifecycle, language menu and validated color persistence passed');
