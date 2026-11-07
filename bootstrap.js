@@ -121,6 +121,8 @@ function matrixModeFor(collection) {
 }
 const readerTabs = new Map();
 function rememberReader(reader, tabID = reader.tabID) {
+  // Switching back to an already-tracked tab must not override a status the user changed meanwhile.
+  if (tabID && readerTabs.get(tabID) === reader.itemID) return;
   if (tabID) readerTabs.set(tabID, reader.itemID);
   markReading(Zotero.Items.get(reader.itemID));
 }
@@ -386,8 +388,14 @@ function preferenceKey(collection) {
 
 function readingData(collection) {
   const local = Zotero.Prefs.get(preferenceKey(collection), true);
-  if (local) {
-    const data = JSON.parse(local);
+  let data = null;
+  try {
+    data = local ? JSON.parse(local) : null;
+  } catch (error) {
+    Zotero.logError(error); // A damaged saved order must not break the gallery; fall back to the note.
+  }
+  if (data && typeof data === "object") {
+    data.order = Array.isArray(data.order) ? data.order.filter(key => typeof key === "string") : [];
     // Repair old explicit-empty statuses left in the persisted reading order.
     const order = data.order.filter(key => Zotero.Prefs.get(PREF + "status." + collection.libraryID + "." + key, true) !="" && Zotero.Prefs.get(PREF + "status." + collection.libraryID + "." + key, true) !== "completed");
     if (order.length !== data.order.length) {
@@ -1135,7 +1143,7 @@ class Gallery {
       return true;
     } catch (error) {
       Zotero.logError(error);
-      Services.prompt.alert(this.win, NAME, "The gallery change could not be saved.");
+      Services.prompt.alert(this.win, NAME, tr("The gallery change could not be saved."));
       return false;
     }
   }

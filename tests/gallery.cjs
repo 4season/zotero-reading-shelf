@@ -82,6 +82,20 @@ vm.runInContext('root = ""', ctx);
 const Gallery = vm.runInContext("Gallery", ctx);
 const collection = { id: 17, libraryID: 1, key: "ABCDE" };
 prefs.set(ctx.preferenceKey(collection), JSON.stringify({ order: ["A"], description: "Original" }));
+// Regression: damaged or malformed saved order data must not break reading the collection.
+{
+  const broken = { id: 99, libraryID: 1, key: "BROKEN", getChildItems: () => [] };
+  const originalLog = ctx.Zotero.logError;
+  let logged = 0;
+  ctx.Zotero.logError = () => { logged++; };
+  prefs.set(ctx.preferenceKey(broken), "{not json");
+  assert.equal(ctx.readingData(broken).order.length, 0);
+  assert.equal(logged, 1);
+  prefs.set(ctx.preferenceKey(broken), JSON.stringify({ description: "kept" }));
+  assert.equal(ctx.readingData(broken).order.length, 0);
+  assert.equal(ctx.readingData(broken).description, "kept");
+  ctx.Zotero.logError = originalLog;
+}
 const selected = [];
 let selectedRows = [];
 const view = new Gallery({

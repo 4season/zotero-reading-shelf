@@ -34,7 +34,8 @@ If another gallery plugin is installed and the two overlap, turn one of them off
 ![Core Article in Zotero: bookshelf, importance and Eisenhower mode](docs/images/core-article-tour.gif)
 
 - **Bookshelf:** papers you plan to read or are reading appear first, in your order. Other papers appear under *Unordered items*, and finished ones under *Completed*.
-- **Reorder:** drag a card, press Alt + ←/→ on a selected card, or use the optional + / − buttons on the card.
+- **Reorder:** drag a card, or use the + / − button on the card. With the − button focused (Tab to it), Alt + ←/→ moves the card.
+- **Reading progress:** PDF cards show a progress bar based on the last page you read.
 - **Reading status:** *No status*, *To read*, *Reading* or *Completed*. Change it from the card or from the status column in the table. Clearing the status removes the paper from your reading list.
 - **Importance and urgency:** ★ marks importance and ◷ marks urgency. They are separate from status, so they stay as they are when you change a paper's status.
 - Putting a paper in the reading list sets it to *To read* (a paper already marked *Reading* stays that way). Moving it to *Unordered items* clears its status. Moving a *Completed* paper back to the reading list sets it to *To read*.
