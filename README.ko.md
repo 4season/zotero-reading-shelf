@@ -50,7 +50,7 @@ GIF는 Zotero 10.0.8의 Core Article 컬렉션에서 촬영하고 갤러리 영�
 
 읽기 순서·컬렉션 메모·모드·상태는 로컬 Zotero 설정에 저장되며 플러그인 자체가 동기화하지 않습니다. 프리뷰 캐시는 Zotero 데이터 폴더의 `syllabus-lite-thumbnails`에 저장합니다. 자료 파일을 외부로 업로드하지 않습니다.
 
-**Windows·macOS·Linux 자동 테스트 및 XPI 빌드**를 통과했습니다. macOS에서는 설치된 Zotero PDF.js도 검증했습니다. 실제 Zotero 10.0.8에서 모드·중요도·긴급도 조작, 모드 숨김, 색상 반영·초기화를 확인했습니다. 브라우저에서 여러 줄 메모·Markdown·MathML·레이아웃·상태 조작을 확인했지만, 세 운영체제의 **설치된 Zotero UI**를 모두 실행한 검증은 아닙니다. Windows/Linux 실제 UI, RAM·프레임 시간은 미검증이며 이 범위를 명시해 정식 공개합니다.
+**Windows·macOS·Linux 자동 테스트 및 XPI 빌드**를 통과했습니다. macOS에서는 설치된 Zotero PDF.js도 검증했습니다. 실제 Zotero 10.0.8에서 모드·중요도·긴급도 조작, 모드 숨김, 색상 반영·초기화를 확인했습니다. 브라우저에서 여러 줄 메모·Markdown·MathML·레이아웃·상태 조작을 확인했지만, Windows/Linux 운영체제의 **설치된 Zotero UI**를 모두 실행한 검증은 아닙니다. 
 
 PDF.js·EPUB·이미지 프리뷰는 호스트 API를 사용합니다. Quick Look과 Homebrew/MacPorts Poppler 보조 경로는 macOS에서만 실행합니다. 암호화되거나 지원하지 않는 문서의 프리뷰는 운영체제에 따라 다를 수 있으며 외부 프로그램을 자동 설치하지 않습니다.
 
