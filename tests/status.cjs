@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const prefs = new Map();
 const columns = [], menus = [], removed = [], observers = [], infoRows = [];
-let readerHook, notifier;
+let readerHook, notifier, preferencesPane;
 const ctx = vm.createContext({
   APP_SHUTDOWN: 2,
   Zotero: {
@@ -19,7 +19,7 @@ const ctx = vm.createContext({
       registerMenu(options) { menus.push(options); return 'status-menu'; },
       unregisterMenu(key) { removed.push(key); }
     },
-    PreferencePanes: { register: async () => {} },
+    PreferencePanes: { register: async options => {preferencesPane=options;} },
     Prefs: { get: key => prefs.get(key), set: (key, value) => prefs.set(key, value),
       registerObserver: key => { observers.push(key); return key; }, unregisterObserver() {} },
     Notifier: { registerObserver: observer => {notifier=observer;return 1;}, unregisterObserver() {} },
@@ -29,8 +29,9 @@ const ctx = vm.createContext({
 });
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),ctx);
 (async () => {
-  await ctx.startup({id:'syllabus-lite@local.zotero',rootURI:'fixture/'});
+  await ctx.startup({id:'syllabus-lite@local.zotero',rootURI:'fixture/',version:'1.2.1'});
   assert.equal(columns.length,1);
+  assert.equal(preferencesPane.stylesheets[0],"settings.css?v=1.2.1");
   assert.equal(menus[0].target,'main/library/item');
   assert.ok(observers.includes('extensions.syllabus-lite.hideChildIndicator'));
   const a={libraryID:1,key:'A'},b={libraryID:1,key:'B'};

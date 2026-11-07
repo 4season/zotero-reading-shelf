@@ -57,7 +57,7 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg);};
  assert(xmlView.description.querySelector('strong') && xmlView.description.querySelector('em'),'Markdown emphasis');
  assert(xmlView.description.querySelectorAll('li').length===2,'Markdown list');
  assert(xmlView.description.querySelector('a').getAttribute('href')==='https://example.org','safe link');
- assert(xmlView.description.querySelectorAll('math').length===3,'inline and block LaTeX');
+ const mathCount=xmlView.description.querySelectorAll('math').length; assert(mathCount===3,'inline and block LaTeX: '+mathCount);
  assert(xmlView.description.querySelector('math').namespaceURI==='http://www.w3.org/1998/Math/MathML','MathML namespace');
  assert(xmlView.description.querySelector('mfrac'),'display fraction');
 

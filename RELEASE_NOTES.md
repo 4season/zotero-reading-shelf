@@ -1,42 +1,31 @@
-# Reading Shelf 1.2.0 — First stable release
+# Reading Shelf 1.2.1 — Workflow and preferences fixes
 
-**English** · [한국어 릴리즈 노트](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
+**English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
-A bookshelf and Eisenhower reading planner for Zotero 10.x. This is the first release published without the prerelease flag; earlier releases were previews.
+![Core Article captured in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-tour.gif)
 
-## Features
+- Synchronize reading order and reading status when moving references. Entering a reading lane sets an empty or Completed status to To read; Reading is preserved during sorting. Moving to Other items clears reading status. Repair old explicit-empty queue entries.
+- Unify empty-lane instructions instead of the inconsistent Drop here label.
+- Add **Completed**, with a separate section and configurable color. Completing a reference removes active queue membership while preserving importance and urgency; it can be returned to the reading queue.
+- Place the mode switch after Sort and add a working hide option, applied through both the DOM and CSS.
+- Version stylesheet URLs to prevent Zotero from reusing old styles after plugin updates. This fixes saved color/visibility changes failing to appear.
+- Add live color-picker input and synchronized `#RRGGBB` text fields. Separate settings into preview shadows, reading-status colors, priority-button colors and Eisenhower box borders. Reset individual color groups or all colors without resetting unrelated preferences.
+- Add Zotero update metadata pointing to versioned GitHub Release XPIs with SHA-256 verification. **1.2.0 and earlier need one manual 1.2.1 installation** because their embedded update URL was a placeholder. Later stable updates can use the repository feed with automatic plugin updates enabled.
 
-![Bookshelf and Markdown/LaTeX collection note](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/bookshelf-en.jpg)
+![State colors and reset captured in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-colors.gif)
 
-- Browse local attachment previews, resize cards and arrange reading order. Change status directly in the gallery or table; importance and urgency remain separate.
-- Read/edit long Markdown and LaTeX collection notes without losing the original source. XML-host multiline insertion, inline math and block fractions have regression checks.
-- Clearing reading status also removes saved reading-queue membership. Pointer selections release focus; background clicks can dismiss a focused control.
+The GIFs show captured steps from the actual **Core Article** collection in Zotero 10.0.8, cropped to the gallery; no other collection or sidebar is included.
 
-![Eisenhower planner with headings above boxes](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/matrix-ko.jpg)
+## Install and update
 
-- Two important-material lanes and a full-width reading queue. Headings sit above the boxes; both grid axes use 12px spacing.
-- Optional per-collection bookshelf/Eisenhower mode memory, with a mode switch in the gallery.
-- Optional reading-status reset when the last tracked reader tab closes, preserving importance and urgency. Both new options default to off.
-- Preview-only shadows, colored lane borders, compact status controls and dependent settings. No new runtime dependency or polling service.
+Install **zotero-reading-shelf-1.2.1.xpi** via **Tools → Plugins → ⚙ → Install Plugin From File…**. Existing local preferences, descriptions and order are retained. This update repairs stale queue entries and uses a stable GitHub update feed; it does not require a separate server.
 
-## Installation
+## Verification
 
-Download **zotero-reading-shelf-1.2.0.xpi** → **Tools → Plugins → ⚙ → Install Plugin From File…**. Existing add-on ID, local order, notes and settings remain compatible. Updates are manual.
+Portable regression tests and builds run on Windows, macOS and Linux. Added checks cover previously cleared-state drags, completed grouping/requeueing, priority preservation, explicit checkbox writes, live color input, scoped color resets, versioned preference stylesheets and the update manifest's exact XPI hash. The installed Zotero PDF.js test passed. Browser layout checks cover both languages, 65/100/150% card scales, long Markdown/LaTeX notes and fixed table slots.
 
-## Verification and compatibility
+On macOS, the candidate was installed and tested in Zotero 10.0.8: mode/priority transitions, mode hiding, Hex color changes and reset behavior were checked. The existing palette was restored after color verification. Automated drag regression checks passed; native drag automation did not produce a reliable drop result, so a native drag end-to-end pass is not claimed. Windows/Linux installed-Zotero UI, RAM and frame-time measurements remain unverified.
 
-**Windows, macOS and Linux portable tests and XPI builds passed in GitHub Actions.** macOS also passed tests with Zotero 10.0.7's bundled PDF.js. Browser tests verified Markdown/MathML, multiline XML-host notes, status clearing and shelf movement, transparent controls, fixed table slots and lane layout. Matching source was extracted afresh to reproduce the XPI; uploaded asset hashes were checked.
+## License and acknowledgements
 
-**Native Zotero UI on Windows/Linux remains untested.** Portable tests are not native UI tests. No RAM/frame-time benchmark or universal document-format guarantee is claimed. Quick Look/optional Poppler fallbacks are macOS-only; core PDF.js/EPUB/image preview paths use host APIs. External reader applications are not tracked by the close-status option. These coverage limits are disclosed for this stable release.
-
-## Licenses and major references
-
-Checked original license files on 2026-11-07
-
-| Project | License | Relationship |
-| --- | --- | --- |
-| [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus) — Jan Baykara and contributors | [AGPLv3](https://github.com/janbaykara/zotero-syllabus/blob/main/LICENSE) | Gallery implementation lineage and personal reading-order note format |
-| [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary) — Guillaume Chapron | [AGPLv3](https://github.com/gchapron/ZoteroThumbLibrary/blob/main/LICENSE) | Cover browsing, card size and gallery usability reference |
-| [Zotero](https://github.com/zotero/zotero) — host application | [AGPLv3](https://github.com/zotero/zotero/blob/main/COPYING) | Host APIs and PDF.js supplied by Zotero |
-
-Reading Shelf remains **AGPL-3.0-only**. Matching source, build instructions and license/attribution notices are provided. Bundled markdown-it and KaTeX retain their MIT notices. Dependency source archives are deliberately retained; stale illustration files were replaced with the feature screenshots. No personal library, PDFs, credentials, build cache or node_modules are included. See [NOTICE](https://github.com/4season/zotero-reading-shelf/blob/main/NOTICE.md).
+AGPL-3.0-only. Major references remain [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus) and [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary), both AGPLv3; Zotero's COPYING is also AGPLv3. Matching source, original notices and dependency source archives accompany the release. See [NOTICE](https://github.com/4season/zotero-reading-shelf/blob/main/NOTICE.md).
