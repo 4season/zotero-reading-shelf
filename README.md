@@ -92,6 +92,16 @@ Settings that depend on another option are greyed out but keep their values.
 - Tested on macOS with Zotero 10.0.8. Windows and Linux have not been tried with the installed Zotero app.
 - Previews work for PDFs, EPUBs and images. Encrypted or unsupported files may show no preview. On macOS, Quick Look (and Poppler, if you have installed it) is used as a fallback.
 
+## Feedback and language
+
+Questions, bug reports and ideas are welcome in [Issues](https://github.com/4season/zotero-reading-shelf/issues) and [Discussions](https://github.com/4season/zotero-reading-shelf/discussions).
+
+I'm Korean and English is not my first language, so a few things may come across differently from what I mean:
+
+- **Replies can take longer.** I'm in Korea (UTC+9), so my daytime may be your night, and writing in English takes me extra time.
+- **My wording may sound blunt, too formal or a little odd.** I may use a translation tool. No rudeness or coldness is intended, and if a sentence of mine is unclear, please ask and I will rephrase it.
+- **Korean is welcome** in issues and discussions. I'm happy to answer in Korean or in English, whichever you prefer.
+
 ## License and credits
 
 Reading Shelf is free software under **AGPL-3.0-only**. It builds on [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus) by Jan Baykara and contributors, and was inspired by [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary) by Guillaume Chapron; both are AGPLv3. Bundled markdown-it and KaTeX are MIT-licensed. See [NOTICE.md](NOTICE.md) for details.

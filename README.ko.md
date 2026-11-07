@@ -92,6 +92,15 @@ Zotero 설정에서 **Reading Shelf**를 열면 다음을 바꿀 수 있습니�
 - macOS의 Zotero 10.0.8에서 확인했습니다. Windows와 Linux의 설치된 Zotero에서는 아직 확인하지 못했습니다.
 - PDF·EPUB·이미지 미리보기를 지원합니다. 암호화되었거나 지원하지 않는 파일은 미리보기가 없을 수 있습니다. macOS에서는 Quick Look(설치했다면 Poppler도)을 보조로 사용합니다.
 
+## 의견과 언어
+
+질문, 버그 제보, 아이디어는 [Issues](https://github.com/4season/zotero-reading-shelf/issues)와 [Discussions](https://github.com/4season/zotero-reading-shelf/discussions)에 편하게 남겨 주세요. 한국어로 쓰셔도 됩니다.
+
+저는 한국인이라 영어가 모국어가 아닙니다. 그래서 해외 사용자와 이야기할 때 의도와 다르게 전달될 수 있는 점이 있습니다.
+
+- **영어 답변은 시간이 더 걸릴 수 있습니다.** 영어로 쓰는 데 시간이 더 들고, 시차(한국은 UTC+9)도 있습니다.
+- **영어 표현이 딱딱하거나 어색할 수 있습니다.** 번역 도구를 쓸 수도 있습니다. 무례하거나 차가운 뜻은 없으니 이해하기 어려운 문장이 있으면 다시 물어봐 주세요.
+
 ## 라이선스와 출처
 
 Reading Shelf는 **AGPL-3.0-only** 자유 소프트웨어입니다. Jan Baykara와 기여자들의 [Zotero Syllabus](https://github.com/janbaykara/zotero-syllabus)를 바탕으로 만들었고, Guillaume Chapron의 [ZoteroThumbLibrary](https://github.com/gchapron/ZoteroThumbLibrary)를 참고했습니다. 둘 다 AGPLv3입니다. 포함된 markdown-it과 KaTeX는 MIT 라이선스입니다. 자세한 내용은 [NOTICE.md](NOTICE.md)를 보세요.
