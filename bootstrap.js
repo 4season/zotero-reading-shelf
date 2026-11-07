@@ -213,6 +213,15 @@ const MAX_COVER_LOOKUPS = 4;
 let activeLookups = 0;
 const coverQueue = new Map();
 const failedCovers = new Map();
+// Thumbnails and note excerpts that were already produced, by item ID, so reopening a paper's
+// notes and attachments reuses them instead of reading the cache files and parsing notes again.
+const coverMemo = new Map();
+const noteExcerpts = new Map();
+function remember(map, id, value) {
+  map.delete(id);
+  map.set(id, value);
+  if (map.size > 400) map.delete(map.keys().next().value);
+}
 let renderingCover = false;
 
 function install() {}
@@ -338,6 +347,9 @@ async function startup({ id, rootURI, version }) {
   }
   observerID = Zotero.Notifier.registerObserver({
     notify(event, type, ids) {
+      if (type === "item") {
+        for (const id of ids) { coverMemo.delete(Number(id)); noteExcerpts.delete(Number(id)); }
+      }
       if (type === "tab" && ["add", "select"].includes(event)) {
         for (const id of ids) {
           const reader = Zotero.Reader.getByTabID(id);
@@ -394,6 +406,8 @@ function shutdown(_data, reason) {
   preferenceObservers = [];
   orderStatusCache.clear();
   readerTabs.clear();
+  coverMemo.clear();
+  noteExcerpts.clear();
   for (const window of windows.keys()) onMainWindowUnload({ window });
 }
 
@@ -1254,8 +1268,14 @@ class Gallery {
     const placeholder = this.element("span", "sl-placeholder", note ? "Note" : "Preview");
     cover.append(placeholder);
     if (note) {
-      const parsed = new this.win.DOMParser().parseFromString((item.getNote?.() || "").slice(0, 131072).replace(/<\/(?:p|div|li|h[1-6])>/gi, "$& "), "text/html");
-      placeholder.textContent = parsed.body.textContent.trim().replace(/\s+/g, " ").slice(0, 700) || tr("Empty note");
+      const stamp = String(item.dateModified ?? "");
+      let excerpt = stamp ? noteExcerpts.get(item.id) : null;
+      if (excerpt?.stamp !== stamp) {
+        const parsed = new this.win.DOMParser().parseFromString((item.getNote?.() || "").slice(0, 131072).replace(/<\/(?:p|div|li|h[1-6])>/gi, "$& "), "text/html");
+        excerpt = { stamp, text: parsed.body.textContent.trim().replace(/\s+/g, " ").slice(0, 700) };
+        if (stamp) remember(noteExcerpts, item.id, excerpt);
+      }
+      placeholder.textContent = excerpt.text || tr("Empty note");
       placeholder.className = "sl-note-excerpt";
     }
     const preview = this.element("div", "sl-preview");
@@ -1533,6 +1553,12 @@ class Gallery {
     card.placeholder.textContent = tr(type);
     if (!attachment.isFileAttachment()) return;
 
+    const remembered = coverMemo.get(attachment.id);
+    if (remembered) {
+      this.showCover(card, request, type, remembered);
+      return;
+    }
+
     const source = await coverSource(attachment, signal);
     if (signal.aborted) return;
     if (!source) {
@@ -1563,7 +1589,7 @@ class Gallery {
           cover = await generateCover(this.win, attachment, source, signal);
           if (!cover && !signal.aborted) {
             failedCovers.delete(source.image);
-            failedCovers.set(source.image, Date.now() + 120000);
+            failedCovers.set(source.image, Date.now() + 30 * 60 * 1000);
             if (failedCovers.size > 128) failedCovers.delete(failedCovers.keys().next().value);
           }
         }
@@ -1582,6 +1608,7 @@ class Gallery {
       return;
     }
 
+    if (card.attachment?.id !== undefined) remember(coverMemo, card.attachment.id, cover);
     const img = this.element("img");
     img.alt = "";
     img.draggable = false;
@@ -1593,6 +1620,7 @@ class Gallery {
       img.classList.add("sl-loaded");
     });
     img.addEventListener("error", () => {
+      if (card.attachment?.id !== undefined) coverMemo.delete(card.attachment.id); // cache file went away
       img.remove();
       if (!request.signal.aborted) card.placeholder.textContent = tr(type) + " · " + tr("No preview");
     });

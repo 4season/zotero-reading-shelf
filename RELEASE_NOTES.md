@@ -1,4 +1,4 @@
-# Reading Shelf 1.3.4 — Smoother animations
+# Reading Shelf 1.3.5 — Faster reopening of notes and attachments
 
 **English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
@@ -6,20 +6,20 @@
 
 ## What's improved
 
-- **Switching between the bookshelf and Eisenhower layouts now animates.** Cards glide to their new places instead of jumping.
-- **Opening and closing a paper's notes and attachments is smoother.** The motion is a little longer (about 0.28 s) with a gentler start and finish, so it no longer looks abrupt.
-- **No more stutter when the extra cards appear.** Rendering the preview images for newly shown cards now waits until the animation has finished, instead of competing with it.
-- **★, ◷ and the reading status fade in** when you hover over a card, instead of popping in.
+- **Reopening a paper's notes and attachments is faster.** Previews and note excerpts that were already produced are reused instead of being read and built again every time. They are refreshed when the item changes.
+- **Previews that could not be created are retried less often** (every 30 minutes instead of every 2). Encrypted or unsupported files no longer trigger repeated slow attempts while you browse.
 
-All motion respects the system's "reduce motion" setting.
+## What's fixed
+
+- **Cards no longer grow slightly when you open one.** Opening a card adds a row and can bring in the scrollbar, which used to narrow the gallery, drop a column and enlarge every card. The gallery now keeps room for the scrollbar so the width stays the same.
 
 ## Update
 
-Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.4.xpi** via **⚙ → Install Plugin From File…**.
+Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.5.xpi** via **⚙ → Install Plugin From File…**.
 
 ## Known limits
 
-Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The causes were found by analysing a screen recording and the changes are covered by automated tests; how smooth it feels on your machine may still vary.
+Checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app have not been checked. The card-size fix is based on a screen recording and could not be reproduced in the test browser; if cards still grow when you open one, please report it.
 
 ## License
 

@@ -31,6 +31,9 @@
   position: absolute;
   inset: 0;
   overflow: auto;
+  /* Keep the width constant whether or not a scrollbar is showing; otherwise opening a card (which
+     adds a row and brings in the scrollbar) shrinks the width, drops a column and enlarges every card. */
+  scrollbar-gutter: stable;
   background: var(--material-background, Canvas);
   color: var(--fill-primary, CanvasText);
   padding: 22px;

@@ -543,6 +543,22 @@ const attachment = (type, available) => ({
   await new Promise(setImmediate);
   assert.equal(displayed.length, 1);
   console.log("Returning to cached thumbnails bypassed a still-busy renderer");
+  // Reopening a paper's attachments reuses the thumbnail that was already produced: no file lookups.
+  {
+    const memo = vm.runInContext("coverMemo", ctx);
+    let ioCalls = 0;
+    const realIO = ctx.IOUtils;
+    ctx.IOUtils = { stat: async () => { ioCalls++; return { size: 1, lastModified: 1 }; }, exists: async () => { ioCalls++; return false; }, readJSON: async () => { ioCalls++; return {}; } };
+    memo.set(901, { uri: "file:///memo.jpg", pages: null });
+    const reopened = { ...card("MEMO"), attachment: { ...epub, id: 901, key: "MEMO", libraryID: 1 } };
+    displayed.length = 0;
+    await view.prepareCover(reopened, { signal: { aborted: false } });
+    assert.deepEqual(displayed, [["MEMO", "file:///memo.jpg"]]);
+    assert.equal(ioCalls, 0);
+    memo.delete(901);
+    ctx.IOUtils = realIO;
+    displayed.length = 0;
+  }
   const pending = [];
   const lookupsStarted = [];
   view.prepareCover = (card, request) => {
