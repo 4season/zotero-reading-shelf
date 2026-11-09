@@ -2,7 +2,7 @@
 
 [English](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.md) · **한국어**
 
-![Zotero에서 아이젠하워 화면으로 바꾸고 영역 사이로 자료를 옮기는 모습](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-eisenhower.gif)
+![Zotero에서 발표 모드를 켜고 발표 칸으로 논문을 끌어다 놓는 모습](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/presentation-mode.gif)
 
 ## 새로운 점
 

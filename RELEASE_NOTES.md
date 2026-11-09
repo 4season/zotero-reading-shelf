@@ -2,7 +2,7 @@
 
 **English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
-![Switching to the Eisenhower layout and moving papers between lanes in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/core-article-eisenhower.gif)
+![Turning on presentation mode and dragging a paper into the presentation lane in Zotero](https://raw.githubusercontent.com/4season/zotero-reading-shelf/main/docs/images/presentation-mode.gif)
 
 ## What's new
 

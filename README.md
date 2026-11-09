@@ -57,6 +57,8 @@ By default the layout you pick applies to all collections. To remember a separat
 
 ### Presentation mode
 
+![Turning on presentation mode and dragging a paper into the presentation lane in Zotero](docs/images/presentation-mode.gif)
+
 For journal clubs, lab meetings and seminars: turn on **Presentation mode** in the settings (or with the button next to the mode switch) to add a lane for the paper you will present, at the far left (above the shelf in bookshelf mode). Drop one or more papers there, or set their status to *Selected*. Opening a selected paper keeps it in the lane. Optional settings treat *Selected* papers as important and urgent, and return them to their previous status when the mode is turned off. Like the Eisenhower layout, it can be remembered per collection.
 
 ### See notes and attachments at a glance
