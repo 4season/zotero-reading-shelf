@@ -1,4 +1,4 @@
-# Reading Shelf 1.3.9 — English by default, an animations setting, clearer "−"
+# Reading Shelf 1.4.0 — Presentation mode and cleaner settings
 
 **English** · [한국어](https://github.com/4season/zotero-reading-shelf/blob/main/RELEASE_NOTES.ko.md)
 
@@ -6,17 +6,19 @@
 
 ## What's new
 
-- **English is now the default language.** Korean (한국어) is still available: Zotero settings → Reading Shelf → Language. If you had already chosen a language, nothing changes; if you never chose one, you will now see English.
-- **A setting for animations, found by testing on Windows.** The plugin follows the system's "reduce motion" setting, and on Windows that is often switched off (power saving, remote desktop, virtual machines), which hid every animation without any hint. In **Settings → Reading Shelf → Appearance → Animations** you can now choose *Follow system* (the default), *Always on* or *Off*. If animations are missing, try *Always on*. On Windows you can also check Settings > Accessibility > Visual effects > Animation effects.
-- **The "−" button now explains itself in the Eisenhower layout.** A paper marked ★/◷ sits in its lane because of those marks, so taking it off the reading order clears its status but does not move it. The button's tooltip now says it stays in the lane while marked ★/◷. To take it out of the lane, turn ★/◷ off or drag it to *Other items*.
+- **Presentation mode.** A lane for the paper you will present at a journal club, lab meeting or seminar, plus a *Selected* status. Turn it on in the settings or with the button next to the mode switch; it can be remembered per collection. Optional: treat *Selected* papers as important and urgent, and return them to their previous status when the mode is turned off.
+- **Cleaner settings.** The Eisenhower and presentation options now share one layout, with a single short description under each. The Eisenhower border options are now disabled while Eisenhower mode is off; before, they stayed enabled whenever per-collection memory was on.
+- **Reading status in the table.** In a narrow column the status shows as a colored dot instead of clipped text. Closing the last reader tab now returns a paper to the status it had before it was opened.
+- **Layout options.** Optional equal lane heights, a presentation lane color, a hide option for the presentation button, and sorting that can also apply to the reading lanes.
+- **Internals.** The plugin source is split into modules under `src/` (bootstrap.js is generated from them), and preference access is centralized. No behavior change.
 
 ## Update
 
-Same add-on ID as 1.3.0, so Zotero updates it automatically when automatic plugin updates are on. Coming from 1.2.x? Remove the old Reading Shelf in **Tools → Plugins** first, then install **zotero-reading-shelf-1.3.9.xpi** via **⚙ → Install Plugin From File…**.
+Same add-on ID, so Zotero updates it automatically when automatic plugin updates are on. Otherwise install **zotero-reading-shelf-1.4.0.xpi** via **⚙ → Install Plugin From File…**. Your settings are kept.
 
 ## Known limits
 
-Checked on macOS with Zotero 10.0.8, and the Windows animation finding came from a Windows tester. Linux with the installed Zotero app has not been checked. The new Animations setting is covered by automated tests; whether it brings animations back on every Windows setup has not been confirmed.
+Automated tests pass on the project's checks, and the plugin was checked on macOS with Zotero 10.0.8. Windows and Linux with the installed Zotero app were not rechecked for this version.
 
 ## License
 

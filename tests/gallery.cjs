@@ -450,6 +450,175 @@ assert.equal(view.sections.completed.section.hidden,true);
 ctx.setPriority([a],"important",false);ctx.setPriority([a],"urgent",false);
 console.log("Completed grouping, priority preservation and returning completed items to the reading queue passed");
 
+// Presentation mode: a "Selected" status, a lane for it, and no effect while the mode is off.
+{
+  const jkey = "extensions.reading-shelf.journalClubMode";
+  ctx.setItemStatus([a], "planned");
+  prefs.set(ctx.itemPref(a, "status"), "selected");
+  assert.equal(ctx.tableStatus(a), "planned", "selected is shown as To read while the mode is off");
+  prefs.set(jkey, true);
+  assert.equal(ctx.tableStatus(a), "selected");
+  assert.ok(ctx.statusEntries().some(([value]) => value === "selected"));
+  view.sections.journal = view.section("Presentation", false, "Empty");
+  view.sections.journal.lane = "journal";
+  view.matrix = false;
+  view.layoutCards(["A", "B"]);
+  assert.equal(view.sections.journal.cards.map(card => card.item.key).join(), "A");
+  assert.equal(view.orderedCards.some(card => card.item.key === "A"), false);
+  ctx.markReading(a);
+  assert.equal(ctx.tableStatus(a), "selected", "opening a selected paper keeps it in the lane");
+  view.matrix = true;
+  view.layoutCards(["A", "B"]);
+  assert.equal(view.sections.journal.cards[0].item.key, "A");
+  assert.equal(view.sections.ordered.cards.some(card => card.item.key === "A"), false);
+  // Dropping another paper into the lane selects it; dropping it elsewhere returns it to the queue.
+  const second = view.unorderedCards.find(card => card.item.key === "B");
+  second.node.fire("dragstart", {dataTransfer});
+  view.sections.journal.section.fire("drop", {...point, target: {closest: () => null}});
+  assert.equal(ctx.tableStatus(b), "selected");
+  assert.equal(view.sections.journal.cards.length, 2);
+  second.node.fire("dragstart", {dataTransfer});
+  view.sections.queue.section.fire("drop", {...point, target: {closest: () => null}});
+  assert.equal(ctx.tableStatus(b), "planned");
+  prefs.delete(jkey);
+  prefs.delete(ctx.itemPref(a, "status"));
+  ctx.setItemStatus([a], "");
+  ctx.setItemStatus([b], "");
+  delete view.sections.journal;
+  view.matrix = false;
+  // Lane layout: widths follow contents; lanes stack when side by side would pile papers up.
+  {
+    const saved = [view.lanes, view.layoutWidth, view.targetCardWidth, view.sections.later.cards, view.sections.ordered.cards];
+    const lanes = view.lanes = { style: { setProperty() {} }, dataset: {} };
+    const columns = (width, card, ordered, later, journal) => {
+      view.layoutWidth = width; view.targetCardWidth = card;
+      view.sections.ordered.cards = Array(ordered).fill({});
+      view.sections.later.cards = Array(later).fill({});
+      if (journal) view.sections.journal = { cards: Array(journal).fill({}) }; else delete view.sections.journal;
+      view.applyLaneColumns();
+      return lanes.style.gridTemplateColumns;
+    };
+    assert.equal(columns(1200, 176, 3, 0), "minmax(206px, 1fr) minmax(206px, 1fr)");
+    assert.equal(columns(1200, 176, 3, 0, 1), "minmax(0, min(206px, 45%)) minmax(206px, 592fr) minmax(206px, 378fr)");
+    assert.equal(columns(1200, 176, 2, 0, 2), "minmax(0, min(399px, 45%)) minmax(206px, 399fr) minmax(206px, 378fr)");
+    assert.equal(columns(400, 176, 1, 0, 1), "minmax(0, 1fr)");
+    assert.equal(lanes.dataset.stacked, "true");
+    // Three papers that cannot share a row beside the other lanes, but could across the full width.
+    assert.equal(columns(620, 114, 1, 3, 1), "minmax(0, 1fr)");
+    assert.equal(columns(620, 114, 1, 1, 1), "minmax(0, min(144px, 45%)) minmax(144px, 1fr) minmax(144px, 1fr)", "1:1 by default, with or without the presentation lane");
+    assert.equal(columns(1000, 114, 1, 3), "minmax(144px, 1fr) minmax(144px, 1fr)", "three papers fit in half the width: still 1:1");
+    assert.equal(lanes.dataset.stacked, "false");
+    delete view.sections.journal;
+    [view.lanes, view.layoutWidth, view.targetCardWidth, view.sections.later.cards, view.sections.ordered.cards] = saved;
+  }
+  console.log("Presentation lane, Selected status and mode-off fallback passed");
+
+// Presentation lane order is manual and remembered; a lane-wide sort is display-only and reversible.
+{
+  const jkey = "extensions.reading-shelf.journalClubMode", skey = "extensions.reading-shelf.sortReadingOrder";
+  prefs.set(jkey, true);
+  view.sections.journal = view.section("Presentation", false, "Empty");
+  view.sections.journal.lane = "journal";
+  view.matrix = false;
+  ctx.setItemStatus([a], "selected");
+  ctx.setItemStatus([b], "selected");
+  view.layoutCards(["A", "B"]);
+  const keys = () => view.sections.journal.cards.map(card => card.item.key).join("");
+  assert.equal(keys(), "AB");
+  view.moveInJournal("B", "A");
+  view.layoutCards(["A", "B"]);
+  assert.equal(keys(), "BA", "manual order inside the presentation lane");
+  view.moveInJournal("B", undefined);
+  view.layoutCards(["A", "B"]);
+  assert.equal(keys(), "AB");
+  view.moveInJournal("B", "A");
+  // Sorting the lanes only changes what is shown; the saved order comes back when it is turned off.
+  prefs.set(skey, true);
+  view.sortOption = "title:asc";
+  view.layoutCards(["A", "B"]);
+  assert.equal(keys(), "AB");
+  const secondCard = view.unorderedCards.find(card => card.item.key === "B");
+  secondCard.node.fire("dragstart", {dataTransfer});
+  assert.equal(view.dropTarget(view.sections.journal, point), null, "no manual placement while sorted");
+  view.endDrag();
+  prefs.delete(skey);
+  view.layoutCards(["A", "B"]);
+  assert.equal(keys(), "BA", "manual order restored after sorting is turned off");
+  view.sortOption = "table";
+  prefs.delete(jkey);
+  ctx.setItemStatus([a], "");
+  ctx.setItemStatus([b], "");
+  delete view.sections.journal;
+  console.log("Presentation lane ordering and reversible lane sorting passed");
+}
+
+// Presentation mode is a global default, remembered per collection when that option is on.
+{
+  const global = "extensions.reading-shelf.journalClubMode", remember = "extensions.reading-shelf.rememberCollectionMode";
+  assert.equal(ctx.presentationModeFor(collection), false);
+  assert.equal(ctx.journalMode(), false);
+  prefs.set(global, true);
+  assert.equal(ctx.presentationModeFor(collection), true);
+  prefs.set(remember, true);
+  assert.equal(ctx.presentationModeFor(collection), true, "no saved value yet: falls back to the default");
+  prefs.set(ctx.presentationKey(collection), false);
+  assert.equal(ctx.presentationModeFor(collection), false, "remembered for this collection");
+  prefs.delete(global);
+  assert.equal(ctx.journalMode(), true, "Selected stays available while collections remember their own mode");
+  prefs.set(ctx.presentationKey(collection), true);
+  assert.equal(ctx.presentationModeFor(collection), true);
+  prefs.delete(remember); prefs.delete(ctx.presentationKey(collection));
+  assert.equal(ctx.presentationModeFor(collection), false);
+  console.log("Per-collection presentation mode memory passed");
+}
+
+// A paper that becomes Selected joins the end of the presentation order, even if it had an old position.
+{
+  const raw = prefs.get(ctx.preferenceKey(collection));
+  const withCollection = item => ({ ...item, libraryID: 1, getCollections: () => [collection.id] });
+  const [qa, qb] = [withCollection(a), withCollection(b)];
+  prefs.set(ctx.preferenceKey(collection), JSON.stringify({ order: [], description: "", journal: ["B", "OLD"] }));
+  ctx.setItemStatus([qa], "selected");
+  assert.equal(ctx.readingData(collection).journal.join(), "B,OLD,A");
+  ctx.setItemStatus([qb], "");
+  ctx.setItemStatus([qb], "selected");
+  assert.equal(ctx.readingData(collection).journal.join(), "OLD,A,B", "re-selected paper moves to the end");
+  ctx.setItemStatus([qa], "");
+  ctx.setItemStatus([qb], "");
+  prefs.set(ctx.preferenceKey(collection), raw);
+  console.log("New presentation papers join at the end passed");
+}
+
+// Options: Selected implies important and urgent (display only), previous statuses are remembered, and
+// child expansion can be turned off.
+{
+  const implies = "extensions.reading-shelf.selectedImpliesUrgent", jmode = "extensions.reading-shelf.journalClubMode";
+  ctx.setPriority([a], "important", false); ctx.setPriority([a], "urgent", false);
+  ctx.setItemStatus([a], "planned");
+  prefs.set(jmode, true);
+  ctx.setItemStatus([a], "selected");
+  assert.equal(prefs.get(ctx.itemPref(a, "statusBeforeSelected")), "planned");
+  assert.equal(ctx.importantOf(a) || ctx.urgentOf(a), false, "off by default");
+  prefs.set(implies, true);
+  assert.equal(ctx.importantOf(a) && ctx.urgentOf(a), true, "selected counts as important and urgent");
+  ctx.setItemStatus([a], "planned");
+  assert.equal(ctx.importantOf(a) || ctx.urgentOf(a), false, "its own marks are untouched, so they come back");
+  ctx.setItemStatus([a], "reading");
+  assert.equal(prefs.get(ctx.itemPref(a, "statusBeforeReading")), "planned");
+  prefs.delete(implies); prefs.delete(jmode);
+  ctx.setItemStatus([a], "");
+  const expand = "extensions.reading-shelf.expandChildren";
+  const withChildren = { ...a, id: 91, getNotes: () => [5], getAttachments: () => [] };
+  const expandable = () => view.makeCard(withChildren, "x").canExpand;
+  assert.equal(expandable(), true);
+  prefs.set(expand, false);
+  assert.equal(expandable(), false);
+  prefs.delete(expand);
+  view.cards.delete(91);
+  console.log("Selected-implies option, remembered statuses and optional child expansion passed");
+}
+}
+
 const attachment = (type, available) => ({
   attachmentContentType: type,
   isAttachment: () => true,

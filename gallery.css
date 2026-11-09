@@ -587,3 +587,90 @@
 :root[data-sl-motion="off"] .sl-gallery .sl-card .sl-status-picker { animation:none !important; }
 :root[data-sl-motion="off"] .sl-table-workflow .sl-table-priority,
 :root[data-sl-motion="off"] .sl-table-workflow .sl-status-picker { transition:none !important; }
+
+/* Presentation lane: far left of the matrix, or above the shelf in bookshelf mode. */
+.sl-order[hidden] { display:none; }
+/* Sized for one paper by default; the column grows (up to 45%) as more are added, then cards wrap. */
+.sl-matrix.sl-journal { grid-template-columns:fit-content(45%) minmax(0,1fr) minmax(0,1fr); }
+/* Fixed card width keeps long titles from widening the lane beyond its papers. */
+.sl-lane-journal .sl-card { width:var(--sl-card-width,176px); max-width:100%; }
+.sl-matrix > .sl-lane-journal .sl-lane-body {
+  min-width:calc(var(--sl-card-width,176px) + 28px); border-width:3px;
+  border-color:var(--sl-presentationColor,#f08c00);
+  background:color-mix(in srgb,var(--sl-presentationColor,#f08c00) 9%,var(--fill-quinary,ButtonFace));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 22%,transparent);
+}
+.sl-matrix > .sl-lane-journal .sl-grid { --sl-column-width:var(--sl-card-width,176px); }
+.sl-lane-journal .sl-grid > .sl-muted { flex:0 0 auto; max-width:var(--sl-card-width,176px); }
+.sl-lane-journal h2 { color:light-dark(color-mix(in srgb,var(--sl-presentationColor,#f08c00) 70%,black),var(--sl-presentationColor,#f08c00)); }
+.sl-gallery[data-matrix-borders="false"] .sl-matrix > .sl-lane-journal .sl-lane-body { border-color:var(--sl-presentationColor,#f08c00); }
+.sl-gallery > .sl-lane-journal { padding-inline-start:12px; border-inline-start:3px solid var(--sl-presentationColor,#f08c00); }
+.sl-status-picker.sl-status-selected {
+  color:light-dark(color-mix(in srgb,var(--sl-status-color) 85%,black),color-mix(in srgb,var(--sl-status-color) 65%,white));
+  border-color:var(--sl-status-color); background:color-mix(in srgb,var(--sl-status-color) 12%,Canvas);
+}
+@media (max-width:650px) { .sl-matrix.sl-journal { grid-template-columns:minmax(0,1fr); } }
+
+/* Table: when the cell is too narrow for the status text, show a colored dot (the title names it). */
+.sl-status-dot { display:none; }
+.sl-table-workflow[data-compact="true"] .sl-status-face { display:none; }
+.sl-table-workflow[data-compact="true"] .sl-status-picker { width:1.5em; justify-content:center; border-color:transparent !important; background:transparent !important; }
+.sl-table-workflow[data-compact="true"] .sl-status-dot { display:block; width:11px; height:11px; border-radius:50%; background:var(--sl-status-color,currentColor); }
+.sl-table-workflow[data-compact="true"] .sl-status-picker[data-empty="true"] .sl-status-dot { box-sizing:border-box; border:1px dashed currentColor; background:transparent; }
+
+/* Lanes are as tall as their papers instead of stretching to the tallest lane. */
+.sl-matrix { align-items:start; }
+/* An empty journal lane is about as tall as one paper; with papers in it, it just fits them. */
+.sl-matrix > .sl-lane-journal[data-empty="true"] .sl-lane-body { min-height:calc(var(--sl-card-width,176px) * 1.3 + 110px); }
+/* Stacked lanes: full width, less room for empty ones; the journal lane keeps the width of its papers. */
+.sl-matrix[data-stacked="true"] .sl-lane-body { min-height:6em; }
+.sl-matrix[data-stacked="true"] > .sl-lane-journal { justify-self:start; width:min(100%,var(--sl-journal-width,100%)); }
+.sl-matrix[data-stacked="true"] > .sl-lane-journal[data-empty="true"] .sl-lane-body { min-height:calc(var(--sl-card-width,176px) * 1.3 + 110px); }
+/* Table: the status sits next to the ★/◷ buttons, so the free space is on its left. */
+/* A single paper sits centered so both side gaps match. */
+.sl-matrix > .sl-lane-journal[data-count="1"] .sl-grid { justify-content:center; }
+.sl-lane-journal .sl-drop-placeholder { flex:0 0 var(--sl-card-width,176px); }
+/* Importance star: golden rather than brown. */
+.sl-gallery .sl-priority:not(.sl-urgency)[aria-pressed="true"], .sl-table-priority.sl-status-important[aria-pressed="true"] {
+  color:light-dark(color-mix(in srgb,var(--sl-priority-color) 88%,#5a3a00),var(--sl-priority-color));
+  background:color-mix(in srgb,var(--sl-priority-color) 24%,Canvas);
+}
+/* Glow: pulses while the lane is empty, turns off once a paper is in it. */
+@keyframes sl-journal-glow {
+  0%,100% { box-shadow:0 0 0 2px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 25%,transparent), 0 0 8px 1px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 35%,transparent); }
+  50% { box-shadow:0 0 0 5px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 45%,transparent), 0 0 26px 8px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 60%,transparent); }
+}
+@keyframes sl-journal-glow-off {
+  from { box-shadow:0 0 0 5px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 45%,transparent), 0 0 26px 8px color-mix(in srgb,var(--sl-presentationColor,#f08c00) 60%,transparent); }
+  to { box-shadow:0 0 0 0 transparent, 0 0 0 0 transparent; }
+}
+.sl-lane-journal[data-glow="true"] .sl-lane-body, .sl-gallery > .sl-lane-journal[data-glow="true"] { box-shadow:none; }
+.sl-lane-journal[data-glow="true"][data-empty="true"] .sl-lane-body { animation:sl-journal-glow 2.6s ease-in-out infinite; }
+.sl-lane-journal[data-glow="true"].sl-glow-off .sl-lane-body { animation:sl-journal-glow-off .8s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-sl-motion="always"]) .sl-lane-journal .sl-lane-body { animation:none !important; }
+}
+:root[data-sl-motion="off"] .sl-lane-journal .sl-lane-body { animation:none !important; }
+
+/* Option: lanes in the same row share the height of the tallest one. */
+.sl-gallery[data-equal-lanes="true"] .sl-matrix { align-items:stretch; }
+
+/* Table status: the slot is as wide as the longest label and sits next to the ★/◷ buttons; each pill keeps
+   its own width, aligned to the slot's left edge. */
+.sl-table-workflow .sl-status-picker { display:grid; justify-self:end; border:0 !important; background:transparent !important; }
+.sl-table-workflow .sl-status-face {
+  grid-area:1/1; justify-self:start; border:1px solid var(--sl-status-color,currentColor); border-radius:1em;
+  background:color-mix(in srgb,var(--sl-status-color,currentColor) 12%,Canvas);
+}
+.sl-status-sizer { display:grid; grid-area:1/1; height:0; overflow:hidden; visibility:hidden; pointer-events:none; }
+.sl-status-sizer > span { grid-area:1/1; box-sizing:border-box; padding:0 .45em; border:1px solid transparent; line-height:1.3; white-space:nowrap; }
+.sl-table-workflow[data-compact="true"] .sl-status-sizer { display:none; }
+.sl-table-workflow[data-compact="true"] .sl-status-face { border:0; background:transparent; }
+
+/* Presentation toggle in the header, next to the mode button. */
+.sl-gallery .sl-presentation[aria-pressed="true"] {
+  color:light-dark(color-mix(in srgb,var(--sl-presentationColor,#f08c00) 70%,black),var(--sl-presentationColor,#f08c00));
+  border-color:var(--sl-presentationColor,#f08c00);
+  background:color-mix(in srgb,var(--sl-presentationColor,#f08c00) 14%,Canvas);
+}
+.sl-gallery .sl-gallery-controls .sl-presentation[hidden], .sl-gallery.sl-hide-presentation .sl-presentation { display:none !important; }

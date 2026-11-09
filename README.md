@@ -4,7 +4,7 @@
 <h1 align="center">Reading Shelf</h1>
 <p align="center">
   <a href="https://github.com/4season/zotero-reading-shelf/releases/latest"><img src="https://img.shields.io/github/v/release/4season/zotero-reading-shelf?label=version&amp;color=287d76" alt="Latest release"></a>
-  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.3.9"><img src="https://img.shields.io/badge/released-2026--11--07-64748b" alt="Released on 2026-11-07"></a>
+  <a href="https://github.com/4season/zotero-reading-shelf/releases/tag/v1.4.0"><img src="https://img.shields.io/badge/released-2026--11--09-64748b" alt="Released on 2026-11-07"></a>
   <a href="https://www.zotero.org/"><img src="https://img.shields.io/badge/Zotero-10.x-bf3d47" alt="Zotero 10.x"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-385c8e" alt="AGPLv3 license"></a>
   <a href="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml"><img src="https://github.com/4season/zotero-reading-shelf/actions/workflows/ci.yml/badge.svg" alt="Portable checks"></a>
@@ -19,7 +19,7 @@ I study by reading papers, and as my library grew it became hard to see at a gla
 
 ## Install
 
-1. Download `zotero-reading-shelf-1.3.9.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
+1. Download `zotero-reading-shelf-1.4.0.xpi` from the [latest release](https://github.com/4season/zotero-reading-shelf/releases/latest).
 2. In Zotero, choose **Tools → Plugins → ⚙ → Install Plugin From File…** and select the file.
 3. Select a collection and click **Gallery**. Click **Table** to go back to the normal list.
 
@@ -54,6 +54,10 @@ Use the mode button next to **Sort** to switch the bookshelf to an Eisenhower la
 A paper marked ★ (and ◷) sits in its lane because of those marks. The **−** button takes it off the reading order and clears its status, but it stays in the lane until you turn ★/◷ off or drag it to *Other items*; the button's tooltip says so.
 
 By default the layout you pick applies to all collections. To remember a separate layout for each collection, turn on **Remember Eisenhower / bookshelf mode per collection** in the settings. The **Eisenhower mode** checkbox in the settings always shows the same mode as the mode button; with per-collection memory on, it applies to the collection selected in Zotero.
+
+### Presentation mode
+
+For journal clubs, lab meetings and seminars: turn on **Presentation mode** in the settings (or with the button next to the mode switch) to add a lane for the paper you will present, at the far left (above the shelf in bookshelf mode). Drop one or more papers there, or set their status to *Selected*. Opening a selected paper keeps it in the lane. Optional settings treat *Selected* papers as important and urgent, and return them to their previous status when the mode is turned off. Like the Eisenhower layout, it can be remembered per collection.
 
 ### See notes and attachments at a glance
 

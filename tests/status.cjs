@@ -69,7 +69,7 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../bootstrap.js'), 'utf8'),
   const submenu=menus[0].menus[0];
   const labels=[];
   const context={items:[a,b], menuElem:{setAttribute:(key,value)=>labels.push([key,value])},setEnabled(){}};
-  const reading=submenu.menus[2];
+  const reading=submenu.menus[3];
   reading.onShowing(null,context);
   assert.ok(labels.some(([key,value])=>key==='label'&&value==='읽는 중'));
   reading.onCommand(null,context);

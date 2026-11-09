@@ -19,6 +19,10 @@ For the browser layout fixture, run `python -m http.server 8767` and open `http:
 
 Continuous integration builds and tests on Windows, macOS and Linux. These checks do not launch the installed Zotero UI.
 
+## Source layout
+
+Zotero loads one `bootstrap.js`, so it is generated from the modules in `src/` (constants, i18n, status/workflow, lifecycle, data, gallery, gallery previews, covers). Edit `src/`, then run `python scripts/bundle.py`; `scripts/test.py` fails if `bootstrap.js` is stale.
+
 ## Releasing
 
 `scripts/build.py` writes the XPI, its SHA-256 checksum and `updates.json`. Publish the XPI as a GitHub Release asset first, then commit the generated `updates.json` to the repository root. `tests/updates.py` validates the versioned download URL, compatibility range and exact XPI hash. Only stable releases go in the feed.

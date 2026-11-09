@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 (() => {
   const prefix = "extensions.reading-shelf.";
-  const colorDefaults = {plannedColor:"#356b24",readingColor:"#1659b7",completedColor:"#6750a4",importantColor:"#8a4b00",urgencyColor:"#a82330",urgentColor:"#c76a6a",laterColor:"#638ebd",queueColor:"#789866"};
-  const resetGroups = {status:["plannedColor","readingColor","completedColor"],priority:["importantColor","urgencyColor"],borders:["urgentColor","laterColor","queueColor"],all:Object.keys(colorDefaults)};
+  const colorDefaults = {plannedColor:"#356b24",readingColor:"#1659b7",completedColor:"#6750a4",selectedColor:"#f08c00",presentationColor:"#f08c00",importantColor:"#e0a100",urgencyColor:"#a82330",urgentColor:"#c76a6a",laterColor:"#638ebd",queueColor:"#789866"};
+  const resetGroups = {status:["plannedColor","readingColor","completedColor","selectedColor"],priority:["importantColor","urgencyColor"],borders:["urgentColor","laterColor","queueColor"],presentation:["presentationColor"],all:Object.keys(colorDefaults)};
   // The Eisenhower checkbox mirrors the gallery's mode button. With per-collection memory on, both
   // act on the collection selected in Zotero; otherwise they share the global mode.
   const selectedCollection = () => {
@@ -12,40 +12,54 @@
     } catch (_) { return null; }
   };
   const rememberOn = () => Zotero.Prefs.get(prefix + "rememberCollectionMode", true) === true;
-  const modeKey = collection => prefix + "collectionMode." + collection.libraryID + "." + collection.key;
-  const currentMode = () => {
+  // Two mirrored mode checkboxes: Eisenhower (matrix) and presentation. With per-collection memory on,
+  // both act on the collection selected in Zotero; otherwise they share the global value.
+  const modes = {
+    matrix: { global: "matrixMode", folder: "collectionMode.", attribute: "data-sl-mode" },
+    presentation: { global: "journalClubMode", folder: "presentationMode.", attribute: "data-sl-presentation" }
+  };
+  const modeKey = (collection, mode = modes.matrix) => prefix + mode.folder + collection.libraryID + "." + collection.key;
+  const currentMode = (mode = modes.matrix) => {
     const collection = rememberOn() ? selectedCollection() : null;
     if (collection) {
-      const saved = Zotero.Prefs.get(modeKey(collection), true);
+      const saved = Zotero.Prefs.get(modeKey(collection, mode), true);
       if (typeof saved === "boolean") return saved;
     }
-    return Zotero.Prefs.get(prefix + "matrixMode", true) === true;
+    return Zotero.Prefs.get(prefix + mode.global, true) === true;
   };
   const refreshModeCheckbox = () => {
     const root = document.getElementById("sl-settings");
-    const box = root?.querySelectorAll?.("[data-sl-mode]")?.[0];
-    if (box && box.localName === "checkbox") box.checked = currentMode();
+    for (const mode of Object.values(modes)) {
+      const box = root?.querySelectorAll?.("[" + mode.attribute + "]")?.[0];
+      if (box && box.localName === "checkbox") box.checked = currentMode(mode);
+    }
   };
-  const applyModeChoice = enabled => {
+  const applyModeChoice = (enabled, mode = modes.matrix) => {
     const collection = rememberOn() ? selectedCollection() : null;
     if (collection) {
-      Zotero.Prefs.set(modeKey(collection), enabled, true);
+      Zotero.Prefs.set(modeKey(collection, mode), enabled, true);
       // Tells the plugin to redraw; the per-collection key itself is not observed.
       Zotero.Prefs.set(prefix + "modeRevision", (Zotero.Prefs.get(prefix + "modeRevision", true) || 0) + 1, true);
     } else {
-      Zotero.Prefs.set(prefix + "matrixMode", enabled, true);
+      Zotero.Prefs.set(prefix + mode.global, enabled, true);
+    }
+    if (mode === modes.presentation && !enabled) {
+      // Asks the plugin to return "Selected" papers to their previous status (if that option is on).
+      Zotero.Prefs.set(prefix + "pendingRevert", (collection ? collection.libraryID + "." + collection.key : "*") + "@" + Date.now(), true);
     }
   };
   const updateDependencies = () => {
     const root = document.getElementById("sl-settings");
     if (!root) return;
-    const remember = Zotero.Prefs.get(prefix + "rememberCollectionMode", true) === true;
-    const matrix = Zotero.Prefs.get(prefix + "matrixMode", true) === true || remember;
+    // Follow the mode actually in effect (selected collection when memory is on), not the memory toggle.
+    const matrix = currentMode(modes.matrix);
+    const presentation = currentMode(modes.presentation);
     const borders = matrix && Zotero.Prefs.get(prefix + "matrixBorders", true) !== false;
     const shadows = Zotero.Prefs.get(prefix + "shadowStrength", true) !== "off";
     for (const node of root.querySelectorAll("[data-sl-depends]")) {
       const dependency = node.getAttribute("data-sl-depends");
-      node.disabled = !(dependency === "matrixMode" ? matrix : dependency === "matrixBorders" ? borders : shadows);
+      node.disabled = !(dependency === "matrixMode" ? matrix : dependency === "matrixBorders" ? borders :
+        dependency === "presentationMode" ? presentation : shadows);
       node.setAttribute("aria-disabled", String(node.disabled));
       const row = node.closest?.(".sl-setting-row");
       if (row) row.setAttribute("data-disabled", String(node.disabled));
@@ -100,6 +114,12 @@
       setTimeout(() => { updateDependencies(); refreshModeCheckbox(); }, 0);
       return;
     }
+    const presentationBox = event.target.closest?.("checkbox[data-sl-presentation]");
+    if (presentationBox?.localName === "checkbox" && presentationBox.hasAttribute?.("data-sl-presentation") === true) {
+      applyModeChoice(presentationBox.checked === true, modes.presentation);
+      setTimeout(() => { updateDependencies(); refreshModeCheckbox(); }, 0);
+      return;
+    }
     const control = event.target.closest?.("checkbox[preference], menulist[preference]");
     const pref = control?.getAttribute?.("preference");
     if (pref?.startsWith(prefix)) {
@@ -115,7 +135,7 @@
   }, true);
   // Keep the checkbox current when the gallery's mode button is used while this pane is open.
   if (Zotero.Prefs.registerObserver) {
-    const observers = ["matrixMode", "rememberCollectionMode", "modeRevision"].map(key =>
+    const observers = ["matrixMode", "journalClubMode", "rememberCollectionMode", "modeRevision"].map(key =>
       Zotero.Prefs.registerObserver(prefix + key, () => { updateDependencies(); refreshModeCheckbox(); }, true));
     document.defaultView?.addEventListener("unload", () => observers.forEach(id => Zotero.Prefs.unregisterObserver(id)), { once: true });
   }

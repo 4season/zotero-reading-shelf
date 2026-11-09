@@ -16,6 +16,7 @@ def main():
     parser.add_argument("--zotero-omni", type=Path, help="Path to Zotero's app/omni.ja archive")
     args = parser.parse_args()
 
+    subprocess.run([sys.executable, str(ROOT / "scripts/bundle.py"), "--check"], check=True)
     subprocess.run(["node", str(ROOT / "tests/gallery.cjs")], check=True)
     subprocess.run(["node", str(ROOT / "tests/status.cjs")], check=True)
     subprocess.run(["node", str(ROOT / "tests/settings.cjs")], check=True)
